@@ -111,3 +111,10 @@ InitTestScene*.unity*
 /[Aa]ssets/[Tt]hird[Pp]arty/*
 !/[Aa]ssets/[Tt]hird[Pp]arty/README.md
 !/[Aa]ssets/[Tt]hird[Pp]arty/README.md.meta
+
+# Local AI assistant files (never pushed)
+[Cc][Ll][Aa][Uu][Dd][Ee].md
+[Cc][Ll][Aa][Uu][Dd][Ee].md.meta
+[Cc][Ll][Aa][Uu][Dd][Ee].local.md
+.claude/
+.mcp.json
