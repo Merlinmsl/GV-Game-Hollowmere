@@ -75,7 +75,7 @@ Asset names use `PascalCase` with a type prefix:
 | Type | Prefix | Example |
 |---|---|---|
 | Scene (zone) | `Z<n>_` | `Z1_Outskirts` |
-| Scene (sandbox) | `SB_` | `SB_Sakitha` |
+| Scene (sandbox) | `SB_` | `SB_Minsara` |
 | Prefab | `PF_` | `PF_RitualLantern` |
 | Static mesh / model | `SM_` | `SM_Wardrobe` |
 | Skeletal mesh | `SK_` | `SK_Biscuit` |
