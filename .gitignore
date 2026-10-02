@@ -104,3 +104,10 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Hollowmere: Asset Store packs are imported locally by each member.
+# Only assets actually used in the game are committed, with `git add -f`
+# (see the "Third-party assets" section of README.md).
+/[Aa]ssets/[Tt]hird[Pp]arty/*
+!/[Aa]ssets/[Tt]hird[Pp]arty/README.md
+!/[Aa]ssets/[Tt]hird[Pp]arty/README.md.meta
