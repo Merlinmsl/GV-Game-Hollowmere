@@ -68,6 +68,33 @@ Rules:
   member's scene. That avoids merge conflicts in `.unity` files, which Git cannot merge reliably.
 - Zone scenes are owned by the World Builder. Other members deliver prefabs that get placed in them.
 
+## Navigation (NavMesh)
+
+Pathfinding uses Unity's built-in NavMesh (AI Navigation package). Each zone scene has a
+`_Navigation` object holding one **NavMesh Surface per agent type**. The baked data is stored
+next to the scene in `Scenes/Zones/<SceneName>/NavMesh-<Agent>.asset`.
+
+| Agent type | Radius | Height | Step height | Max slope | Used by |
+|---|---|---|---|---|---|
+| Humanoid | 0.4 m | 1.9 m | 0.4 m | 40° | Runner zombie |
+| Dog | 0.25 m | 0.7 m | 0.35 m | 45° | Biscuit |
+
+Ghosts fly through walls and do not use the NavMesh.
+
+| Area | Cost | Meaning |
+|---|---|---|
+| Walkable | 1 | Dry ground: boardwalks, floors |
+| Water | 3 | Flooded ground. Agents wade through it only when the dry route is more than 3x longer |
+| Not Walkable | - | Blocked |
+
+Rules:
+
+- Set your `NavMeshAgent`'s **Agent Type** to match the table. An agent only sees the surface baked for its type.
+- The bake reads **colliders**, not render meshes. Anything that should block agents needs a collider.
+- Moving doors and barricades use a `NavMeshObstacle` with **Carve** enabled. Do not rebake at runtime.
+- After changing level geometry, the World Builder rebakes: select each surface under `_Navigation` and press **Bake**.
+- Gameplay markers and triggers live under `_Gameplay`, which is excluded from the bake.
+
 ## Naming conventions
 
 Asset names use `PascalCase` with a type prefix:
