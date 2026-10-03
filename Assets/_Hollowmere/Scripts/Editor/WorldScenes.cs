@@ -15,7 +15,28 @@ namespace Hollowmere.EditorTools
         // In world order, from the player's start to the end of the game.
         static readonly string[] Zones = { "Z1_Outskirts", "C1_EstateRoad", "Z2_MarrowHouse" };
 
-        [MenuItem("Hollowmere/World/Open All Zones (whole map)", priority = 0)]
+        const string WorldScene = "Assets/_Hollowmere/Scenes/World.unity";
+
+        /// <summary>
+        /// The setup to press Play in: the World scene (player, moon, fog, zone streamer) with every
+        /// zone open beside it, so the whole map is visible while editing. On Play the streamer
+        /// unloads the zones that are far from the player.
+        /// </summary>
+        [MenuItem("Hollowmere/World/Open World (press Play here)", priority = 0)]
+        public static void OpenWorld()
+        {
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+
+            var world = EditorSceneManager.OpenScene(WorldScene, OpenSceneMode.Single);
+            foreach (string zone in Zones)
+                EditorSceneManager.OpenScene(ZonesFolder + zone + ".unity", OpenSceneMode.Additive);
+
+            // The World scene must stay the active one: its fog, sky and ambient light are the ones used.
+            EditorSceneManager.SetActiveScene(world);
+            FrameSceneView(new Vector3(0, 0, 125), 215);
+        }
+
+        [MenuItem("Hollowmere/World/Open All Zones (whole map)", priority = 1)]
         public static void OpenAllZones()
         {
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
