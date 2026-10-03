@@ -6,8 +6,14 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/_Hollowmere/Scenes/World.unity
+    guid: a13120c1e34c85d428d28d3d59324a3a
+  - enabled: 1
     path: Assets/_Hollowmere/Scenes/Zones/Z1_Outskirts.unity
     guid: a60c7b861dc83fe42a10ed78e582bcdd
+  - enabled: 1
+    path: Assets/_Hollowmere/Scenes/Zones/C1_EstateRoad.unity
+    guid: 980e5d13aa9ad1942bc1ba62f888018a
   - enabled: 1
     path: Assets/_Hollowmere/Scenes/Zones/Z2_MarrowHouse.unity
     guid: 5d4b74a6c2214c6458f22e966e942cf9

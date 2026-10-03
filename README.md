@@ -61,12 +61,48 @@ Rules:
   stay intact.
 - Empty folders contain a `.gitkeep` file so Git keeps them. Delete it once the folder has content.
 
-## Scenes
+## Scenes and the world map
 
-- Each zone is its own scene in `Scenes/Zones/`, loaded in story order.
+The game is **one connected map**. Each zone is its own scene, placed at its real position in the
+world, and the game loads the next zone as the player approaches (at most two zones at a time).
+
+| Scene | What it is | World position |
+|---|---|---|
+| `Z1_Outskirts` | The flooded village, in the basin. The player starts on the dry road south of it | z -45 to 100, water level |
+| `C1_EstateRoad` | The road climbing through the woods | z 100 to 180, rising about 17 m |
+| `Z2_MarrowHouse` | Marrow House and its grounds, on the hilltop | z 195 to 291, 22 m up |
+
+- Zone scenes are owned by the World Builder. Other members deliver prefabs that get placed in them.
 - Each member experiments in their own `Scenes/Sandbox/<Name>/` scene. Do not edit another
   member's scene. That avoids merge conflicts in `.unity` files, which Git cannot merge reliably.
-- Zone scenes are owned by the World Builder. Other members deliver prefabs that get placed in them.
+- Every zone scene has the same root objects: `_Environment`, `_Gameplay`, `_Lighting`, `_Navigation`.
+  In Zone 2 these roots carry the zone's world offset, so its contents keep zone-local coordinates.
+- To open zones, use the menu **Hollowmere > World**: *Open All Zones (whole map)* loads every
+  zone together, *Open Zone* loads one on its own.
+
+### Playing the game: the World scene
+
+`Scenes/World.unity` is the scene to press Play in (**Hollowmere > World > Open World**). It is
+always loaded and holds what must survive from zone to zone: the player, the moon, the fog and
+sky, the global post-processing, and later the Director and the HUD.
+
+- `ZoneStreamer` (on `_World`) loads a zone when the player comes near it and unloads it once the
+  player is far enough away. It finds the player by the **`Player` tag**, so the player prefab
+  must carry that tag.
+- `DebugPlayer (temporary)` is a stand-in walker (WASD, mouse, Shift to run) until the real player
+  is ready. Replace it with the player prefab in the same place.
+- Each zone keeps its own camera, moon and post-processing volume so it can be opened and viewed
+  alone. They carry `StandalonePreviewOnly` and switch themselves off when the zone is loaded by
+  the World scene. Do not put gameplay on those objects.
+- Anything left in a zone is unloaded with it. Objects that must follow the player across zones
+  (Biscuit, the Director) belong in the World scene.
+
+### Terrain
+
+The terrain is split into one tile per scene. All tiles are generated from a single height
+function in `Scripts/Editor/WorldTerrain.cs`, so neighbouring tiles meet exactly.
+To change the shape of the land, edit that function and run **Hollowmere > World > Rebuild
+Terrain Tiles**. Do not sculpt the tiles by hand: the next rebuild would overwrite it.
 
 ## Navigation (NavMesh)
 
