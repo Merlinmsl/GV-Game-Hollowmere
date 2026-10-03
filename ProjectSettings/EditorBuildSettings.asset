@@ -8,6 +8,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Hollowmere/Scenes/Zones/Z1_Outskirts.unity
     guid: a60c7b861dc83fe42a10ed78e582bcdd
+  - enabled: 1
+    path: Assets/_Hollowmere/Scenes/Zones/Z2_MarrowHouse.unity
+    guid: 5d4b74a6c2214c6458f22e966e942cf9
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

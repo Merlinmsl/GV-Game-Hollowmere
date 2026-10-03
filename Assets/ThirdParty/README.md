@@ -7,13 +7,13 @@ actually uses are committed, with their textures re-encoded at 2048 px (see the 
 
 | Pack | Folder | Publisher | Used for | In repo |
 |---|---|---|---|---|
-| Flooded Grounds | `Flooded_Grounds` | Sandro T | Zone 1 cabins, guard house, boardwalk, gate, props, rocks, grass, terrain layers | Zone 1 subset |
+| Flooded Grounds | `Flooded_Grounds` | Sandro T | Zone 1 cabins, guard house, boardwalk, gate, props, rocks, grass, terrain layers. Zone 2 Marrow House (`Villa2` pieces) and estate walls | Zone 1 + 2 subset |
 | Conifers [BOTD] | `Forst` | forst | Zone 1 dead trees and tree line | Zone 1 subset |
 | Free Bushes 2018 | `YughuesFreeBushes2018` | Yughues | Zone 1 shoreline bushes | Zone 1 subset |
 | Decrepit Dungeon LITE | `Decrepit Dungeon LITE` | Prodigious Creations | Undercroft (Zone 3) | Not yet |
-| Old Building | `Old building` | Rusik3Dmodels | Marrow House exterior (Zone 2) | Not yet |
+| Old Building | `Old building` | Rusik3Dmodels | Dropped: a small exterior shell with no interior. Marrow House uses Flooded Grounds' `Villa2` | Not used |
 | The Wasteland LITE | | Aquarius Max | Under review | Not imported |
-| Free Open Building | | Dr.Bean | Marrow House interior (Zone 2) | Not imported |
+| Free Open Building | | Dr.Bean | Dropped: the villa already has an interior | Not imported |
 | Altar Ruins Free | | Underhill Labz | Drowned Altar (Zone 4) | Not imported |
 | Dark Fantasy Kit [Lite] | | Runemark Studio | Crypt torches, bones, candles | Not imported |
 | Make Your Fantasy Game LITE | | Xiaolianhuastudio | Shrine lanterns only | Not imported |
