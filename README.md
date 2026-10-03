@@ -18,8 +18,8 @@ A first-person horror shooter built in Unity for the SLIIT joint project
 ## Getting started
 
 1. Clone the repository and open it with Unity **6000.3.24f1**.
-2. Import the Asset Store packs listed in [`Assets/ThirdParty/README.md`](Assets/ThirdParty/README.md)
-   and move each one into `Assets/ThirdParty/` from inside the Editor.
+2. Wait for the first import to finish. The pack assets the game uses are already in the repo;
+   do not import the Asset Store packs yourself (see *Third-party assets*).
 3. Open your sandbox scene from `Assets/_Hollowmere/Scenes/Sandbox/<YourName>/`.
 
 ## Folder structure
@@ -76,8 +76,8 @@ next to the scene in `Scenes/Zones/<SceneName>/NavMesh-<Agent>.asset`.
 
 | Agent type | Radius | Height | Step height | Max slope | Used by |
 |---|---|---|---|---|---|
-| Humanoid | 0.4 m | 1.9 m | 0.4 m | 40° | Runner zombie |
-| Dog | 0.25 m | 0.7 m | 0.35 m | 45° | Biscuit |
+| Humanoid | 0.4 m | 1.9 m | 0.55 m | 40° | Runner zombie |
+| Dog | 0.25 m | 0.7 m | 0.5 m | 45° | Biscuit |
 
 Ghosts fly through walls and do not use the NavMesh.
 
@@ -94,6 +94,9 @@ Rules:
 - Moving doors and barricades use a `NavMeshObstacle` with **Carve** enabled. Do not rebake at runtime.
 - After changing level geometry, the World Builder rebakes: select each surface under `_Navigation` and press **Bake**.
 - Gameplay markers and triggers live under `_Gameplay`, which is excluded from the bake.
+- Each surface bakes a **volume** around the playable area at walking height, so roofs and the
+  hills outside the level get no NavMesh.
+- Step heights are set so agents wading in the flood (bed about 0.5 m below the boardwalk) can climb onto it.
 
 ## Naming conventions
 
@@ -118,21 +121,26 @@ C# scripts use `PascalCase` file names matching the class name, inside the `Holl
 
 ## Third-party assets
 
-The packs are too large to store in Git (two of them are about 1 GB each), so:
+Asset Store packs live in `Assets/ThirdParty/`. The folder is git-ignored by default, and only the
+pack files **a zone scene actually uses** are committed (force-added). Everything a zone needs is
+therefore in the repository: **you do not import any packs to open the game**.
 
-1. `Assets/ThirdParty/*` is git-ignored. Every member imports the packs locally.
-2. An asset that the game **actually uses** must be committed so the project opens for the
-   assessors. Force-add the asset **and its `.meta` file** (and any textures or materials it
-   depends on):
+The packs ship very large source textures (4096 px TIFs of 48-64 MB each; Zone 1 alone used
+1.15 GB). Unity imports them at 2048 px anyway, so the used textures are stored re-encoded at
+2048 px: JPG for opaque colour, lossless PNG for normal maps and anything with an alpha channel.
+Each file keeps its `.meta`, so asset IDs and references are unchanged. Zone 1 went from
+1.15 GB to about 180 MB with no visible difference.
 
-   ```bash
-   git add -f "Assets/ThirdParty/Decrepit Dungeon LITE/Prefabs/Floors/Floor_A.prefab" "Assets/ThirdParty/Decrepit Dungeon LITE/Prefabs/Floors/Floor_A.prefab.meta"
-   ```
+Rules:
 
-   Once a file is tracked, Git follows later changes to it normally.
+- **Do not import a pack that is already in the repo.** A fresh import brings back the original
+  `.tif` files next to the converted ones with the same asset IDs, and Unity breaks the references.
+  If you need another piece from a pack, ask the World Builder to add it.
+- If you already have a local `Assets/ThirdParty/` folder from before, delete it before pulling.
+- Never edit files inside `ThirdParty/`. Duplicate into `_Hollowmere/` and edit the copy.
+- The repository is private. Asset Store content must not be pushed to a public repository.
 
-Asset GUIDs come from the pack itself, so references work on every machine as long as each
-pack sits at the same path under `ThirdParty/`.
+Adding assets from a pack (World Builder): see `Assets/ThirdParty/README.md`.
 
 ## Git workflow
 
