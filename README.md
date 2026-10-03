@@ -61,12 +61,31 @@ Rules:
   stay intact.
 - Empty folders contain a `.gitkeep` file so Git keeps them. Delete it once the folder has content.
 
-## Scenes
+## Scenes and the world map
 
-- Each zone is its own scene in `Scenes/Zones/`, loaded in story order.
+The game is **one connected map**. Each zone is its own scene, placed at its real position in the
+world, and the game loads the next zone as the player approaches (at most two zones at a time).
+
+| Scene | What it is | World position |
+|---|---|---|
+| `Z1_Outskirts` | The flooded village, in the basin | z -20 to 62, water level |
+| `C1_EstateRoad` | The road climbing through the woods | z 100 to 180, rising to 9 m |
+| `Z2_MarrowHouse` | Marrow House and its grounds, on the hill | z 195 to 291, 9 m up |
+
+- Zone scenes are owned by the World Builder. Other members deliver prefabs that get placed in them.
 - Each member experiments in their own `Scenes/Sandbox/<Name>/` scene. Do not edit another
   member's scene. That avoids merge conflicts in `.unity` files, which Git cannot merge reliably.
-- Zone scenes are owned by the World Builder. Other members deliver prefabs that get placed in them.
+- Every zone scene has the same root objects: `_Environment`, `_Gameplay`, `_Lighting`, `_Navigation`.
+  In Zone 2 these roots carry the zone's world offset, so its contents keep zone-local coordinates.
+- To see several zones at once in the Editor, drag the other scenes into the Hierarchy
+  (they open additively). Do not save while testing this way unless you meant to change them.
+
+### Terrain
+
+The terrain is split into one tile per scene. All tiles are generated from a single height
+function in `Scripts/Editor/WorldTerrain.cs`, so neighbouring tiles meet exactly.
+To change the shape of the land, edit that function and run **Hollowmere > World > Rebuild
+Terrain Tiles**. Do not sculpt the tiles by hand: the next rebuild would overwrite it.
 
 ## Navigation (NavMesh)
 
