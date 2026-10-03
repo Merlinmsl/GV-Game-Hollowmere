@@ -80,6 +80,23 @@ world, and the game loads the next zone as the player approaches (at most two zo
 - To open zones, use the menu **Hollowmere > World**: *Open All Zones (whole map)* loads every
   zone together, *Open Zone* loads one on its own.
 
+### Playing the game: the World scene
+
+`Scenes/World.unity` is the scene to press Play in (**Hollowmere > World > Open World**). It is
+always loaded and holds what must survive from zone to zone: the player, the moon, the fog and
+sky, the global post-processing, and later the Director and the HUD.
+
+- `ZoneStreamer` (on `_World`) loads a zone when the player comes near it and unloads it once the
+  player is far enough away. It finds the player by the **`Player` tag**, so the player prefab
+  must carry that tag.
+- `DebugPlayer (temporary)` is a stand-in walker (WASD, mouse, Shift to run) until the real player
+  is ready. Replace it with the player prefab in the same place.
+- Each zone keeps its own camera, moon and post-processing volume so it can be opened and viewed
+  alone. They carry `StandalonePreviewOnly` and switch themselves off when the zone is loaded by
+  the World scene. Do not put gameplay on those objects.
+- Anything left in a zone is unloaded with it. Objects that must follow the player across zones
+  (Biscuit, the Director) belong in the World scene.
+
 ### Terrain
 
 The terrain is split into one tile per scene. All tiles are generated from a single height

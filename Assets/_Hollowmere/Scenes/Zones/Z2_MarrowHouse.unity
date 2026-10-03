@@ -2424,6 +2424,7 @@ GameObject:
   - component: {fileID: 414959102}
   - component: {fileID: 414959103}
   - component: {fileID: 414959104}
+  - component: {fileID: 414959105}
   m_Layer: 0
   m_Name: Moon
   m_TagString: Untagged
@@ -2540,6 +2541,18 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!114 &414959105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 414959101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7727cd440c89fb14ba8263d6ea4ae3d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.StandalonePreviewOnly
 --- !u!1001 &432525058
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7673,6 +7686,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1428693030}
   - component: {fileID: 1428693031}
+  - component: {fileID: 1428693032}
   m_Layer: 0
   m_Name: PostProcessing_Global
   m_TagString: Untagged
@@ -7712,6 +7726,18 @@ MonoBehaviour:
   blendDistance: 0
   weight: 1
   sharedProfile: {fileID: 11400000, guid: 214e523032255244f9a2ce2488124542, type: 2}
+--- !u!114 &1428693032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1428693029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7727cd440c89fb14ba8263d6ea4ae3d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.StandalonePreviewOnly
 --- !u!1001 &1439774430
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9929,6 +9955,7 @@ GameObject:
   - component: {fileID: 1924157105}
   - component: {fileID: 1924157104}
   - component: {fileID: 1924157103}
+  - component: {fileID: 1924157107}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -10054,6 +10081,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1924157107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1924157102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7727cd440c89fb14ba8263d6ea4ae3d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.StandalonePreviewOnly
 --- !u!1001 &1932617670
 PrefabInstance:
   m_ObjectHideFlags: 0
