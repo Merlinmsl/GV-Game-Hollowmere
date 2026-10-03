@@ -68,17 +68,17 @@ world, and the game loads the next zone as the player approaches (at most two zo
 
 | Scene | What it is | World position |
 |---|---|---|
-| `Z1_Outskirts` | The flooded village, in the basin | z -20 to 62, water level |
-| `C1_EstateRoad` | The road climbing through the woods | z 100 to 180, rising to 9 m |
-| `Z2_MarrowHouse` | Marrow House and its grounds, on the hill | z 195 to 291, 9 m up |
+| `Z1_Outskirts` | The flooded village, in the basin. The player starts on the dry road south of it | z -45 to 100, water level |
+| `C1_EstateRoad` | The road climbing through the woods | z 100 to 180, rising about 17 m |
+| `Z2_MarrowHouse` | Marrow House and its grounds, on the hilltop | z 195 to 291, 22 m up |
 
 - Zone scenes are owned by the World Builder. Other members deliver prefabs that get placed in them.
 - Each member experiments in their own `Scenes/Sandbox/<Name>/` scene. Do not edit another
   member's scene. That avoids merge conflicts in `.unity` files, which Git cannot merge reliably.
 - Every zone scene has the same root objects: `_Environment`, `_Gameplay`, `_Lighting`, `_Navigation`.
   In Zone 2 these roots carry the zone's world offset, so its contents keep zone-local coordinates.
-- To see several zones at once in the Editor, drag the other scenes into the Hierarchy
-  (they open additively). Do not save while testing this way unless you meant to change them.
+- To open zones, use the menu **Hollowmere > World**: *Open All Zones (whole map)* loads every
+  zone together, *Open Zone* loads one on its own.
 
 ### Terrain
 
