@@ -84,8 +84,8 @@ repository. Importing a pack again breaks the materials (everything turns pink).
 4. Unity switches to the **Game** tab. **Click once inside it** so the mouse controls the view.
 5. To stop: press **Esc** to free the mouse, then press **Play** again.
 
-The scene looks much brighter in the editor than in the game. Always judge the look in Play
-mode.
+Always judge the look in Play mode. If the Scene tab looks flat and bright with no mist, its fog
+or effects are switched off: turn them on in the effects drop-down of the Scene tab's toolbar.
 
 Changes you make while Play is running are thrown away when you stop. Stop first, then edit.
 

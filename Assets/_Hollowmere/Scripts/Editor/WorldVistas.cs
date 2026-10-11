@@ -199,7 +199,7 @@ namespace Hollowmere.EditorTools
         }
 
         /// <summary>The top of the Waterworks radio mast. Must match the mast in Zone 4.</summary>
-        public static readonly Vector3 WaterworksBeacon = new Vector3(-178f, 78.8f, 301f);
+        public static readonly Vector3 WaterworksBeacon = new Vector3(-188f, 76.4f, 303.4f);
 
         /// <summary>Maps a real position on the Marrow House panel to where the enlarged silhouette shows it.</summary>
         static Vector3 Shown(float x, float y, float z)
