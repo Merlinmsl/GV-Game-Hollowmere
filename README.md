@@ -64,7 +64,8 @@ Rules:
 ## Scenes and the world map
 
 The game is **one connected map**. Each zone is its own scene, placed at its real position in the
-world, and the game loads the next zone as the player approaches (at most two zones at a time).
+world, and the game loads the next zone as the player approaches. The fog hides everything
+beyond about 110 m, so that is the distance at which zones are loaded and unloaded.
 
 | Scene | What it is | World position |
 |---|---|---|
@@ -94,6 +95,10 @@ sky, the global post-processing, and later the Director and the HUD.
 - Each zone keeps its own camera, moon and post-processing volume so it can be opened and viewed
   alone. They carry `StandalonePreviewOnly` and switch themselves off when the zone is loaded by
   the World scene. Do not put gameplay on those objects.
+- `_Vistas` holds what the player sees of zones that are not loaded yet: the silhouette of
+  Marrow House above the forest, its lit window, and the red light on the Waterworks mast.
+  They fade out as the player gets close. After changing the shape of Marrow House, run
+  **Hollowmere > World > Rebuild Vistas** to photograph the silhouette again.
 - Anything left in a zone is unloaded with it. Objects that must follow the player across zones
   (Biscuit, the Director) belong in the World scene.
 
@@ -133,6 +138,13 @@ Rules:
 - Each surface bakes a **volume** around the playable area at walking height, so roofs and the
   hills outside the level get no NavMesh.
 - Step heights are set so agents wading in the flood (bed about 0.5 m below the boardwalk) can climb onto it.
+
+### Crossing between zones
+
+Each zone has its own NavMesh, and they are **not** joined for the Humanoid agent: enemies
+belong to their zone and cannot follow the player into the next one. Only the Dog agent has
+`NavMeshLink`s across the zone joins (`NavLink_Dog_*` under `_Navigation`), so Biscuit can
+follow the player along the whole road.
 
 ## Naming conventions
 
