@@ -45,6 +45,13 @@ namespace Hollowmere.EditorTools
             new Tile("TD_Z2_MarrowHouse", -80, 180, 160, 130),
         };
 
+        // Openings cut through the ground (world x, z, width, depth), where a stairwell goes below the surface.
+        // The stairs from Marrow's study down to the Undercroft pass through the ground under the house.
+        static readonly Rect[] Holes =
+        {
+            new Rect(-13.8f, 237.6f, 24.6f, 3.8f),
+        };
+
         /// <summary>X position of the estate road's centre line at a given Z (a gentle S-bend).</summary>
         public static float RoadCentreX(float z)
         {
@@ -252,6 +259,23 @@ namespace Hollowmere.EditorTools
                     }
                 }
                 data.SetAlphamaps(0, 0, splat);
+
+                // true = solid ground, false = opening. One cell per heightmap square.
+                int holeResolution = HeightmapResolution - 1;
+                var solid = new bool[holeResolution, holeResolution];
+                for (int iz = 0; iz < holeResolution; iz++)
+                {
+                    float z = tile.origin.z + tile.size.z * (iz + 0.5f) / holeResolution;
+                    for (int ix = 0; ix < holeResolution; ix++)
+                    {
+                        float x = tile.origin.x + tile.size.x * (ix + 0.5f) / holeResolution;
+                        bool open = false;
+                        foreach (var hole in Holes)
+                            if (hole.Contains(new Vector2(x, z))) open = true;
+                        solid[iz, ix] = !open;
+                    }
+                }
+                data.SetHoles(0, 0, solid);
                 EditorUtility.SetDirty(data);
             }
 
