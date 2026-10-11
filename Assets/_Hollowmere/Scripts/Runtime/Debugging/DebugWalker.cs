@@ -7,7 +7,7 @@ namespace Hollowmere.Debugging
     /// <summary>
     /// TEMPORARY stand-in for the player, used to walk the world before the real player controller
     /// is delivered. WASD to move, mouse to look, Shift to run, Esc to release the mouse,
-    /// 1-6 to jump between test points, F1 to hide the help overlay.
+    /// 1-7 to jump between test points, F1 to hide the help overlay.
     /// Replace the object carrying this with the real player prefab (tagged "Player").
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
@@ -27,6 +27,7 @@ namespace Hollowmere.Debugging
             new Vector3(0f, 24f, 215f),    // 4: Marrow House forecourt
             new Vector3(0f, 26.3f, 241f),  // 5: inside Marrow House, entrance hall
             new Vector3(-16.4f, 14.7f, 239.5f),  // 6: the Undercroft laboratory
+            new Vector3(-106.5f, 8.9f, 245.3f),  // 7: the Waterworks, at the tunnel mouth
         };
         [SerializeField] bool showHelp = true;
 
@@ -108,7 +109,7 @@ namespace Hollowmere.Debugging
 
             Vector3 p = transform.position;
             GUI.Label(new Rect(12, 10, 900, 80),
-                "DEBUG PLAYER   WASD move | Mouse look | Shift run | 1-6 jump to test points | Esc free mouse | F1 hide\n" +
+                "DEBUG PLAYER   WASD move | Mouse look | Shift run | 1-7 jump to test points | Esc free mouse | F1 hide\n" +
                 "Position  x " + p.x.ToString("F0") + "  y " + p.y.ToString("F0") + "  z " + p.z.ToString("F0") + "\n" +
                 "Loaded: " + loaded);
         }
