@@ -99,6 +99,9 @@ sky, the global post-processing, and later the Director and the HUD.
   Marrow House above the forest, its lit window, and the red light on the Waterworks mast.
   They fade out as the player gets close. After changing the shape of Marrow House, run
   **Hollowmere > World > Rebuild Vistas** to photograph the silhouette again.
+- **The editor looks brighter than the game.** With every zone open in the editor, each zone's
+  own preview moon is lit as well as the World's, so interiors look washed out. Press Play to
+  see the real lighting: the preview moons switch themselves off.
 - Anything left in a zone is unloaded with it. Objects that must follow the player across zones
   (Biscuit, the Director) belong in the World scene.
 
