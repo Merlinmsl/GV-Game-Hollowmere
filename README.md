@@ -17,6 +17,11 @@ A first-person horror shooter built in Unity for the SLIIT joint project
 
 ## Getting started
 
+**New to the project? Follow the [Setup and Testing Guide](Docs/Setup/README.md):** installing
+Unity, cloning, running the game, controls and testing shortcuts, and what is built so far.
+
+In short:
+
 1. Clone the repository and open it with Unity **6000.3.24f1**.
 2. Wait for the first import to finish. The pack assets the game uses are already in the repo;
    do not import the Asset Store packs yourself (see *Third-party assets*).
