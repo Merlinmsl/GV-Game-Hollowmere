@@ -714,6 +714,7 @@ MonoBehaviour:
   - {x: 3, y: 3, z: 80}
   - {x: 11, y: 18, z: 150}
   - {x: 0, y: 24, z: 215}
+  - {x: 0, y: 26.3, z: 241}
   showHelp: 1
 --- !u!143 &1837528443
 CharacterController:
@@ -736,7 +737,7 @@ CharacterController:
   m_Height: 1.8
   m_Radius: 0.35
   m_SlopeLimit: 45
-  m_StepOffset: 0.45
+  m_StepOffset: 0.55
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.9, z: 0}
