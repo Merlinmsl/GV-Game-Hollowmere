@@ -4,7 +4,25 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/_Hollowmere/Scenes/World.unity
+    guid: a13120c1e34c85d428d28d3d59324a3a
+  - enabled: 1
+    path: Assets/_Hollowmere/Scenes/Zones/Z1_Outskirts.unity
+    guid: a60c7b861dc83fe42a10ed78e582bcdd
+  - enabled: 1
+    path: Assets/_Hollowmere/Scenes/Zones/C1_EstateRoad.unity
+    guid: 980e5d13aa9ad1942bc1ba62f888018a
+  - enabled: 1
+    path: Assets/_Hollowmere/Scenes/Zones/Z2_MarrowHouse.unity
+    guid: 5d4b74a6c2214c6458f22e966e942cf9
+  - enabled: 1
+    path: Assets/_Hollowmere/Scenes/Zones/Z3_Undercroft.unity
+    guid: ce9b24872210d984aabfa414afd42288
+  - enabled: 1
+    path: Assets/_Hollowmere/Scenes/Zones/Z4_Waterworks.unity
+    guid: c96cd62f466550243aafb6bdceca99f6
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
