@@ -73,6 +73,7 @@ beyond about 110 m, so that is the distance at which zones are loaded and unload
 | `C1_EstateRoad` | The road climbing through the woods | z 100 to 180, rising about 17 m |
 | `Z2_MarrowHouse` | Marrow House and its grounds, on the hilltop | z 195 to 291, 22 m up |
 | `Z3_Undercroft` | Marrow's laboratory and the tunnel, under the house and the hill | x 20 to -102, three levels from 20 m down to 9 m |
+| `Z4_Waterworks` | The pumping station below the dam: yard, pump hall, outflow pool, radio mast | x -103 to -240, yard at 8.6 m |
 
 - Zone scenes are owned by the World Builder. Other members deliver prefabs that get placed in them.
 - Each member experiments in their own `Scenes/Sandbox/<Name>/` scene. Do not edit another
@@ -99,6 +100,9 @@ sky, the global post-processing, and later the Director and the HUD.
 - **The way into the Undercroft** is a hatch in the floor of Marrow's study, with stairs down.
   The hatch door and its lock are not built yet (Systems Engineer); until then the opening is
   simply open. The stairwell passes through a hole in the terrain, defined in `WorldTerrain.cs`.
+- **The tunnel comes out at the Waterworks** through a walled cutting in the hillside. The red
+  light seen from the village is on the radio mast here; `WorldVistas.WaterworksBeacon` must
+  match the top of that mast.
 - `FogZone` changes the fog while the player is inside its box. The Undercroft uses one: the
   pale outdoor mist would make distant walls glow underground.
 - `_Vistas` holds what the player sees of zones that are not loaded yet: the silhouette of

@@ -181,15 +181,16 @@ namespace Hollowmere.EditorTools
             });
             Panel(root, "Vista_MarrowWindow", window, Shown(6f, 35.2f, PanelZ - 0.5f), new Vector2(9f, 9f));
 
-            // The warning light on the Waterworks radio mast, north-west of the house.
+            // The warning light on the Waterworks radio mast, west of the house.
             var beacon = VistaMaterial("M_Vista_Beacon", m =>
             {
                 m.SetFloat("_Glow", 1f);
                 m.SetFloat("_Billboard", 1f);
                 m.SetColor("_Color", new Color(5f, 0.25f, 0.15f, 1f));
                 m.SetFloat("_Opacity", 1f);
-                m.SetFloat("_FadeStart", 60f);
-                m.SetFloat("_FadeEnd", 40f);
+                // Never fades: it is also the lamp's glow when the player stands under the mast.
+                m.SetFloat("_FadeStart", 1f);
+                m.SetFloat("_FadeEnd", 0f);
                 m.SetFloat("_PulseSpeed", 2.1f);
                 m.SetFloat("_PulseMin", 0.12f);
                 m.SetFloat("_DstBlend", (float)BlendMode.One);
@@ -197,8 +198,8 @@ namespace Hollowmere.EditorTools
             Panel(root, "Vista_WaterworksBeacon", beacon, WaterworksBeacon, new Vector2(9f, 9f));
         }
 
-        /// <summary>Where the top of the Waterworks radio mast will stand. Zone 4 is built around this point.</summary>
-        public static readonly Vector3 WaterworksBeacon = new Vector3(-160f, 82f, 245f);
+        /// <summary>The top of the Waterworks radio mast. Must match the mast in Zone 4.</summary>
+        public static readonly Vector3 WaterworksBeacon = new Vector3(-178f, 78.8f, 301f);
 
         /// <summary>Maps a real position on the Marrow House panel to where the enlarged silhouette shows it.</summary>
         static Vector3 Shown(float x, float y, float z)

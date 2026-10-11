@@ -24,6 +24,12 @@ namespace Hollowmere.EditorTools
         public const float EstateElevation = 22f;
         const float WaterLevel = 0.16f;
 
+        // West of the estate: the Waterworks yard at the foot of the dam. The tunnel from the
+        // Undercroft comes out of the hillside at this level.
+        public const float WaterworksLevel = 8.6f;
+        public const float TunnelMouthZ = 245.3f;
+        public const float ReservoirLevel = 24.5f;
+
         struct Tile
         {
             public string asset;
@@ -43,6 +49,7 @@ namespace Hollowmere.EditorTools
             new Tile("TD_Z1_Outskirts", -80, -50, 160, 150),
             new Tile("TD_C1_EstateRoad", -80, 100, 160, 80),
             new Tile("TD_Z2_MarrowHouse", -80, 180, 160, 130),
+            new Tile("TD_Z4_Waterworks", -240, 180, 160, 130),
         };
 
         // Openings cut through the ground (world x, z, width, depth), where a stairwell goes below the surface.
@@ -50,6 +57,9 @@ namespace Hollowmere.EditorTools
         static readonly Rect[] Holes =
         {
             new Rect(-13.8f, 237.6f, 24.6f, 3.8f),
+            // The tunnel mouth: a heightmap cannot make the vertical step from the hill above the
+            // tunnel down to the cutting, so the strip at the doorway is left open and walled instead.
+            new Rect(-102.6f, 242.5f, 1.7f, 5.6f),
         };
 
         /// <summary>X position of the estate road's centre line at a given Z (a gentle S-bend).</summary>
@@ -69,6 +79,9 @@ namespace Hollowmere.EditorTools
             float northEdge = VillageNorthEdge + 13f * Mathf.PerlinNoise(x * 0.05f + 3f, 7.7f) * Mathf.SmoothStep(0, 1, (Mathf.Abs(x) - 25f) / 9f);
             h = Mathf.Lerp(h, Road(x, z, broad, fine), Mathf.SmoothStep(0, 1, (z - northEdge) / 12f));
             h = Mathf.Lerp(h, Estate(x, z, broad, fine), Mathf.SmoothStep(0, 1, (z - 183f) / 12f));
+            h = Mathf.Lerp(h, Waterworks(x, z, fine), Mathf.SmoothStep(0, 1, (-103f - x) / 6f));
+            // The cutting where the tunnel comes out of the hillside.
+            if (x < -101.4f && x > -111f && Mathf.Abs(z - TunnelMouthZ) < 3.6f) h = Mathf.Min(h, WaterworksLevel - 0.05f);
             return h;
         }
 
@@ -160,6 +173,29 @@ namespace Hollowmere.EditorTools
             return lawn - Mathf.SmoothStep(0, 1, outside / 30f) * (4f + broad * 3f) + fine * 0.4f * Mathf.Clamp01(outside / 8f);
         }
 
+        // The Waterworks: a level yard below the dam, shut in by banks, with the outflow pool on its
+        // south side. West of the dam line the ground is the reservoir bed, under water.
+        static float Waterworks(float x, float z, float fine)
+        {
+            float h = WaterworksLevel + (fine - 0.5f) * 0.08f;
+
+            float outside = Mathf.Max(0f, Mathf.Max(192f - z, z - 278f));
+            h += 8.5f * Mathf.SmoothStep(0, 1, outside / 14f);
+
+            float px = (x + 142f) / 30f, pz = (z - 202f) / 9f;
+            float pool = 1f - Mathf.Clamp01(Mathf.Sqrt(px * px + pz * pz));
+            h -= 3.6f * Mathf.SmoothStep(0, 1, pool * 2.2f);
+
+            float bed = 20f + 7f * Mathf.SmoothStep(0, 1, (-222f - x) / 14f);
+            h = Mathf.Lerp(h, bed, Mathf.SmoothStep(0, 1, (-184f - x) / 3f));
+
+            // The valley sides the dam is built into, rising above the water at both of its ends.
+            float pastDamEnd = Mathf.Max(197f - z, z - 293f);
+            if (pastDamEnd > 0f)
+                h = Mathf.Lerp(h, 27f, Mathf.SmoothStep(0, 1, pastDamEnd / 6f) * Mathf.SmoothStep(0, 1, (-168f - x) / 10f));
+            return h;
+        }
+
         /// <summary>
         /// How strongly a spot is worn to bare earth by a path (0 = untouched, 1 = centre of a path).
         /// Paths have uneven, feathered edges and taper off instead of stopping dead.
@@ -195,6 +231,8 @@ namespace Hollowmere.EditorTools
                 float along = Mathf.SmoothStep(0, 1, (lz - 24f) / 5f) * (1f - Mathf.SmoothStep(0, 1, (lz - 52f) / 18f));
                 wear = Mathf.Max(wear, (1f - Mathf.SmoothStep(0, 1, (d - 0.9f) / 1.5f)) * along * 0.75f);
             }
+            // The Waterworks yard is trodden gravel and mud.
+            if (x < -109f && x > -182f && z > 212f && z < 278f) wear = Mathf.Max(wear, 0.82f + ragged * 0.12f);
             // Bare earth under the house.
             if (x > -21f && x < 25f && lz > 31f && lz < 73f) wear = 1f;
             return wear;
