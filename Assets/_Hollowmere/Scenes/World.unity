@@ -167,6 +167,12 @@ MonoBehaviour:
       m_Extent: {x: 80, y: 30, z: 65}
     loadDistance: 110
     unloadDistance: 125
+  - sceneName: Z3_Undercroft
+    bounds:
+      m_Center: {x: -41, y: 17, z: 238}
+      m_Extent: {x: 64, y: 11, z: 17}
+    loadDistance: 30
+    unloadDistance: 45
   playerTag: Player
   checkInterval: 0.25
   holdPlayerUntilReady: 1
@@ -715,6 +721,7 @@ MonoBehaviour:
   - {x: 11, y: 18, z: 150}
   - {x: 0, y: 24, z: 215}
   - {x: 0, y: 26.3, z: 241}
+  - {x: -16.4, y: 14.7, z: 239.5}
   showHelp: 1
 --- !u!143 &1837528443
 CharacterController:
