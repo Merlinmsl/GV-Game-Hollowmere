@@ -13,7 +13,7 @@ namespace Hollowmere.EditorTools
         const string ZonesFolder = "Assets/_Hollowmere/Scenes/Zones/";
 
         // In world order, from the player's start to the end of the game.
-        static readonly string[] Zones = { "Z1_Outskirts", "C1_EstateRoad", "Z2_MarrowHouse" };
+        static readonly string[] Zones = { "Z1_Outskirts", "C1_EstateRoad", "Z2_MarrowHouse", "Z3_Undercroft" };
 
         const string WorldScene = "Assets/_Hollowmere/Scenes/World.unity";
 
@@ -56,6 +56,9 @@ namespace Hollowmere.EditorTools
 
         [MenuItem("Hollowmere/World/Open Zone/2 Marrow House", priority = 22)]
         public static void OpenMarrowHouse() => OpenSingle(Zones[2], new Vector3(0, 15, 240), 45);
+
+        [MenuItem("Hollowmere/World/Open Zone/3 Undercroft", priority = 23)]
+        public static void OpenUndercroft() => OpenSingle(Zones[3], new Vector3(-40, 14, 240), 40);
 
         static void OpenSingle(string zone, Vector3 lookAt, float size)
         {
