@@ -20,6 +20,10 @@ A first-person horror shooter built in Unity for the SLIIT joint project
 **New to the project? Follow the [Setup and Testing Guide](Docs/Setup/README.md):** installing
 Unity, cloning, running the game, controls and testing shortcuts, and what is built so far.
 
+**Not sure what your role has to deliver? Read your [Role Guide](Docs/Roles/README.md):** what
+each of the four Graphics roles must build, step by step. The AI agents are planned in
+[Docs/AI](Docs/AI/README.md).
+
 In short:
 
 1. Clone the repository and open it with Unity **6000.3.24f1**.
