@@ -731,6 +731,7 @@ GameObject:
   - component: {fileID: 1837528444}
   - component: {fileID: 1837528443}
   - component: {fileID: 1837528442}
+  - component: {fileID: 1837528445}
   m_Layer: 0
   m_Name: DebugPlayer (temporary)
   m_TagString: Player
@@ -805,6 +806,18 @@ Transform:
   - {fileID: 369002222}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1837528445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837528441}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceddd8b4566359d49937386ad0a89ead, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Debugging.DebugNoiseKeys
 --- !u!1 &1966642893
 GameObject:
   m_ObjectHideFlags: 0
