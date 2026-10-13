@@ -78,12 +78,16 @@ namespace Hollowmere.AI.Senses
         /// <summary>Walking distance between two points on the NavMesh. Infinity when there is no route.</summary>
         public static float PathDistance(Vector3 from, Vector3 to)
         {
-            if (!NavMesh.SamplePosition(from, out NavMeshHit start, SnapToNavMesh, NavMesh.AllAreas) ||
-                !NavMesh.SamplePosition(to, out NavMeshHit end, SnapToNavMesh, NavMesh.AllAreas))
+            // The project bakes one NavMesh per agent type (Humanoid and Dog). Sound always travels
+            // on the Humanoid one (agent type 0); without saying which, Unity cannot choose and fails.
+            var humanoid = new NavMeshQueryFilter { agentTypeID = 0, areaMask = NavMesh.AllAreas };
+
+            if (!NavMesh.SamplePosition(from, out NavMeshHit start, SnapToNavMesh, humanoid) ||
+                !NavMesh.SamplePosition(to, out NavMeshHit end, SnapToNavMesh, humanoid))
                 return Vector3.Distance(from, to) * OffMeshMuffle;
 
             if (path == null) path = new NavMeshPath();
-            if (!NavMesh.CalculatePath(start.position, end.position, NavMesh.AllAreas, path) ||
+            if (!NavMesh.CalculatePath(start.position, end.position, humanoid, path) ||
                 path.status != NavMeshPathStatus.PathComplete)
                 return float.PositiveInfinity;
 

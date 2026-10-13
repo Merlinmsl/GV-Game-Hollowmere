@@ -813,9 +813,9 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1837528441}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceddd8b4566359d49937386ad0a89ead, type: 3}
+  m_Script: {fileID: 11500000, guid: b5c617512d23e4044a6b7e1b7f3b7a62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Debugging.DebugNoiseKeys
 --- !u!1 &1966642893
