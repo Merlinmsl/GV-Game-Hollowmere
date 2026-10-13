@@ -1,0 +1,302 @@
+using System;
+using UnityEngine;
+
+namespace Hollowmere.AI.Biscuit
+{
+    /// <summary>
+    /// Biscuit's brain: goal-oriented action planning. Each think it
+    /// 1. turns what the body sensed into facts,
+    /// 2. scores every goal and plans (A*) for the best one that is not met and can be reached,
+    /// 3. runs the plan one action at a time, and plans again whenever a fact changes, an action
+    ///    finishes or an action fails.
+    /// Plain C#: no MonoBehaviour and no scene objects, so it can be unit-tested.
+    /// </summary>
+    public sealed class BiscuitBrain
+    {
+        readonly GoapPlanner planner = new GoapPlanner();
+        readonly float[] costs;
+        readonly bool[] usable;
+        readonly float[] bannedUntil;
+        readonly float[] ranking;
+        readonly int[] goalOrder;
+
+        float actionStartTime;
+        int warnedAtThreats = -1;
+        float warnedTime = float.NegativeInfinity;
+        Vector3 scoutedAt;
+        float scoutedTime = float.NegativeInfinity;
+
+        public BiscuitBrain(BiscuitTuning tuning, IBiscuitBody body)
+        {
+            Tuning = tuning;
+            Body = body;
+            Memory = new BiscuitMemory(tuning);
+
+            Goals = new BiscuitGoal[]
+            {
+                new StaySafeGoal(), new ProtectPlayerGoal(), new WarnPlayerGoal(), new ScoutGoal(), new StayCloseGoal(),
+            };
+            Actions = new BiscuitAction[]
+            {
+                new FollowAction(), new SniffAction(), new GrowlAction(), new BarkAction(), new HideAction(), new LureAction(),
+            };
+
+            costs = new float[Actions.Length];
+            usable = new bool[Actions.Length];
+            bannedUntil = new float[Actions.Length];
+            ranking = new float[Goals.Length];
+            goalOrder = new int[Goals.Length];
+            for (int i = 0; i < bannedUntil.Length; i++) bannedUntil[i] = float.NegativeInfinity;
+        }
+
+        public BiscuitTuning Tuning { get; }
+        public IBiscuitBody Body { get; }
+        public BiscuitMemory Memory { get; }
+        public BiscuitPerception Perception { get; private set; }
+
+        /// <summary>The facts Biscuit believes right now.</summary>
+        public ushort State { get; private set; }
+
+        public BiscuitGoal[] Goals { get; }
+        public BiscuitAction[] Actions { get; }
+
+        public BiscuitGoal CurrentGoal { get; private set; }
+        public BiscuitAction CurrentAction { get; private set; }
+
+        public BiscuitAction[] Plan { get; } = new BiscuitAction[GoapPlanner.MaxDepth];
+        public int PlanLength { get; private set; }
+        public int PlanStep { get; private set; }
+        public float PlanCost { get; private set; }
+        public int PlanNodesExpanded { get; private set; }
+        public double PlanMilliseconds { get; private set; }
+
+        public BiscuitAction LastFailed { get; private set; }
+        public float LastFailedTime { get; private set; } = float.NegativeInfinity;
+
+        /// <summary>Raised with the action's name when Biscuit starts an action, and "" when it stops one.</summary>
+        public event Action<string> ActionChanged;
+
+        /// <summary>Raised with the goal's name when Biscuit changes goal ("" for none).</summary>
+        public event Action<string> GoalChanged;
+
+        public bool Has(Fact fact) => WorldState.Has(State, fact);
+
+        public bool IsBanned(BiscuitAction action) => Perception.Now < bannedUntil[IndexOf(action)];
+
+        // ---------------------------------------------------------------- senses (the body calls these)
+
+        public void OnSmelt(int sourceId, Vector3 position, float now) =>
+            Memory.Remember(sourceId, position, Tuning.smeltConfidence, true, now);
+
+        public void OnHeard(int sourceId, Vector3 position, float now) =>
+            Memory.Remember(sourceId, position, Tuning.heardConfidence, false, now);
+
+        public void OnSourceGone(int sourceId) => Memory.Forget(sourceId);
+
+        // ---------------------------------------------------------------- actions call these when they finish
+
+        /// <summary>The player now knows about every threat met so far.</summary>
+        public void MarkWarned()
+        {
+            warnedAtThreats = Memory.ThreatsMet;
+            warnedTime = Perception.Now;
+        }
+
+        public void MarkScouted()
+        {
+            scoutedAt = Perception.Position;
+            scoutedTime = Perception.Now;
+        }
+
+        // ---------------------------------------------------------------- thinking
+
+        public void Think(in BiscuitPerception perception)
+        {
+            Perception = perception;
+            Memory.ForgetFaded(perception.Now);
+
+            ushort before = State;
+            State = ComputeFacts();
+
+            // Plan again when the world changed or the plan ran out. The planner is cheap enough
+            // (a few dozen states at most) to do this whenever it is needed.
+            if (State != before || PlanStep >= PlanLength) ChooseGoalAndPlan();
+
+            if (CurrentAction == null && PlanStep < PlanLength) StartStep();
+            if (CurrentAction != null) RunCurrentAction();
+        }
+
+        ushort ComputeFacts()
+        {
+            BiscuitPerception p = Perception;
+            float now = p.Now;
+            ushort s = 0;
+
+            // Near the player: in at 3 m, out at 6 m, so Biscuit does not stop and start at one line.
+            float nearLimit = Has(Fact.NearPlayer) ? Tuning.leavePlayerDistance : Tuning.nearPlayerDistance;
+            s = WorldState.With(s, Fact.NearPlayer, p.HasPlayer && p.DistanceToPlayer <= nearLimit);
+
+            Vector3 guarding = p.HasPlayer ? p.PlayerPosition : p.Position;
+            s = WorldState.With(s, Fact.EnemyNearby,
+                Memory.CountWithin(guarding, Tuning.enemyNearbyDistance, Tuning.forgetBelow, now) > 0);
+
+            // A warning covers every threat met before it, and wears off after a while.
+            s = WorldState.With(s, Fact.PlayerWarned,
+                warnedAtThreats == Memory.ThreatsMet && now - warnedTime < Tuning.rewarnAfter);
+
+            s = WorldState.With(s, Fact.InDanger,
+                Memory.CountWithin(p.Position, Tuning.dangerDistance, Tuning.sureConfidence, now) > 0);
+
+            s = WorldState.With(s, Fact.PlayerInTrouble,
+                p.HasPlayer && p.PlayerHealth01 < Tuning.troubleHealth &&
+                Memory.CountWithin(p.PlayerPosition, Tuning.troubleDistance, Tuning.sureConfidence, now) > 0);
+
+            s = WorldState.With(s, Fact.AreaScouted,
+                now - scoutedTime < Tuning.scoutedFor &&
+                (p.Position - scoutedAt).sqrMagnitude < Tuning.scoutedRadius * Tuning.scoutedRadius);
+
+            return s;
+        }
+
+        void ChooseGoalAndPlan()
+        {
+            float now = Perception.Now;
+            for (int i = 0; i < Actions.Length; i++)
+            {
+                usable[i] = now >= bannedUntil[i] && Actions[i].IsUsable(this);
+                costs[i] = usable[i] ? Actions[i].Cost(this) : 0f;
+            }
+
+            // Score the goals and rank them, best first. The goal already being worked on gets a
+            // small bonus, so two goals with close scores do not take turns every think.
+            for (int i = 0; i < Goals.Length; i++)
+            {
+                ranking[i] = Goals[i].Evaluate(this) + (Goals[i] == CurrentGoal ? Tuning.commitmentBonus : 0f);
+                goalOrder[i] = i;
+            }
+            SortGoalsByRanking();
+
+            long started = System.Diagnostics.Stopwatch.GetTimestamp();
+            int nodes = 0;
+            BiscuitGoal chosen = null;
+            int length = 0;
+            float cost = 0f;
+
+            for (int k = 0; k < goalOrder.Length && chosen == null; k++)
+            {
+                BiscuitGoal goal = Goals[goalOrder[k]];
+                if (goal.Priority <= 0f || goal.Wants.IsMetBy(State)) continue;
+
+                // No plan (every way there is blocked or on cooldown): try the next goal down.
+                bool found = planner.Plan(State, goal.Wants, Actions, Actions.Length, costs, usable,
+                                          Plan, out length, out cost);
+                nodes += planner.NodesExpanded;
+                if (found) chosen = goal;
+            }
+
+            PlanNodesExpanded = nodes;
+            PlanMilliseconds = (System.Diagnostics.Stopwatch.GetTimestamp() - started) * 1000.0 /
+                               System.Diagnostics.Stopwatch.Frequency;
+            Adopt(chosen, chosen != null ? length : 0, cost);
+        }
+
+        void Adopt(BiscuitGoal goal, int length, float cost)
+        {
+            // If the new plan starts with the action already running, let it carry on rather than restart.
+            bool keepRunning = CurrentAction != null && length > 0 && Plan[0] == CurrentAction;
+            if (CurrentAction != null && !keepRunning) EndAction();
+
+            PlanLength = length;
+            PlanStep = 0;
+            PlanCost = cost;
+
+            if (goal == CurrentGoal) return;
+            CurrentGoal = goal;
+            GoalChanged?.Invoke(goal != null ? goal.Name : "");
+        }
+
+        void StartStep()
+        {
+            CurrentAction = Plan[PlanStep];
+            actionStartTime = Perception.Now;
+            CurrentAction.Start(this);
+            ActionChanged?.Invoke(CurrentAction.Name);
+        }
+
+        void RunCurrentAction()
+        {
+            BiscuitAction action = CurrentAction;
+            ActionStatus status;
+            bool interrupted = false;
+
+            if (action.Gives.IsMetBy(State))
+            {
+                status = ActionStatus.Success;   // its job is already done
+            }
+            else if (!action.Needs.IsMetBy(State))
+            {
+                status = ActionStatus.Failure;   // the world changed under it; not the action's fault
+                interrupted = true;
+            }
+            else if (Perception.Now - actionStartTime > Tuning.actionTimeout)
+            {
+                status = ActionStatus.Failure;
+            }
+            else
+            {
+                status = action.Tick(this);
+            }
+
+            if (status == ActionStatus.Running) return;
+
+            EndAction();
+            if (status == ActionStatus.Success)
+            {
+                PlanStep++;
+                return;
+            }
+
+            // A real failure (no route, nowhere to hide, stuck): leave the action out for a moment so
+            // the next plan finds another way to the goal, or another goal.
+            if (!interrupted)
+            {
+                bannedUntil[IndexOf(action)] = Perception.Now + Tuning.failedActionBan;
+                LastFailed = action;
+                LastFailedTime = Perception.Now;
+            }
+            PlanLength = 0;
+            PlanStep = 0;
+        }
+
+        void EndAction()
+        {
+            CurrentAction.Stop(this);
+            Body.Stop();
+            CurrentAction = null;
+            ActionChanged?.Invoke("");
+        }
+
+        // Insertion sort: five goals, no allocation.
+        void SortGoalsByRanking()
+        {
+            for (int i = 1; i < goalOrder.Length; i++)
+            {
+                int index = goalOrder[i];
+                int j = i - 1;
+                while (j >= 0 && ranking[goalOrder[j]] < ranking[index])
+                {
+                    goalOrder[j + 1] = goalOrder[j];
+                    j--;
+                }
+                goalOrder[j + 1] = index;
+            }
+        }
+
+        int IndexOf(BiscuitAction action)
+        {
+            for (int i = 0; i < Actions.Length; i++)
+                if (Actions[i] == action) return i;
+            return -1;
+        }
+    }
+}
