@@ -1,16 +1,47 @@
+using System;
 using UnityEngine;
+using Hollowmere.AI.Senses;
 
 namespace Hollowmere.AI.Zombie
 {
     /// <summary>
-    /// Manages the mental state and target belief of a single Runner Zombie.
-    /// Pure C# class decoupled from MonoBehaviour, designed to be unit-testable.
-    /// In Day 1 skeleton: stores the current belief and provides UpdateBelief / GetBelief accessors.
-    /// Exponential decay and INoiseListener sensory inputs are scheduled for subsequent iterations.
+    /// Manages the mental state, sensory input, and target belief of a single Runner Zombie.
+    /// Implements INoiseListener to receive path-distance acoustic events from NoiseSystem.
+    /// Pure C# class decoupled from MonoBehaviour, designed for deterministic unit testing.
     /// </summary>
-    public class ZombieMemory
+    public class ZombieMemory : INoiseListener
     {
+        private readonly ZombieConfig config;
         private ZombieBelief currentBelief = ZombieBelief.Empty;
+
+        private Func<Vector3> earPositionProvider;
+        private Vector3 staticEarPosition = Vector3.zero;
+        private float hearingAcuityOverride = -1f;
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // INoiseListener IMPLEMENTATION
+        // ─────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Position at the listener's feet where sound arrives.
+        /// Resolves via dynamic delegate (e.g. from body transform) or static position in unit tests.
+        /// </summary>
+        public Vector3 EarPosition => earPositionProvider != null ? earPositionProvider() : staticEarPosition;
+
+        /// <summary>
+        /// Acoustic acuity multiplier (1.0 = normal human hearing).
+        /// Pulled from ZombieConfig or overridden directly.
+        /// </summary>
+        public float HearingAcuity
+        {
+            get => hearingAcuityOverride >= 0f ? hearingAcuityOverride : (config != null ? config.hearingAcuity : 1.0f);
+            set => hearingAcuityOverride = value;
+        }
+
+        // Debug inspection properties (for F2 debug overlay)
+        public Noise LastHeardNoise { get; private set; }
+        public float LastHeardDistance { get; private set; }
+        public bool HasHeardNoise { get; private set; }
 
         /// <summary>
         /// Gets the current belief held in memory.
@@ -22,10 +53,81 @@ namespace Hollowmere.AI.Zombie
         /// </summary>
         public bool HasBelief => currentBelief.IsValid;
 
-        public ZombieMemory()
+        public ZombieMemory(ZombieConfig config = null)
         {
+            this.config = config;
             currentBelief = ZombieBelief.Empty;
         }
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // NOISE SYSTEM REGISTRATION LIFECYCLE
+        // ─────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Registers this listener with the static NoiseSystem.
+        /// Call from ZombieBody.OnEnable().
+        /// </summary>
+        public void OnEnable()
+        {
+            NoiseSystem.Register(this);
+        }
+
+        /// <summary>
+        /// Unregisters this listener from the static NoiseSystem.
+        /// Call from ZombieBody.OnDisable().
+        /// </summary>
+        public void OnDisable()
+        {
+            NoiseSystem.Unregister(this);
+        }
+
+        public void Enable() => OnEnable();
+        public void Disable() => OnDisable();
+
+        /// <summary>
+        /// Binds dynamic ear position provider (e.g. () => transform.position) from MonoBehaviour.
+        /// </summary>
+        public void SetPositionProvider(Func<Vector3> provider)
+        {
+            earPositionProvider = provider;
+        }
+
+        /// <summary>
+        /// Sets a fixed ear position for offline unit tests.
+        /// </summary>
+        public void SetPosition(Vector3 position)
+        {
+            staticEarPosition = position;
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // SENSORY RECEPTION
+        // ─────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Called by NoiseSystem when a sound reaches the zombie along the NavMesh walking path.
+        /// </summary>
+        /// <param name="noise">The emitted noise event.</param>
+        /// <param name="pathDistance">Walking distance along the NavMesh in metres.</param>
+        public void OnHeard(in Noise noise, float pathDistance)
+        {
+            LastHeardNoise = noise;
+            LastHeardDistance = pathDistance;
+            HasHeardNoise = true;
+
+            // Baseline acoustic confidence (0.6f as specified in §3.3)
+            // Detailed NoiseKind mapping is added in the next step
+            float incomingConfidence = 0.6f;
+
+            if (incomingConfidence > currentBelief.Confidence)
+            {
+                UpdateBelief(noise.Position, incomingConfidence, BeliefSource.Heard);
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // BELIEF MANAGEMENT
+        // ─────────────────────────────────────────────────────────────────────────
 
         /// <summary>
         /// Retrieves the zombie's current belief.
@@ -38,9 +140,6 @@ namespace Hollowmere.AI.Zombie
         /// <summary>
         /// Updates the current belief with a new target location, confidence, and source.
         /// </summary>
-        /// <param name="position">World-space position where the target was sensed.</param>
-        /// <param name="confidence">Confidence level (0 to 1).</param>
-        /// <param name="source">Sensory modality (Seen, Heard, Told).</param>
         public void UpdateBelief(Vector3 position, float confidence, BeliefSource source)
         {
             float timestamp = Time.time;
