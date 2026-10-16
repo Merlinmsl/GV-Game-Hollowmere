@@ -105,6 +105,50 @@ namespace Hollowmere.AI.Zombie
         // ─────────────────────────────────────────────────────────────────────────
 
         /// <summary>
+        /// Maps an acoustic noise type to an initial belief confidence level.
+        /// Higher confidence indicates sharper, unmistakable sounds (e.g. gunshots).
+        /// Lower confidence indicates secondary cues (e.g. footsteps or groans from other zombies).
+        ///
+        /// ┌─────────────────────┬────────────┬──────────────────────────────────────────┐
+        /// │ Noise Kind          │ Confidence │ Rationale                                │
+        /// ├─────────────────────┼────────────┼──────────────────────────────────────────┤
+        /// │ Gunshot             │ 0.60       │ Loud, unmistakable weapon discharge      │
+        /// │ IceGun              │ 0.58       │ Distinctive pneumatic cryo blast         │
+        /// │ Footstep (Running)  │ 0.55       │ Rapid, direct physical movement          │
+        /// │ Door                │ 0.50       │ Heavy physical structure manipulation    │
+        /// │ Wading              │ 0.50       │ Distinctive splashing in village water   │
+        /// │ Bark                │ 0.45       │ Animal sound (Biscuit), secondary alert  │
+        /// │ Groan (Horde alert) │ 0.40       │ Neighbour zombie alert (BeliefSource.Told)│
+        /// │ Staged / Default    │ 0.40       │ Ambient or unclassified sound cue        │
+        /// └─────────────────────┴────────────┴──────────────────────────────────────────┘
+        /// </summary>
+        /// <param name="kind">The sensory noise category.</param>
+        /// <returns>Initial confidence score between 0.0 and 1.0.</returns>
+        public static float ConfidenceFromKind(NoiseKind kind)
+        {
+            switch (kind)
+            {
+                case NoiseKind.Gunshot:
+                    return 0.60f;
+                case NoiseKind.IceGun:
+                    return 0.58f;
+                case NoiseKind.Footstep:
+                    return 0.55f;
+                case NoiseKind.Door:
+                    return 0.50f;
+                case NoiseKind.Wading:
+                    return 0.50f;
+                case NoiseKind.Bark:
+                    return 0.45f;
+                case NoiseKind.Groan:
+                    return 0.40f;
+                case NoiseKind.Staged:
+                default:
+                    return 0.40f;
+            }
+        }
+
+        /// <summary>
         /// Called by NoiseSystem when a sound reaches the zombie along the NavMesh walking path.
         /// </summary>
         /// <param name="noise">The emitted noise event.</param>
@@ -115,13 +159,12 @@ namespace Hollowmere.AI.Zombie
             LastHeardDistance = pathDistance;
             HasHeardNoise = true;
 
-            // Baseline acoustic confidence (0.6f as specified in §3.3)
-            // Detailed NoiseKind mapping is added in the next step
-            float incomingConfidence = 0.6f;
+            float incomingConfidence = ConfidenceFromKind(noise.Kind);
+            BeliefSource source = noise.Kind == NoiseKind.Groan ? BeliefSource.Told : BeliefSource.Heard;
 
             if (incomingConfidence > currentBelief.Confidence)
             {
-                UpdateBelief(noise.Position, incomingConfidence, BeliefSource.Heard);
+                UpdateBelief(noise.Position, incomingConfidence, source);
             }
         }
 
