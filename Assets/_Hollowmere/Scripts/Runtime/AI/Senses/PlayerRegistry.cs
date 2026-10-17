@@ -12,11 +12,13 @@ namespace Hollowmere.AI.Senses
         static void ResetOnPlay() => Current = null;
 
         public static void Set(IPlayerState player) => Current = player;
+        public static void Register(IPlayerState player) => Set(player);
 
         public static void Clear(IPlayerState player)
         {
             if (Current == player) Current = null;
         }
+        public static void Unregister(IPlayerState player) => Clear(player);
     }
 }
 

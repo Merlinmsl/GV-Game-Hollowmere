@@ -6,11 +6,13 @@ namespace Hollowmere.Player
 {
     /// <summary>
     /// First-person physics-driven Player Controller for Hollowmere.
-    /// Responsible for CharacterController WASD movement, mouse-look camera rotation,
-    /// sprinting, crouching, jumping, and gravity.
+    /// Responsible for CharacterController locomotion, mouse look, crouching, jumping, gravity,
+    /// flashlight control, and acoustic sensory emission via PlayerNoiseEmitter.
+    /// Implements IPlayerState so AI senses, Director, and PlayerNoiseEmitter can query stance/speed.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerController : MonoBehaviour
+    [RequireComponent(typeof(PlayerNoiseEmitter))]
+    public class PlayerController : MonoBehaviour, IPlayerState
     {
         // ─────────────────────────────────────────────────────────────────────────
         // CONFIGURATION & REFERENCES
@@ -19,6 +21,10 @@ namespace Hollowmere.Player
         [Header("Camera & Head")]
         [Tooltip("Transform representing the player's camera / eye position.")]
         [SerializeField] private Transform headTransform;
+
+        [Header("Flashlight")]
+        [Tooltip("Spotlight attached to Head representing the player's flashlight.")]
+        [SerializeField] private Light flashlight;
 
         [Header("Look Settings")]
         [Tooltip("Mouse look sensitivity multiplier.")]
@@ -50,11 +56,33 @@ namespace Hollowmere.Player
         [SerializeField] private float crouchHeadY = 0.9f;
 
         // ─────────────────────────────────────────────────────────────────────────
-        // STATE PROPERTIES (Exposed for AI senses, footstep emissions & UI)
+        // IPlayerState IMPLEMENTATION (Queried by AI senses & PlayerNoiseEmitter)
         // ─────────────────────────────────────────────────────────────────────────
 
-        /// <summary>Forward aim vector from camera / head, or player forward if head is missing.</summary>
+        /// <summary>Current world-space position of the player feet.</summary>
+        public Vector3 Position => transform.position;
+
+        /// <summary>Forward aim vector from camera / head.</summary>
         public Vector3 LookDirection => headTransform != null ? headTransform.forward : transform.forward;
+
+        /// <summary>Player normalized health (0.0 = dead, 1.0 = full).</summary>
+        public float Health01 { get; set; } = 1.0f;
+
+        /// <summary>Player normalized ammo (0.0 = empty, 1.0 = full).</summary>
+        public float Ammo01 { get; set; } = 1.0f;
+
+        /// <summary>Currently equipped weapon.</summary>
+        public WeaponKind HeldWeapon { get; set; } = WeaponKind.None;
+
+        /// <summary>True when flashlight is toggled on.</summary>
+        public bool FlashlightOn => flashlight != null && flashlight.enabled;
+
+        /// <summary>True when player is in crouching stance.</summary>
+        public bool IsCrouching { get; private set; }
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // LOCOMOTION STATE
+        // ─────────────────────────────────────────────────────────────────────────
 
         /// <summary>Horizontal ground speed in m/s.</summary>
         public float CurrentSpeed => characterController != null
@@ -67,19 +95,21 @@ namespace Hollowmere.Player
         /// <summary>True when the player is actively sprinting.</summary>
         public bool IsRunning { get; private set; }
 
-        /// <summary>True when player is in crouching stance.</summary>
-        public bool IsCrouching { get; private set; }
-
         /// <summary>Full 3D velocity vector of the CharacterController.</summary>
         public Vector3 Velocity => characterController != null ? characterController.velocity : Vector3.zero;
 
+        /// <summary>Reference to the attached PlayerNoiseEmitter component.</summary>
+        public PlayerNoiseEmitter NoiseEmitter => noiseEmitter;
+
         private CharacterController characterController;
+        private PlayerNoiseEmitter noiseEmitter;
         private float verticalVelocity;
         private float pitch;
 
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
+            noiseEmitter = GetComponent<PlayerNoiseEmitter>();
 
             characterController.height = standingHeight;
             characterController.radius = 0.35f;
@@ -98,22 +128,52 @@ namespace Hollowmere.Player
                     headTransform = Camera.main.transform;
                 }
             }
+
+            if (flashlight == null && headTransform != null)
+            {
+                flashlight = headTransform.GetComponentInChildren<Light>();
+            }
+        }
+
+        private void Start()
+        {
+            PlayerRegistry.Register(this);
+        }
+
+        private void OnDestroy()
+        {
+            PlayerRegistry.Unregister(this);
         }
 
         private void OnEnable()
         {
             Cursor.lockState = CursorLockMode.Locked;
+            PlayerRegistry.Register(this);
         }
 
         private void OnDisable()
         {
             Cursor.lockState = CursorLockMode.None;
+            PlayerRegistry.Unregister(this);
         }
 
         private void Update()
         {
             ProcessLook();
             ProcessMovement();
+            ProcessFlashlight();
+        }
+
+        /// <summary>
+        /// Toggles flashlight on/off with the F key.
+        /// </summary>
+        private void ProcessFlashlight()
+        {
+            var keyboard = Keyboard.current;
+            if (keyboard != null && keyboard.fKey.wasPressedThisFrame && flashlight != null)
+            {
+                flashlight.enabled = !flashlight.enabled;
+            }
         }
 
         /// <summary>
@@ -125,7 +185,6 @@ namespace Hollowmere.Player
             var mouse = Mouse.current;
             var keyboard = Keyboard.current;
 
-            // Cursor lock toggle convenience
             if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
             {
                 Cursor.lockState = CursorLockMode.None;
@@ -142,10 +201,10 @@ namespace Hollowmere.Player
 
             Vector2 lookDelta = mouse.delta.ReadValue() * mouseSensitivity;
 
-            // Horizontal yaw: rotate player body left/right around Y axis
+            // Horizontal yaw
             transform.Rotate(0f, lookDelta.x, 0f);
 
-            // Vertical pitch: tilt head/camera up/down clamped between [-verticalClampAngle, +verticalClampAngle]
+            // Vertical pitch clamped to ±verticalClampAngle
             pitch = Mathf.Clamp(pitch - lookDelta.y, -verticalClampAngle, verticalClampAngle);
 
             if (headTransform != null)
@@ -199,13 +258,11 @@ namespace Hollowmere.Player
             // 5. Vertical velocity & gravity
             if (characterController.isGrounded)
             {
-                // Keep slight downward bias so the controller remains glued to slopes and stairs
                 if (verticalVelocity < 0f)
                 {
                     verticalVelocity = -2.0f;
                 }
 
-                // Jump execution (v = sqrt(2 * h * g))
                 if (wantsJump && !IsCrouching)
                 {
                     verticalVelocity = Mathf.Sqrt(2.0f * jumpHeight * Mathf.Abs(gravity));
@@ -213,11 +270,10 @@ namespace Hollowmere.Player
             }
             else
             {
-                // Apply constant gravity acceleration when airborne
                 verticalVelocity += gravity * Time.deltaTime;
             }
 
-            // 6. Execute combined CharacterController movement
+            // 6. Execute combined CharacterController movement (feeds velocity to PlayerNoiseEmitter)
             Vector3 finalVelocity = moveDir * targetSpeed;
             finalVelocity.y = verticalVelocity;
 
@@ -245,7 +301,6 @@ namespace Hollowmere.Player
             }
             else if (IsCrouching)
             {
-                // Verify overhead clearance before standing
                 float castDistance = standingHeight - crouchHeight;
                 Vector3 castOrigin = transform.position + Vector3.up * crouchHeight;
                 bool ceilingBlocked = Physics.SphereCast(castOrigin, characterController.radius * 0.9f, Vector3.up, out _, castDistance);
