@@ -1,0 +1,12 @@
+Model Information:
+* title:	Brown_labrador_retriever_v1
+* source:	https://sketchfab.com/3d-models/brown-labrador-retriever-v1-66906bd9fff34ac8a3a49b70ed248a59
+* author:	Nyilonelycompany (https://sketchfab.com/Nyilonelycompany)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Brown_labrador_retriever_v1" (https://sketchfab.com/3d-models/brown-labrador-retriever-v1-66906bd9fff34ac8a3a49b70ed248a59) by Nyilonelycompany (https://sketchfab.com/Nyilonelycompany) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+Changes: coat recoloured from brown to golden, textures downscaled to 2K, animations removed, renamed Biscuit.
