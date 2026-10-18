@@ -1,16 +1,169 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &5988741071988716352
+--- !u!1 &6907714338356776465
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6095324381549991083}
+  - component: {fileID: 4513854489065505987}
+  - component: {fileID: 8116871454431910089}
+  - component: {fileID: 3251689040649233359}
+  - component: {fileID: 2481826498956535284}
+  m_Layer: 0
+  m_Name: PF_Biscuit
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6095324381549991083
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6907714338356776465}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 9159667855260062559}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!195 &4513854489065505987
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6907714338356776465}
+  m_Enabled: 1
+  m_AgentTypeID: -1372625422
+  m_Radius: 0.25
+  m_Speed: 2.5
+  m_Acceleration: 12
+  avoidancePriority: 50
+  m_AngularSpeed: 540
+  m_StoppingDistance: 2
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 0.7
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &8116871454431910089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6907714338356776465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f0d0734e9b2cf34ea12a5891cc652b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Biscuit.BiscuitAgent
+  tuning:
+    thinkRate: 8
+    commitmentBonus: 0.1
+    actionTimeout: 10
+    failedActionBan: 3
+    nearPlayerDistance: 3
+    leavePlayerDistance: 6
+    followStopDistance: 2
+    runDistance: 8
+    warpDistance: 40
+    walkSpeed: 2.5
+    runSpeed: 5.5
+    hearingAcuity: 1.5
+    noseRange: 5
+    sniffRange: 25
+    pointSniffRange: 35
+    sniffDuration: 1.5
+    scoutedRadius: 8
+    scoutedFor: 12
+    smeltConfidence: 1
+    heardConfidence: 0.6
+    beliefTau: 6
+    forgetBelow: 0.1
+    deadHearing: 1
+    ghostHearing: 0
+    creatureHearing: 1.6
+    ghostNearbyDistance: 15
+    ghostDangerDistance: 6
+    enemyNearbyDistance: 25
+    dangerDistance: 4
+    troubleHealth: 0.35
+    troubleDistance: 8
+    sureConfidence: 0.3
+    rewarnAfter: 20
+    lowAmmo: 0.3
+    atEvidenceDistance: 2.5
+    followCostPerMetre: 0.2
+    barkCost: 3
+    barkCostPerExtraListener: 2
+    lureCost: 5
+    leadCost: 2
+    growlDuration: 1.2
+    whineDuration: 1.5
+    barkDuration: 0.8
+    hideDistance: 6
+    lureDistance: 14
+    lureBarks: 2
+    lureBarkInterval: 1
+    lureCooldown: 15
+    pickUpDistance: 1
+    deliverDistance: 1.8
+    ammoPerDelivery: 0.5
+    resupplyCooldown: 20
+    leadWaitDistance: 5
+    leadTimeout: 60
+  barkSound: {fileID: 0}
+  growlSound: {fileID: 0}
+  whineSound: {fileID: 0}
+--- !u!114 &3251689040649233359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6907714338356776465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78f890e78831d5e488f32c465004e624, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Biscuit.BiscuitDebugView
+  showPanel: 0
+--- !u!114 &2481826498956535284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6907714338356776465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 883cfb149fc994d4cba3cee8f759673d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Biscuit.BiscuitWorldOverlay
+--- !u!1001 &8689436129879553204
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 6095324381549991083}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 8397bcfd460291a4f8e5e641a21803f6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 8397bcfd460291a4f8e5e641a21803f6, type: 3}
       propertyPath: m_LocalPosition.y
@@ -50,10 +203,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 8397bcfd460291a4f8e5e641a21803f6, type: 3}
       propertyPath: m_Name
-      value: PF_Biscuit
+      value: Model
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8397bcfd460291a4f8e5e641a21803f6, type: 3}
+--- !u!4 &9159667855260062559 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8397bcfd460291a4f8e5e641a21803f6, type: 3}
+  m_PrefabInstance: {fileID: 8689436129879553204}
+  m_PrefabAsset: {fileID: 0}
