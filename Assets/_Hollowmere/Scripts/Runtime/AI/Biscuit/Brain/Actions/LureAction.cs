@@ -3,9 +3,10 @@ using UnityEngine;
 namespace Hollowmere.AI.Biscuit
 {
     /// <summary>
-    /// When the player is badly hurt and the dead are close, run off to one side and bark so the
-    /// dead follow the noise instead. There is no special code for this in the zombies: the bark is
-    /// an ordinary noise and their own hearing sends them to it.
+    /// When the player is badly hurt and an enemy is close, run off to one side and bark so it
+    /// follows the noise instead. There is no special code for this in the zombies: the bark is an
+    /// ordinary noise and their own hearing sends them to it. Ghosts do not chase noise, so Biscuit
+    /// does not try this on them.
     /// </summary>
     public sealed class LureAction : BiscuitAction
     {
@@ -19,8 +20,13 @@ namespace Hollowmere.AI.Biscuit
             : base("Lure", new Condition(Fact.EnemyNearby | Fact.PlayerInTrouble),
                    new Condition(Fact.None, Fact.PlayerInTrouble)) { }
 
-        public override bool IsUsable(BiscuitBrain brain) =>
-            brain.Perception.HasPlayer && brain.Perception.Now >= readyAt;
+        public override bool IsUsable(BiscuitBrain brain)
+        {
+            BiscuitPerception p = brain.Perception;
+            return p.HasPlayer && p.Now >= readyAt &&
+                   brain.Memory.CountWithin(p.PlayerPosition, brain.Tuning.troubleDistance,
+                                            brain.Tuning.sureConfidence, p.Now, KindFilter.NotGhosts) > 0;
+        }
 
         public override float Cost(BiscuitBrain brain) => brain.Tuning.lureCost;
 
@@ -32,7 +38,7 @@ namespace Hollowmere.AI.Biscuit
             hasSpot = false;
 
             if (!brain.Memory.TryGetClosest(p.PlayerPosition, brain.Tuning.sureConfidence, p.Now,
-                                            out EnemyBelief threat, out _))
+                                            KindFilter.NotGhosts, out EnemyBelief threat, out _))
                 return;
             if (!brain.Body.TryFindLurePoint(p.PlayerPosition, threat.Position, brain.Tuning.lureDistance,
                                              out Vector3 spot))

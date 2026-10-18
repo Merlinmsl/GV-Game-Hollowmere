@@ -29,6 +29,9 @@ namespace Hollowmere.AI.Biscuit
         /// <summary>Checks facts cannot express, such as a cooldown. False leaves it out of planning.</summary>
         public virtual bool IsUsable(BiscuitBrain brain) => true;
 
+        /// <summary>How long the action may run before it counts as stuck.</summary>
+        public virtual float Timeout(BiscuitBrain brain) => brain.Tuning.actionTimeout;
+
         public virtual void Start(BiscuitBrain brain) { }
 
         public abstract ActionStatus Tick(BiscuitBrain brain);

@@ -9,8 +9,9 @@ namespace Hollowmere.AI.Biscuit
 {
     /// <summary>
     /// Biscuit's body, the only MonoBehaviour. It senses (hearing through NoiseSystem, smell through
-    /// ScentRegistry), feeds the brain 8 times a second, and carries out what the brain decides with
-    /// the NavMeshAgent. It decides nothing itself. Animation can listen to OnStateChanged.
+    /// ScentRegistry and PointRegistry), feeds the brain 8 times a second, and carries out what the
+    /// brain decides with the NavMeshAgent. It decides nothing itself. Animation can listen to
+    /// OnStateChanged.
     /// </summary>
     [RequireComponent(typeof(NavMeshAgent))]
     public sealed class BiscuitAgent : MonoBehaviour, INoiseListener, IBiscuitBody
@@ -28,14 +29,19 @@ namespace Hollowmere.AI.Biscuit
         [SerializeField] AudioSource barkSound;
         [Tooltip("Optional. Played when Biscuit growls.")]
         [SerializeField] AudioSource growlSound;
+        [Tooltip("Optional. Played when Biscuit whines at a ghost.")]
+        [SerializeField] AudioSource whineSound;
 
         NavMeshAgent agent;
         NavMeshQueryFilter dogFilter;
         float nextThinkTime;
         float sniffRange;
         int sniffCursor;
+        int pointCursor;
         Transform taggedPlayer;
         float nextPlayerSearchTime;
+        GameObject carried;
+        bool warnedNoReceiver;
 
         public BiscuitBrain Brain { get; private set; }
         public BiscuitTuning Tuning => tuning;
@@ -44,6 +50,12 @@ namespace Hollowmere.AI.Biscuit
         public event Action<string> OnStateChanged;
         public event Action OnBark;
         public event Action OnGrowl;
+        public event Action OnWhine;
+        public event Action OnSniff;
+        public event Action OnFetch;
+        public event Action OnDeliver;
+        /// <summary>Raised with the page's name when the player is shown one.</summary>
+        public event Action<string> OnEvidenceShown;
 
         public bool HasPath => agent != null && agent.hasPath;
         public Vector3 Destination => agent != null ? agent.destination : transform.position;
@@ -73,12 +85,14 @@ namespace Hollowmere.AI.Biscuit
         {
             NoiseSystem.Register(this);
             ScentRegistry.Removed += Brain.OnSourceGone;
+            PointRegistry.Removed += Brain.OnPointGone;
         }
 
         void OnDisable()
         {
             NoiseSystem.Unregister(this);
             ScentRegistry.Removed -= Brain.OnSourceGone;
+            PointRegistry.Removed -= Brain.OnPointGone;
         }
 
         void Update()
@@ -94,9 +108,19 @@ namespace Hollowmere.AI.Biscuit
             Brain.Think(Perceive(now));
         }
 
+        /// <summary>Copies the current route's corners into the buffer. For the debug view only.</summary>
+        public int GetPathCorners(Vector3[] buffer) =>
+            agent != null && agent.hasPath ? agent.path.GetCornersNonAlloc(buffer) : 0;
+
         BiscuitPerception Perceive(float now)
         {
-            var p = new BiscuitPerception { Now = now, Position = transform.position };
+            var p = new BiscuitPerception
+            {
+                Now = now,
+                Position = transform.position,
+                AmmoSpotsLeft = PointRegistry.Count(PointKind.Ammo),
+                PagesLeft = PointRegistry.Count(PointKind.Evidence),
+            };
 
             // Biscuit is at the player's side, so like the Director it may read the player directly.
             IPlayerState player = PlayerRegistry.Current;
@@ -106,11 +130,12 @@ namespace Hollowmere.AI.Biscuit
                 p.PlayerPosition = player.Position;
                 p.PlayerLook = player.LookDirection;
                 p.PlayerHealth01 = player.Health01;
+                p.PlayerAmmo01 = player.Ammo01;
                 return p;
             }
 
             // Until a player registers an IPlayerState (the debug walker does not), follow whatever is
-            // tagged Player, at full health. Looked up at most once a second, never every think.
+            // tagged Player, unhurt and fully loaded. Looked up at most once a second, never every think.
             if (taggedPlayer == null && now >= nextPlayerSearchTime)
             {
                 nextPlayerSearchTime = now + 1f;
@@ -123,21 +148,30 @@ namespace Hollowmere.AI.Biscuit
                 p.PlayerPosition = taggedPlayer.position;
                 p.PlayerLook = taggedPlayer.forward;
                 p.PlayerHealth01 = 1f;
+                p.PlayerAmmo01 = 1f;
             }
             return p;
         }
 
-        // Close up, Biscuit smells the dead without stopping: through a door, round a corner.
+        // Close up, Biscuit smells things without stopping: through a door, round a corner.
         void SmellAround(float now)
         {
             Vector3 nose = transform.position;
             float range2 = tuning.noseRange * tuning.noseRange;
+
             IReadOnlyList<ScentSource> sources = ScentRegistry.All;
             for (int i = 0; i < sources.Count; i++)
             {
                 ScentSource source = sources[i];
                 if ((source.Position - nose).sqrMagnitude <= range2)
-                    Brain.OnSmelt(source.Id, source.Position, now);
+                    Brain.OnSmelt(source.Id, source.Kind, source.Position, now);
+            }
+
+            IReadOnlyList<PointRegistry.Point> points = PointRegistry.All;
+            for (int i = 0; i < points.Count; i++)
+            {
+                if ((points[i].Position - nose).sqrMagnitude <= range2)
+                    Brain.OnFoundPoint(points[i].Kind, points[i].Id, points[i].Position);
             }
         }
 
@@ -145,16 +179,12 @@ namespace Hollowmere.AI.Biscuit
         {
             if (noise.Source == gameObject) return;   // its own bark
 
-            // Only the dead interest Biscuit: anything it can smell, or a groan from anything.
-            int id;
+            // Only enemies interest Biscuit: anything it can smell, or a groan from anything.
             if (noise.Source != null && ScentRegistry.TryGet(noise.Source, out ScentSource source))
-                id = source.Id;
+                Brain.OnHeard(source.Id, source.Kind, noise.Position, Time.time);
             else if (noise.Kind == NoiseKind.Groan)
-                id = noise.Source != null ? noise.Source.GetInstanceID() : 0;
-            else
-                return;
-
-            Brain.OnHeard(id, noise.Position, Time.time);
+                Brain.OnHeard(noise.Source != null ? noise.Source.GetInstanceID() : 0, EnemyKind.Dead,
+                              noise.Position, Time.time);
         }
 
         // ---------------------------------------------------------------- IBiscuitBody
@@ -198,12 +228,16 @@ namespace Hollowmere.AI.Biscuit
 
         public void Growl(Vector3 towards)
         {
-            Vector3 direction = towards - transform.position;
-            direction.y = 0f;
-            if (direction.sqrMagnitude > 0.01f) transform.rotation = Quaternion.LookRotation(direction);
-
+            Face(towards);
             if (growlSound != null) growlSound.Play();
             OnGrowl?.Invoke();
+        }
+
+        public void Whine(Vector3 ghost)
+        {
+            Face(ghost);
+            if (whineSound != null) whineSound.Play();
+            OnWhine?.Invoke();
         }
 
         public void Bark()
@@ -217,28 +251,76 @@ namespace Hollowmere.AI.Biscuit
         {
             sniffRange = range;
             sniffCursor = 0;
+            pointCursor = 0;
+            OnSniff?.Invoke();
         }
 
         public bool SniffStep()
         {
             Vector3 nose = transform.position;
-            float range2 = sniffRange * sniffRange;
-            IReadOnlyList<ScentSource> sources = ScentRegistry.All;
+            float now = Time.time;
             int searches = 0;
 
+            // Enemies first. Cheap test before each path search, as in NoiseSystem: the walking route
+            // is never shorter than the straight line.
+            float range2 = sniffRange * sniffRange;
+            IReadOnlyList<ScentSource> sources = ScentRegistry.All;
             while (sniffCursor < sources.Count && searches < PathSearchesPerSniffStep)
             {
                 ScentSource source = sources[sniffCursor++];
-
-                // Cheap test first, as in NoiseSystem: the walking route is never shorter than the straight line.
                 if ((source.Position - nose).sqrMagnitude > range2) continue;
 
                 // Scent follows the walkable routes, like sound: a wall between them hides it.
                 searches++;
                 if (NoiseSystem.PathDistance(source.Position, nose) <= sniffRange)
-                    Brain.OnSmelt(source.Id, source.Position, Time.time);
+                    Brain.OnSmelt(source.Id, source.Kind, source.Position, now);
             }
-            return sniffCursor >= sources.Count;
+
+            // Then ammunition and pages, which lie still and can be smelt from further.
+            float pointRange = tuning.pointSniffRange;
+            IReadOnlyList<PointRegistry.Point> points = PointRegistry.All;
+            while (pointCursor < points.Count && searches < PathSearchesPerSniffStep)
+            {
+                PointRegistry.Point point = points[pointCursor++];
+                if ((point.Position - nose).sqrMagnitude > pointRange * pointRange) continue;
+
+                searches++;
+                if (NoiseSystem.PathDistance(point.Position, nose) <= pointRange)
+                    Brain.OnFoundPoint(point.Kind, point.Id, point.Position);
+            }
+
+            return sniffCursor >= sources.Count && pointCursor >= points.Count;
+        }
+
+        public bool TryTakeAmmo(int pointId)
+        {
+            if (!PointRegistry.TryConsume(pointId)) return false;
+            ShowCarried(true);
+            OnFetch?.Invoke();
+            return true;
+        }
+
+        public void DeliverAmmo(float amount)
+        {
+            ShowCarried(false);
+            if (PlayerRegistry.Current is IAmmoReceiver receiver)
+            {
+                receiver.ReceiveAmmo(amount);
+            }
+            else if (!warnedNoReceiver)
+            {
+                warnedNoReceiver = true;
+                Debug.LogWarning("BiscuitAgent: the player does not implement IAmmoReceiver, so the ammunition " +
+                                 "Biscuit brought was not added.", this);
+            }
+            OnDeliver?.Invoke();
+        }
+
+        public void ShowEvidence(int pointId)
+        {
+            string found = PointRegistry.NameOf(pointId);
+            PointRegistry.TryConsume(pointId);
+            OnEvidenceShown?.Invoke(found);
         }
 
         public bool TryFindRetreatPoint(Vector3 threat, float distance, out Vector3 point)
@@ -249,12 +331,12 @@ namespace Hollowmere.AI.Biscuit
             away = away.sqrMagnitude > 0.01f ? away.normalized : -transform.forward;
 
             // Straight away first, then 45 and 90 degrees to either side if a wall is in the way.
-            float safe2 = tuning.dangerDistance * tuning.dangerDistance;
+            float safe = distance * 0.75f;
             for (int i = 0; i < RetreatAngles.Length; i++)
             {
                 Vector3 candidate = here + Quaternion.Euler(0f, RetreatAngles[i], 0f) * away * distance;
                 if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, 2f, dogFilter) &&
-                    (hit.position - threat).sqrMagnitude > safe2)
+                    (hit.position - threat).sqrMagnitude > safe * safe)
                 {
                     point = hit.position;
                     return true;
@@ -292,7 +374,31 @@ namespace Hollowmere.AI.Biscuit
             return bestScore > float.NegativeInfinity;
         }
 
-        // ---------------------------------------------------------------- setup
+        // ---------------------------------------------------------------- helpers
+
+        void Face(Vector3 point)
+        {
+            Vector3 direction = point - transform.position;
+            direction.y = 0f;
+            if (direction.sqrMagnitude > 0.01f) transform.rotation = Quaternion.LookRotation(direction);
+        }
+
+        // A stand-in magazine in Biscuit's mouth, until there is a real pickup model. Made once.
+        void ShowCarried(bool show)
+        {
+            if (carried == null)
+            {
+                if (!show) return;
+                carried = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                carried.name = "Carried ammo";
+                Destroy(carried.GetComponent<Collider>());
+                carried.transform.SetParent(transform, false);
+                carried.transform.localPosition = new Vector3(0f, 0.45f, 0.55f);
+                carried.transform.localScale = new Vector3(0.08f, 0.05f, 0.16f);
+                carried.GetComponent<Renderer>().material.color = new Color(0.25f, 0.27f, 0.2f);
+            }
+            carried.SetActive(show);
+        }
 
         // The project bakes one NavMesh per agent type. Only the Dog one is linked between zones,
         // which is what lets Biscuit follow the player everywhere.

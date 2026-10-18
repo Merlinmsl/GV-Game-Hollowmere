@@ -2,7 +2,10 @@ using UnityEngine;
 
 namespace Hollowmere.AI.Biscuit
 {
-    /// <summary>Back away from one of the dead that got too close. Done once it is no longer close.</summary>
+    /// <summary>
+    /// Back away from an enemy that got too close. Done once it is no longer close. Biscuit backs
+    /// further from a ghost (it drifts through walls) than from the dead.
+    /// </summary>
     public sealed class HideAction : BiscuitAction
     {
         bool hasSpot;
@@ -29,7 +32,9 @@ namespace Hollowmere.AI.Biscuit
             if (!brain.Memory.TryGetClosest(p.Position, brain.Tuning.sureConfidence, p.Now,
                                             out EnemyBelief threat, out _))
                 return;
-            if (!brain.Body.TryFindRetreatPoint(threat.Position, brain.Tuning.hideDistance, out Vector3 spot))
+
+            float distance = Mathf.Max(brain.Tuning.hideDistance, brain.Tuning.DangerDistanceOf(threat.Kind) + 2f);
+            if (!brain.Body.TryFindRetreatPoint(threat.Position, distance, out Vector3 spot))
                 return;
 
             hasSpot = true;

@@ -10,12 +10,18 @@ namespace Hollowmere.AI.Biscuit
     public enum Fact : ushort
     {
         None = 0,
-        NearPlayer = 1 << 0,        // at the player's side
-        EnemyNearby = 1 << 1,       // believes one of the dead is within reach of the player
-        PlayerWarned = 1 << 2,      // has growled or barked about the threats met so far
-        InDanger = 1 << 3,          // one of the dead is right next to Biscuit
-        PlayerInTrouble = 1 << 4,   // the player is badly hurt and the dead are close to them
-        AreaScouted = 1 << 5,       // has sniffed around here recently
+        NearPlayer = 1 << 0,         // at the player's side
+        EnemyNearby = 1 << 1,        // believes an enemy is within reach of the player
+        PlayerWarned = 1 << 2,       // has warned about the threats met so far
+        InDanger = 1 << 3,           // an enemy is right next to Biscuit
+        PlayerInTrouble = 1 << 4,    // the player is badly hurt and an enemy is close to them
+        AreaScouted = 1 << 5,        // has sniffed around here recently
+        GhostNearby = 1 << 6,        // one of the enemies near the player is a ghost
+        PlayerLowOnAmmo = 1 << 7,    // the player is nearly out of bullets
+        KnowsAmmo = 1 << 8,          // has smelt ammunition lying somewhere
+        CarryingAmmo = 1 << 9,       // has ammunition in its mouth
+        KnowsEvidence = 1 << 10,     // has smelt one of Marrow's pages the player has not seen
+        PlayerAtEvidence = 1 << 11,  // the player is standing at that page
     }
 
     /// <summary>
@@ -45,13 +51,14 @@ namespace Hollowmere.AI.Biscuit
     public static class WorldState
     {
         /// <summary>Number of facts. The planner sizes its arrays as 2^FactCount.</summary>
-        public const int FactCount = 6;
+        public const int FactCount = 12;
         public const int StateCount = 1 << FactCount;
 
         public static readonly Fact[] AllFacts =
         {
-            Fact.NearPlayer, Fact.EnemyNearby, Fact.PlayerWarned,
-            Fact.InDanger, Fact.PlayerInTrouble, Fact.AreaScouted,
+            Fact.NearPlayer, Fact.EnemyNearby, Fact.PlayerWarned, Fact.InDanger,
+            Fact.PlayerInTrouble, Fact.AreaScouted, Fact.GhostNearby, Fact.PlayerLowOnAmmo,
+            Fact.KnowsAmmo, Fact.CarryingAmmo, Fact.KnowsEvidence, Fact.PlayerAtEvidence,
         };
 
         public static bool Has(ushort state, Fact fact) => (state & (ushort)fact) != 0;

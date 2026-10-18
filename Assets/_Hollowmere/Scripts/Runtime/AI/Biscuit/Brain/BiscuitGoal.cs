@@ -25,7 +25,7 @@ namespace Hollowmere.AI.Biscuit
         protected abstract float Score(BiscuitBrain brain);
     }
 
-    /// <summary>Get away from one of the dead that is right next to Biscuit. Beats everything.</summary>
+    /// <summary>Get away from an enemy that is right next to Biscuit. Beats everything.</summary>
     public sealed class StaySafeGoal : BiscuitGoal
     {
         public StaySafeGoal() : base("Stay safe", new Condition(Fact.None, Fact.InDanger)) { }
@@ -33,7 +33,7 @@ namespace Hollowmere.AI.Biscuit
         protected override float Score(BiscuitBrain brain) => brain.Has(Fact.InDanger) ? 1f : 0f;
     }
 
-    /// <summary>Draw the dead away from a badly hurt player.</summary>
+    /// <summary>Draw the enemies away from a badly hurt player.</summary>
     public sealed class ProtectPlayerGoal : BiscuitGoal
     {
         public ProtectPlayerGoal() : base("Protect player", new Condition(Fact.None, Fact.PlayerInTrouble)) { }
@@ -41,7 +41,7 @@ namespace Hollowmere.AI.Biscuit
         protected override float Score(BiscuitBrain brain) => brain.Has(Fact.PlayerInTrouble) ? 0.9f : 0f;
     }
 
-    /// <summary>Tell the player about the dead before the player can see them.</summary>
+    /// <summary>Tell the player about enemies before the player can see them.</summary>
     public sealed class WarnPlayerGoal : BiscuitGoal
     {
         public WarnPlayerGoal() : base("Warn player", new Condition(Fact.PlayerWarned)) { }
@@ -54,7 +54,35 @@ namespace Hollowmere.AI.Biscuit
         }
     }
 
-    /// <summary>Sniff the area for the dead while it is quiet.</summary>
+    /// <summary>Bring ammunition to a player who is nearly out.</summary>
+    public sealed class ResupplyGoal : BiscuitGoal
+    {
+        public ResupplyGoal() : base("Resupply", new Condition(Fact.None, Fact.PlayerLowOnAmmo)) { }
+
+        // Below a warning about a fresh smell (0.8), above showing a page (0.45). Only worth wanting
+        // when there is something to fetch, and not again straight after a delivery.
+        protected override float Score(BiscuitBrain brain)
+        {
+            if (!brain.Has(Fact.PlayerLowOnAmmo) || !brain.ResupplyReady) return 0f;
+            bool somethingToFetch = brain.Has(Fact.CarryingAmmo) || brain.Has(Fact.KnowsAmmo) ||
+                                    brain.Perception.AmmoSpotsLeft > 0;
+            return somethingToFetch ? 0.6f : 0f;
+        }
+    }
+
+    /// <summary>Lead the player to one of Marrow's pages, but only while it is quiet.</summary>
+    public sealed class ShowEvidenceGoal : BiscuitGoal
+    {
+        public ShowEvidenceGoal() : base("Show evidence", new Condition(Fact.PlayerAtEvidence)) { }
+
+        protected override float Score(BiscuitBrain brain)
+        {
+            if (!brain.Perception.HasPlayer || brain.Has(Fact.EnemyNearby)) return 0f;
+            return brain.Has(Fact.KnowsEvidence) || brain.Perception.PagesLeft > 0 ? 0.45f : 0f;
+        }
+    }
+
+    /// <summary>Sniff the area while it is quiet.</summary>
     public sealed class ScoutGoal : BiscuitGoal
     {
         public ScoutGoal() : base("Scout", new Condition(Fact.AreaScouted)) { }

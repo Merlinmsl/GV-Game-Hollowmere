@@ -5,13 +5,19 @@ using UnityEngine;
 namespace Hollowmere.AI.Biscuit
 {
     /// <summary>
-    /// Marks something Biscuit can smell. Put it on the root of the zombie, ghost and creature
-    /// prefabs (the same object that makes their noises). It registers itself while enabled, so
-    /// Biscuit never has to search the scene. Disable it when the enemy is dead or freed.
+    /// Marks something Biscuit can smell. Put it on the root of each enemy prefab (the same object
+    /// that makes its noises) and set its kind: Dead on PF_Zombie, Ghost on PF_Ghost, Creature on
+    /// PF_CreepCreature. It registers itself while enabled, so Biscuit never has to search the scene.
+    /// Disable it when the enemy is dead or freed.
     /// </summary>
     public sealed class ScentSource : MonoBehaviour
     {
+        [Tooltip("What Biscuit smells. Dead: the zombies. Ghost: Mara and the servants. " +
+                 "Creature: the thing in the tunnel.")]
+        [SerializeField] EnemyKind kind = EnemyKind.Dead;
+
         public int Id { get; private set; }
+        public EnemyKind Kind => kind;
         public Vector3 Position => transform.position;
 
         void Awake() => Id = GetInstanceID();

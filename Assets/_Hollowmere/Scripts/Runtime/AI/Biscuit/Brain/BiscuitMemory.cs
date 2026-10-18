@@ -2,10 +2,11 @@ using UnityEngine;
 
 namespace Hollowmere.AI.Biscuit
 {
-    /// <summary>One of the dead that Biscuit has smelt or heard.</summary>
+    /// <summary>One enemy that Biscuit has smelt or heard.</summary>
     public struct EnemyBelief
     {
         public int SourceId;        // the ScentSource id, or whatever made the noise
+        public EnemyKind Kind;
         public Vector3 Position;    // where it was when last sensed, not where it is now
         public float Confidence0;   // confidence at Time
         public float Time;
@@ -13,9 +14,9 @@ namespace Hollowmere.AI.Biscuit
     }
 
     /// <summary>
-    /// What Biscuit believes about the dead nearby. Biscuit never reads an enemy's true position:
-    /// it remembers where it last smelt or heard one, and the belief fades as c0 x e^(-t / tau).
-    /// Fixed size, so remembering never allocates.
+    /// What Biscuit believes about the enemies nearby. Biscuit never reads an enemy's true
+    /// position: it remembers where it last smelt or heard one, and the belief fades as
+    /// c0 x e^(-t / tau). Fixed size, so remembering never allocates.
     /// </summary>
     public sealed class BiscuitMemory
     {
@@ -32,8 +33,8 @@ namespace Hollowmere.AI.Biscuit
         public int Count { get; private set; }
 
         /// <summary>
-        /// Goes up by one for every one of the dead Biscuit did not already know about.
-        /// A warning covers every threat met before it.
+        /// Goes up by one for every enemy Biscuit did not already know about. A warning covers
+        /// every threat met before it.
         /// </summary>
         public int ThreatsMet { get; private set; }
 
@@ -42,7 +43,7 @@ namespace Hollowmere.AI.Biscuit
         public float ConfidenceOf(in EnemyBelief belief, float now) =>
             belief.Confidence0 * Mathf.Exp(-(now - belief.Time) / tuning.beliefTau);
 
-        public void Remember(int sourceId, Vector3 position, float confidence, bool smelt, float now)
+        public void Remember(int sourceId, EnemyKind kind, Vector3 position, float confidence, bool smelt, float now)
         {
             for (int i = 0; i < Count; i++)
             {
@@ -52,7 +53,11 @@ namespace Hollowmere.AI.Biscuit
                 beliefs[i].Confidence0 = Mathf.Max(ConfidenceOf(beliefs[i], now), confidence);
                 beliefs[i].Position = position;
                 beliefs[i].Time = now;
-                beliefs[i].Smelt |= smelt;
+                if (smelt)
+                {
+                    beliefs[i].Smelt = true;
+                    beliefs[i].Kind = kind;   // a smell says what it is; a groan only guesses
+                }
                 return;
             }
 
@@ -70,7 +75,8 @@ namespace Hollowmere.AI.Biscuit
 
             beliefs[slot] = new EnemyBelief
             {
-                SourceId = sourceId, Position = position, Confidence0 = confidence, Time = now, Smelt = smelt,
+                SourceId = sourceId, Kind = kind, Position = position,
+                Confidence0 = confidence, Time = now, Smelt = smelt,
             };
             ThreatsMet++;
         }
@@ -91,13 +97,17 @@ namespace Hollowmere.AI.Biscuit
 
         /// <summary>The belief closest to a point that is at least this sure. False when there is none.</summary>
         public bool TryGetClosest(Vector3 point, float minConfidence, float now,
+                                  out EnemyBelief closest, out float distance) =>
+            TryGetClosest(point, minConfidence, now, KindFilter.Any, out closest, out distance);
+
+        public bool TryGetClosest(Vector3 point, float minConfidence, float now, KindFilter filter,
                                   out EnemyBelief closest, out float distance)
         {
             closest = default;
             distance = float.PositiveInfinity;
             for (int i = 0; i < Count; i++)
             {
-                if (ConfidenceOf(beliefs[i], now) < minConfidence) continue;
+                if (!filter.Matches(beliefs[i].Kind) || ConfidenceOf(beliefs[i], now) < minConfidence) continue;
                 float d = Vector3.Distance(point, beliefs[i].Position);
                 if (d >= distance) continue;
                 distance = d;
@@ -106,13 +116,15 @@ namespace Hollowmere.AI.Biscuit
             return distance < float.PositiveInfinity;
         }
 
-        public int CountWithin(Vector3 point, float radius, float minConfidence, float now)
+        public int CountWithin(Vector3 point, float radius, float minConfidence, float now,
+                               KindFilter filter = KindFilter.Any)
         {
             int count = 0;
             float radius2 = radius * radius;
             for (int i = 0; i < Count; i++)
             {
-                if (ConfidenceOf(beliefs[i], now) >= minConfidence &&
+                if (filter.Matches(beliefs[i].Kind) &&
+                    ConfidenceOf(beliefs[i], now) >= minConfidence &&
                     (beliefs[i].Position - point).sqrMagnitude <= radius2)
                     count++;
             }

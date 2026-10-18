@@ -14,6 +14,13 @@ namespace Hollowmere.AI.Biscuit
         public Vector3 PlayerPosition;
         public Vector3 PlayerLook;
         public float PlayerHealth01;
+        public float PlayerAmmo01;
+
+        /// <summary>Unused ammunition spots in the loaded zones. Biscuit has to sniff to find one.</summary>
+        public int AmmoSpotsLeft;
+
+        /// <summary>Pages in the loaded zones the player has not been shown yet.</summary>
+        public int PagesLeft;
 
         /// <summary>Straight-line distance to the player, or infinity when there is none.</summary>
         public float DistanceToPlayer =>

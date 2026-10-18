@@ -10,10 +10,15 @@ namespace Hollowmere.Tests.Biscuit
     {
         // Indexes into the action array, in the brain's order.
         const int Follow = 0;
+        const int Sniff = 1;
         const int Growl = 2;
-        const int Bark = 3;
+        const int Whine = 3;
+        const int Bark = 4;
+        const int Fetch = 7;
+        const int Bring = 8;
 
         static readonly Condition Warned = new Condition(Fact.PlayerWarned);
+        static readonly Condition Resupplied = new Condition(Fact.None, Fact.PlayerLowOnAmmo);
 
         readonly GoapPlanner planner = new GoapPlanner();
         readonly BiscuitAction[] plan = new BiscuitAction[GoapPlanner.MaxDepth];
@@ -26,10 +31,13 @@ namespace Hollowmere.Tests.Biscuit
         {
             actions = new BiscuitAction[]
             {
-                new FollowAction(), new SniffAction(), new GrowlAction(), new BarkAction(), new HideAction(), new LureAction(),
+                new FollowAction(), new SniffAction(), new GrowlAction(), new WhineAction(), new BarkAction(),
+                new HideAction(), new LureAction(), new FetchAmmoAction(), new BringAmmoAction(),
+                new LeadToEvidenceAction(),
             };
-            costs = new[] { 1f, 1f, 1f, 3f, 1f, 5f };
-            usable = new[] { true, true, true, true, true, true };
+            costs = new[] { 1f, 1f, 1f, 1f, 3f, 1f, 5f, 3f, 1.2f, 2f };
+            usable = new bool[actions.Length];
+            for (int i = 0; i < usable.Length; i++) usable[i] = true;
         }
 
         static ushort State(params Fact[] facts)
@@ -60,6 +68,14 @@ namespace Hollowmere.Tests.Biscuit
         }
 
         [Test]
+        public void WithAGhostNear_WhineTakesThePlaceOfGrowl()
+        {
+            Assert.IsTrue(Plan(State(Fact.NearPlayer, Fact.EnemyNearby, Fact.GhostNearby), Warned, out int length, out _));
+            Assert.AreEqual(1, length);
+            Assert.AreSame(actions[Whine], plan[0]);
+        }
+
+        [Test]
         public void AwayFromThePlayer_WeighsFollowAndGrowlAgainstBark()
         {
             ushort start = State(Fact.EnemyNearby);
@@ -81,6 +97,18 @@ namespace Hollowmere.Tests.Biscuit
         }
 
         [Test]
+        public void LowOnAmmo_BuildsAThreeStepPlan()
+        {
+            // Nothing known yet: sniff for it, fetch it, bring it. 1 + 3 + 1.2 = 5.2.
+            Assert.IsTrue(Plan(State(Fact.NearPlayer, Fact.PlayerLowOnAmmo), Resupplied, out int length, out float cost));
+            Assert.AreEqual(3, length);
+            Assert.AreSame(actions[Sniff], plan[0]);
+            Assert.AreSame(actions[Fetch], plan[1]);
+            Assert.AreSame(actions[Bring], plan[2]);
+            Assert.AreEqual(5.2f, cost, 1e-4f);
+        }
+
+        [Test]
         public void UnusableAction_IsLeftOut()
         {
             usable[Growl] = false;
@@ -92,7 +120,7 @@ namespace Hollowmere.Tests.Biscuit
         [Test]
         public void NoActionReachesTheGoal_ReturnsFalse()
         {
-            // Nothing can warn the player about the dead when Biscuit knows of none.
+            // Nothing can warn the player about enemies when Biscuit knows of none.
             Assert.IsFalse(Plan(State(Fact.NearPlayer), Warned, out int length, out _));
             Assert.AreEqual(0, length);
         }
@@ -101,13 +129,14 @@ namespace Hollowmere.Tests.Biscuit
         public void AStarMatchesDijkstra_FromEveryStateForEveryGoal()
         {
             // An admissible heuristic must not change the answer: A* has to find the same cheapest
-            // cost as a search with no heuristic at all, from all 64 states, for each of Biscuit's goals.
+            // cost as a search with no heuristic at all, from all 4096 states, for each of Biscuit's goals.
             Condition[] goals =
             {
                 new Condition(Fact.None, Fact.InDanger), new Condition(Fact.None, Fact.PlayerInTrouble),
-                Warned, new Condition(Fact.AreaScouted), new Condition(Fact.NearPlayer),
+                Warned, Resupplied, new Condition(Fact.PlayerAtEvidence), new Condition(Fact.AreaScouted),
+                new Condition(Fact.NearPlayer),
             };
-            costs = new[] { 2.6f, 1f, 1f, 7f, 1f, 5f };
+            costs = new[] { 2.6f, 1f, 1f, 1f, 7f, 1f, 5f, 3f, 1.2f, 2f };
             var dijkstra = new GoapPlanner { UseHeuristic = false };
             var dijkstraPlan = new BiscuitAction[GoapPlanner.MaxDepth];
 
@@ -129,10 +158,10 @@ namespace Hollowmere.Tests.Biscuit
         {
             var dijkstra = new GoapPlanner { UseHeuristic = false };
             var dijkstraPlan = new BiscuitAction[GoapPlanner.MaxDepth];
-            ushort start = State(Fact.EnemyNearby);
+            ushort start = State(Fact.PlayerLowOnAmmo);
 
-            Plan(start, Warned, out _, out _);
-            dijkstra.Plan(start, Warned, actions, actions.Length, costs, usable, dijkstraPlan, out _, out _);
+            Plan(start, Resupplied, out _, out _);
+            dijkstra.Plan(start, Resupplied, actions, actions.Length, costs, usable, dijkstraPlan, out _, out _);
 
             Assert.LessOrEqual(planner.NodesExpanded, dijkstra.NodesExpanded);
         }
@@ -140,10 +169,10 @@ namespace Hollowmere.Tests.Biscuit
         [Test]
         public void Planning_DoesNotAllocate()
         {
-            ushort start = State(Fact.EnemyNearby);
-            Plan(start, Warned, out _, out _);   // warm up
+            ushort start = State(Fact.PlayerLowOnAmmo);
+            Plan(start, Resupplied, out _, out _);   // warm up
 
-            TestDelegate planOnce = () => { Plan(start, Warned, out _, out _); };
+            TestDelegate planOnce = () => { Plan(start, Resupplied, out _, out _); };
             Assert.That(planOnce, Is.Not.AllocatingGCMemory());
         }
     }
