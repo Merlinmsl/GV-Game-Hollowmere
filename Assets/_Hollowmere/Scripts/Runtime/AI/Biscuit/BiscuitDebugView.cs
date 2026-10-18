@@ -5,18 +5,22 @@ using UnityEngine.InputSystem;
 namespace Hollowmere.AI.Biscuit
 {
     /// <summary>
-    /// Shows what Biscuit is thinking. F2 toggles the panel: the facts, every goal's priority, the
-    /// current plan and what planning cost. Each belief is labelled where Biscuit thinks the dead are.
-    /// The line at the bottom ("Biscuit growls...") always shows, standing in for sound until there is some.
+    /// Shows what Biscuit is thinking. F2 toggles the panel: the facts, every goal's priority, every
+    /// action's cost, the current plan and what planning cost. A label over Biscuit shows its goal
+    /// and action, and each belief is labelled where Biscuit thinks the enemy is. The line at the
+    /// bottom ("Biscuit growls...") always shows, standing in for sound until there is some.
     /// The panel builds strings while it is open; it is a debug tool and costs nothing when closed.
+    /// BiscuitWorldOverlay draws the matching rings and routes into the world.
     /// </summary>
     [RequireComponent(typeof(BiscuitAgent))]
     public sealed class BiscuitDebugView : MonoBehaviour
     {
+        const float PanelWidth = 440f;
+
         [Tooltip("Show the thinking panel from the start. F2 toggles it.")]
         [SerializeField] bool showPanel;
 
-        readonly StringBuilder text = new StringBuilder(1024);
+        readonly StringBuilder text = new StringBuilder(2048);
         BiscuitAgent biscuit;
         Camera view;
         string callout = "";
@@ -24,6 +28,9 @@ namespace Hollowmere.AI.Biscuit
         GUIStyle panelStyle;
         GUIStyle calloutStyle;
         GUIStyle labelStyle;
+        GUIStyle headStyle;
+
+        public bool ShowPanel => showPanel;
 
         void Awake() => biscuit = GetComponent<BiscuitAgent>();
 
@@ -31,21 +38,33 @@ namespace Hollowmere.AI.Biscuit
         {
             biscuit.OnBark += ShowBark;
             biscuit.OnGrowl += ShowGrowl;
+            biscuit.OnWhine += ShowWhine;
+            biscuit.OnFetch += ShowFetch;
+            biscuit.OnDeliver += ShowDelivery;
+            biscuit.OnEvidenceShown += ShowEvidence;
         }
 
         void OnDisable()
         {
             biscuit.OnBark -= ShowBark;
             biscuit.OnGrowl -= ShowGrowl;
+            biscuit.OnWhine -= ShowWhine;
+            biscuit.OnFetch -= ShowFetch;
+            biscuit.OnDeliver -= ShowDelivery;
+            biscuit.OnEvidenceShown -= ShowEvidence;
         }
 
         void ShowBark() => Callout("Biscuit barks!");
         void ShowGrowl() => Callout("Biscuit growls...");
+        void ShowWhine() => Callout("Biscuit whines and backs away. A ghost?");
+        void ShowFetch() => Callout("Biscuit picks up a magazine");
+        void ShowDelivery() => Callout("Biscuit drops a magazine at your feet");
+        void ShowEvidence(string found) => Callout("Biscuit found something: " + found);
 
         void Callout(string message)
         {
             callout = message;
-            calloutUntil = Time.time + 2f;
+            calloutUntil = Time.time + 2.5f;
         }
 
         void Update()
@@ -65,33 +84,39 @@ namespace Hollowmere.AI.Biscuit
             if (!showPanel || brain == null) return;
 
             DrawPanel(brain);
-            DrawBeliefLabels(brain);
+            DrawLabels(brain);
         }
 
         void DrawPanel(BiscuitBrain brain)
         {
+            float now = brain.Perception.Now;
             text.Clear();
-            text.Append("BISCUIT  goal-oriented action planning (A*)   F2 to hide\n\n");
+            text.Append("BISCUIT   goal-oriented action planning (A*)   F2 to hide\n\n");
 
-            text.Append("Goal    ").Append(brain.CurrentGoal != null ? brain.CurrentGoal.Name : "none (idle)").Append('\n');
-
-            text.Append("Plan    ");
-            if (brain.PlanLength == 0) text.Append("-");
+            text.Append("Goal   ").Append(brain.CurrentGoal != null ? brain.CurrentGoal.Name : "none (idle)").Append('\n');
+            text.Append("Plan   ");
+            if (brain.PlanLength == 0) text.Append('-');
             for (int i = 0; i < brain.PlanLength; i++)
             {
                 if (i > 0) text.Append("  >  ");
                 bool active = i == brain.PlanStep && brain.CurrentAction != null;
                 text.Append(active ? "[" : "").Append(brain.Plan[i].Name).Append(active ? "]" : "");
             }
-            text.Append("\n        cost ").Append(brain.PlanCost.ToString("F1"))
-                .Append("   searched ").Append(brain.PlanNodesExpanded).Append(" states")
-                .Append("   ").Append(brain.PlanMilliseconds.ToString("F3")).Append(" ms\n\n");
+            text.Append("\n       cost ").Append(brain.PlanCost.ToString("F1"))
+                .Append("   searched ").Append(brain.PlanNodesExpanded).Append(" states   ")
+                .Append(brain.PlanMilliseconds.ToString("F3")).Append(" ms\n\n");
 
             text.Append("Facts\n");
-            for (int i = 0; i < WorldState.AllFacts.Length; i++)
+            Fact[] facts = WorldState.AllFacts;
+            for (int i = 0; i < facts.Length; i += 2)
             {
-                Fact fact = WorldState.AllFacts[i];
-                text.Append(brain.Has(fact) ? "  [x] " : "  [ ] ").Append(fact).Append('\n');
+                AppendFact(brain, facts[i]);
+                if (i + 1 < facts.Length)
+                {
+                    text.Append("      ");
+                    AppendFact(brain, facts[i + 1]);
+                }
+                text.Append('\n');
             }
 
             text.Append("\nGoals (priority)\n");
@@ -103,45 +128,80 @@ namespace Hollowmere.AI.Biscuit
                     .Append(goal.Wants.IsMetBy(brain.State) ? "  (met)" : "").Append('\n');
             }
 
-            text.Append("\nActions (planner cost)\n");
-            for (int i = 0; i < brain.Actions.Length; i++)
+            text.Append("\nActions (cost to the planner)\n");
+            for (int i = 0; i < brain.Actions.Length; i += 2)
             {
-                BiscuitAction action = brain.Actions[i];
-                text.Append("    ").Append(action.Name).Append("  ");
-                if (brain.IsBanned(action)) text.Append("left out after failing");
-                else if (!action.IsUsable(brain)) text.Append("not usable now");
-                else text.Append(action.Cost(brain).ToString("F1"));
+                AppendAction(brain, brain.Actions[i]);
+                if (i + 1 < brain.Actions.Length)
+                {
+                    text.Append("      ");
+                    AppendAction(brain, brain.Actions[i + 1]);
+                }
                 text.Append('\n');
             }
 
-            float now = brain.Perception.Now;
-            text.Append("\nMemory  ").Append(brain.Memory.Count).Append(" of the dead, strongest ")
+            text.Append("\nMemory   ").Append(brain.Memory.Count).Append(" enemies, strongest ")
                 .Append(brain.Memory.StrongestConfidence(now).ToString("F2"));
+            text.Append("\nNearby   ").Append(brain.Perception.PagesLeft).Append(" pages, ")
+                .Append(brain.Perception.AmmoSpotsLeft).Append(" ammo spots");
+            AppendKnown(brain, PointKind.Evidence, "page");
+            AppendKnown(brain, PointKind.Ammo, "ammo");
+            if (brain.Carrying) text.Append("\n         carrying ammo");
             if (brain.LastFailed != null)
-                text.Append("\nLast failure  ").Append(brain.LastFailed.Name)
+                text.Append("\nLast failure   ").Append(brain.LastFailed.Name)
                     .Append(", ").Append((now - brain.LastFailedTime).ToString("F0")).Append(" s ago");
 
-            GUI.Box(new Rect(Screen.width - 430f, 10f, 420f, 560f), text.ToString(), panelStyle);
+            var content = new GUIContent(text.ToString());
+            float height = Mathf.Min(panelStyle.CalcHeight(content, PanelWidth), Screen.height - 20f);
+            GUI.Box(new Rect(Screen.width - PanelWidth - 10f, 10f, PanelWidth, height), content, panelStyle);
         }
 
-        void DrawBeliefLabels(BiscuitBrain brain)
+        void AppendFact(BiscuitBrain brain, Fact fact) =>
+            text.Append(brain.Has(fact) ? "[x] " : "[  ] ").Append(fact);
+
+        void AppendAction(BiscuitBrain brain, BiscuitAction action)
+        {
+            text.Append("  ").Append(action.Name).Append(' ');
+            if (brain.IsBanned(action)) text.Append("(failed)");
+            else if (!action.IsUsable(brain)) text.Append("(-)");
+            else text.Append(action.Cost(brain).ToString("F1"));
+        }
+
+        void AppendKnown(BiscuitBrain brain, PointKind kind, string label)
+        {
+            if (!brain.TryGetKnownPoint(kind, out _, out Vector3 at)) return;
+            text.Append("\n         smelt a ").Append(label).Append(' ')
+                .Append(Vector3.Distance(brain.Perception.Position, at).ToString("F0")).Append(" m away");
+        }
+
+        void DrawLabels(BiscuitBrain brain)
         {
             if (view == null) view = Camera.main;
             if (view == null) return;
+
+            // Goal and action over Biscuit's head.
+            Vector3 head = view.WorldToScreenPoint(transform.position + Vector3.up * 1.2f);
+            if (head.z > 0f)
+            {
+                string doing = (brain.CurrentGoal != null ? brain.CurrentGoal.Name : "idle") +
+                               (brain.CurrentAction != null ? "  >  " + brain.CurrentAction.Name : "");
+                GUI.Label(new Rect(head.x - 120f, Screen.height - head.y - 12f, 240f, 24f), doing, headStyle);
+            }
 
             float now = brain.Perception.Now;
             for (int i = 0; i < brain.Memory.Count; i++)
             {
                 EnemyBelief belief = brain.Memory[i];
-                Vector3 screen = view.WorldToScreenPoint(belief.Position + Vector3.up * 2f);
+                Vector3 screen = view.WorldToScreenPoint(belief.Position + Vector3.up * 2.6f);
                 if (screen.z <= 0f) continue;   // behind the camera
 
-                string label = (belief.Smelt ? "smelt " : "heard ") + brain.Memory.ConfidenceOf(belief, now).ToString("F2");
-                GUI.Label(new Rect(screen.x - 50f, Screen.height - screen.y - 10f, 100f, 20f), label, labelStyle);
+                string label = belief.Kind.ToString().ToLowerInvariant() + (belief.Smelt ? " (smelt) " : " (heard) ") +
+                               brain.Memory.ConfidenceOf(belief, now).ToString("F2");
+                GUI.Label(new Rect(screen.x - 70f, Screen.height - screen.y - 10f, 140f, 20f), label, labelStyle);
             }
         }
 
-        // Scene view only: where Biscuit is going, how far it smells, and where it believes the dead are.
+        // Scene view only: the same picture for when the Game view is not visible.
         void OnDrawGizmos()
         {
             if (biscuit == null || biscuit.Brain == null) return;
@@ -166,7 +226,7 @@ namespace Hollowmere.AI.Biscuit
         {
             if (panelStyle != null) return;
 
-            panelStyle = new GUIStyle(GUI.skin.box) { alignment = TextAnchor.UpperLeft, fontSize = 13, richText = false };
+            panelStyle = new GUIStyle(GUI.skin.box) { alignment = TextAnchor.UpperLeft, fontSize = 12, wordWrap = true };
             panelStyle.normal.textColor = Color.white;
             panelStyle.padding = new RectOffset(10, 10, 10, 10);
 
@@ -174,7 +234,10 @@ namespace Hollowmere.AI.Biscuit
             calloutStyle.normal.textColor = new Color(1f, 0.9f, 0.6f);
 
             labelStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontSize = 12 };
-            labelStyle.normal.textColor = new Color(1f, 0.4f, 0.4f);
+            labelStyle.normal.textColor = new Color(1f, 0.55f, 0.55f);
+
+            headStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontSize = 14, fontStyle = FontStyle.Bold };
+            headStyle.normal.textColor = new Color(1f, 0.9f, 0.4f);
         }
     }
 }
