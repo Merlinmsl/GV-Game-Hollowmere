@@ -1,0 +1,11 @@
+Model Information:
+* title:	Creep Creature
+* source:	Unity Asset Store model by ACGameAssets, recovered from the supplied Creep.fbx
+* author:	ACGameAssets
+
+Model License:
+* license type:	Unity Asset Store (paid). This is not a CC0 or CC BY asset.
+* requirements:	Keep it inside this private course repo. Do not republish the mesh or textures.
+
+Changes: removed all 17 animation clips. The FBX is the rest pose only. The original 55-bone rig and skin weights are unchanged.
+Textures downscaled to 2K. Metallic and roughness packed into one metallic-smoothness map; smoothness is the roughness map inverted.
