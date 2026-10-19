@@ -119,6 +119,95 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &206612678
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 206612681}
+  - component: {fileID: 206612680}
+  - component: {fileID: 206612679}
+  m_Layer: 0
+  m_Name: _Director
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &206612679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 206612678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e265a8a7a2c40ad4eaa48c3d03e955e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Debugging.DebugRosterSpawner
+  zones:
+  - Z1_Outskirts
+  markerPrefix: SpawnPoint_
+  perMarker: 3
+  scatter: 5
+--- !u!114 &206612680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 206612678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ff5bf6d526376e4a9964cda7d0fcfb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Director.GameDirector
+  stress:
+    damageWeight: 1.5
+    pressureWeight: 0.04
+    lowHealthWeight: 0.03
+    lowAmmoWeight: 0.015
+    calmRate: 0.05
+    pressureRadius: 25
+  tension:
+    buildFrom: 0.2
+    buildTo: 0.8
+    buildSeconds: 90
+    peakThreshold: 0.75
+    peakSeconds: 12
+    relaxTarget: 0.15
+    relaxSeconds: 35
+  profile:
+    window: 30
+    quietRate: 3
+    loudRate: 25
+  thinkInterval: 0.5
+  maxAwake: 12
+  considerRadius: 50
+  interceptAhead: 10
+  stagedLoudness: 20
+  replanInterval: 3
+  exitPrefix: ZoneExit_
+  showDebug: 0
+--- !u!4 &206612681
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 206612678}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &336637801
 GameObject:
   m_ObjectHideFlags: 0
@@ -982,3 +1071,4 @@ SceneRoots:
   - {fileID: 1294022357}
   - {fileID: 1837528444}
   - {fileID: 1571045189}
+  - {fileID: 206612681}
