@@ -21,6 +21,7 @@ namespace Hollowmere.AI.Zombie
         private readonly AttackNode attackNode;
         private readonly ChaseNode chaseNode;
         private readonly InvestigateNode investigateNode;
+        private readonly RespondToGroanNode respondToGroanNode;
         private readonly DormantNode dormantNode;
 
         private BtNode lastActiveNode;
@@ -62,6 +63,7 @@ namespace Hollowmere.AI.Zombie
 
             chaseNode = new ChaseNode(memory, agent, config);
             investigateNode = new InvestigateNode(memory, agent);
+            respondToGroanNode = new RespondToGroanNode(memory, agent);
             dormantNode = new DormantNode(memory, bodyTransform);
 
             // Construct Root Priority Selector
@@ -69,8 +71,9 @@ namespace Hollowmere.AI.Zombie
             // 1. Attack          — target within melee range
             // 2. Chase           — belief confidence >= 0.8
             // 3. Investigate     — active belief exists (0.1 <= conf < 0.8)
-            // 4. Dormant         — idle baseline listening stance
-            rootNode = new BtSelector("ZombieRootSelector", attackNode, chaseNode, investigateNode, dormantNode);
+            // 4. RespondToGroan  — received groan alert from neighbouring zombie
+            // 5. Dormant         — idle baseline listening stance
+            rootNode = new BtSelector("ZombieRootSelector", attackNode, chaseNode, investigateNode, respondToGroanNode, dormantNode);
         }
 
         /// <summary>
@@ -89,6 +92,7 @@ namespace Hollowmere.AI.Zombie
             {
                 chaseNode.SetNavMeshAgent(agent);
                 investigateNode.SetNavMeshAgent(agent);
+                respondToGroanNode.SetNavMeshAgent(agent);
             }
         }
 
