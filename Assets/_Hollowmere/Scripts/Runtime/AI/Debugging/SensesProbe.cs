@@ -43,16 +43,11 @@ namespace Hollowmere.AI.Debugging
 
         void OnGUI()
         {
-            Camera view = Camera.main;
-            if (view == null) return;
-            Vector3 screen = view.WorldToScreenPoint(transform.position + Vector3.up * 2.4f);
-            if (screen.z < 0f) return;
-
             string belief = memory.HasBelief(Time.time)
                 ? memory.Current.Source + "  " + memory.ConfidenceAt(Time.time).ToString("F2")
                   + "  " + Vector3.Distance(memory.Current.Position, transform.position).ToString("F0") + " m away"
                 : "no idea where you are";
-            GUI.Label(new Rect(screen.x - 90f, Screen.height - screen.y, 260f, 60f),
+            DebugLabel.Above(transform, 1.6f,
                 name + "\nSight " + sight.Meter.ToString("F2") + (sight.InView ? "  (in view)" : "") + "\n" + belief);
         }
     }
