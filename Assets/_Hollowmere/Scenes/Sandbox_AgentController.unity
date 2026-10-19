@@ -1145,8 +1145,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.Agents.ClickToMove
   viewCamera: {fileID: 0}
-  walkSpeed: 1.5
-  runSpeed: 5.5
+  walkSpeed: 2.4
+  runSpeed: 8.5
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -1294,8 +1294,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.Agents.ClickToMove
   viewCamera: {fileID: 0}
-  walkSpeed: 1.2
-  runSpeed: 4.5
+  walkSpeed: 1.6
+  runSpeed: 5.5
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
