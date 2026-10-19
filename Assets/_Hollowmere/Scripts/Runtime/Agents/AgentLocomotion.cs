@@ -38,17 +38,33 @@ namespace Hollowmere.Agents
         [Tooltip("Speed of the run slot in the Locomotion blend tree.")]
         [SerializeField] float runThreshold = 4.5f;
 
+        [Header("Water")]
+        [Tooltip("Share of the requested speed kept while wading through the NavMesh Water area.")]
+        [SerializeField, Range(0.2f, 1f)] float waterSpeedFactor = 0.75f;
+        [Tooltip("Seconds to ease into or out of the water speed.")]
+        [SerializeField] float waterEaseTime = 0.5f;
+
+        const float AreaCheckInterval = 0.2f;         // the ground under the feet changes slowly
+
         static readonly int Speed = Animator.StringToHash("Speed");
         static readonly int LocomotionSpeed = Animator.StringToHash("LocomotionSpeed");
         NavMeshAgent agent;
         float requestedSpeed;                         // the speed the brain asked for
         float writtenSpeed;                           // the speed we last gave the agent
+        int waterMask;                                // 0 when the project has no Water area
+        bool inWater;
+        float waterFactor = 1f;
+        float nextAreaCheck;
 
         void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
             agent.updateRotation = false;             // we turn the body ourselves
             requestedSpeed = writtenSpeed = agent.speed;
+
+            int waterArea = NavMesh.GetAreaFromName("Water");
+            waterMask = waterArea >= 0 ? 1 << waterArea : 0;
+            nextAreaCheck = Random.value * AreaCheckInterval;   // spread agents' checks across frames
 
             if (animator == null) animator = GetComponentInChildren<Animator>();
             if (animator == null)
@@ -60,6 +76,7 @@ namespace Hollowmere.Agents
 
         void Update()
         {
+            UpdateWaterFactor();
             ApplyCornerSlowdown();
 
             // Where the agent wants to go this frame, flattened so the body only turns, never tilts.
@@ -114,8 +131,26 @@ namespace Hollowmere.Agents
                 factor = Mathf.Lerp(1f, minSpeedFactor, t);
             }
 
-            writtenSpeed = requestedSpeed * factor;
+            writtenSpeed = requestedSpeed * factor * waterFactor;
             agent.speed = writtenSpeed;
+        }
+
+        // Wading is slower: checks a few times a second which NavMesh area is under the agent and
+        // eases the speed factor toward the water value, so stepping in or out never snaps.
+        void UpdateWaterFactor()
+        {
+            if (waterMask == 0) return;
+
+            if (Time.time >= nextAreaCheck)
+            {
+                nextAreaCheck = Time.time + AreaCheckInterval;
+                inWater = NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 0.5f, agent.areaMask)
+                          && (hit.mask & waterMask) != 0;
+            }
+
+            float target = inWater ? waterSpeedFactor : 1f;
+            float rate = (1f - waterSpeedFactor) / Mathf.Max(waterEaseTime, 0.01f);
+            waterFactor = Mathf.MoveTowards(waterFactor, target, rate * Time.deltaTime);
         }
 
         // Draws the path array (agent.path.corners) in the Scene view while this object is selected.
