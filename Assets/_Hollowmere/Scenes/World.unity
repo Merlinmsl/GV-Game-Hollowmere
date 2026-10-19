@@ -732,6 +732,8 @@ GameObject:
   - component: {fileID: 1837528443}
   - component: {fileID: 1837528442}
   - component: {fileID: 1837528445}
+  - component: {fileID: 1837528447}
+  - component: {fileID: 1837528446}
   m_Layer: 0
   m_Name: DebugPlayer (temporary)
   m_TagString: Player
@@ -818,6 +820,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5c617512d23e4044a6b7e1b7f3b7a62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Debugging.DebugNoiseKeys
+--- !u!114 &1837528446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837528441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d927171cbea424baf7b9824496f451, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Senses.PlayerNoiseEmitter
+  runSpeed: 5
+  walkStepInterval: 0.5
+  runStepInterval: 0.33
+--- !u!114 &1837528447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837528441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f362821692c23b4580c087ada52fcee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Debugging.DebugPlayerState
 --- !u!1 &1966642893
 GameObject:
   m_ObjectHideFlags: 0
