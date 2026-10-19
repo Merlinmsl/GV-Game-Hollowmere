@@ -20,7 +20,10 @@ namespace Hollowmere.EditorTools
         const string MaterialRoot = "Assets/_Hollowmere/Art/Materials/Characters";
         const string PrefabRoot = "Assets/_Hollowmere/Prefabs/Agents";
 
-        static readonly string[] Characters = { "Marrow", "Zombie", "Biscuit", "Ghost" };
+        static readonly string[] Characters = { "Marrow", "Zombie", "Biscuit", "Ghost", "CreepCreature" };
+
+        // The creep keeps its original skeleton. The others have no rig.
+        static bool UsesGenericRig(string character) => character == "CreepCreature";
 
         enum Surface { Opaque, Cutout, Transparent }
 
@@ -50,6 +53,11 @@ namespace Hollowmere.EditorTools
                        MetallicSmoothness = "T_Ghost_MetallicSmoothness.png",
                        Occlusion = "T_Ghost_Occlusion.png", OcclusionStrength = 0.35f,
                        Emission = "T_Ghost_Emission.png", Surface = Surface.Transparent, Alpha = 0.75f },
+            // Metallic is near black. Smoothness is the roughness map, inverted into the alpha.
+            new Spec { Character = "CreepCreature", SourceMaterial = "Creep", Material = "M_CreepCreature",
+                       BaseMap = "T_CreepCreature_BaseMap.png", Normal = "T_CreepCreature_Normal.png",
+                       MetallicSmoothness = "T_CreepCreature_MetallicSmoothness.png",
+                       Occlusion = "T_CreepCreature_Occlusion.png" },
         };
 
         static Spec ZombiePart(string part, Surface surface = Surface.Opaque) => new Spec
@@ -124,7 +132,9 @@ namespace Hollowmere.EditorTools
             Texture2D Load(string file) =>
                 string.IsNullOrEmpty(file) ? null : AssetDatabase.LoadAssetAtPath<Texture2D>(textures + file);
 
-            material.SetTexture("_BaseMap", Load(spec.BaseMap));
+            var baseMap = Load(spec.BaseMap);
+            material.SetTexture("_BaseMap", baseMap);
+            material.SetTexture("_MainTex", baseMap);
             material.SetColor("_BaseColor", new Color(1f, 1f, 1f, spec.Alpha));
             material.SetFloat("_Metallic", 0f);
             material.SetFloat("_Smoothness", spec.Smoothness);
@@ -197,7 +207,7 @@ namespace Hollowmere.EditorTools
                 material.DisableKeyword(keyword);
         }
 
-        // The models are static for now (no rig, no clips). Remap the FBX materials onto ours.
+        // No clips. The creep uses its skeleton (Generic); the others stay unrigged.
         static void ConfigureModel(string character, Dictionary<string, Material> materials)
         {
             var path = $"{ModelRoot}/{character}/SM_{character}.fbx";
@@ -209,7 +219,16 @@ namespace Hollowmere.EditorTools
             }
 
             importer.importAnimation = false;
-            importer.animationType = ModelImporterAnimationType.None;
+            if (UsesGenericRig(character))
+            {
+                importer.animationType = ModelImporterAnimationType.Generic;
+                importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
+            }
+            else
+            {
+                importer.animationType = ModelImporterAnimationType.None;
+                importer.avatarSetup = ModelImporterAvatarSetup.NoAvatar;
+            }
             importer.meshCompression = ModelImporterMeshCompression.Medium;
             importer.isReadable = false;
             importer.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
