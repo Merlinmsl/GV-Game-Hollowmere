@@ -28,7 +28,18 @@ namespace Hollowmere.Agents
         [Tooltip("Lowest share of the requested speed. Keep it above 0, or the agent stops and never turns.")]
         [SerializeField, Range(0.1f, 1f)] float minSpeedFactor = 0.25f;
 
+        [Header("Foot matching (optional)")]
+        [Tooltip("Ground speed the walk clip was animated at, in m/s. 0 leaves the clip speed alone.")]
+        [SerializeField] float walkStrideSpeed = 0f;
+        [Tooltip("Ground speed the run clip was animated at, in m/s. 0 leaves the clip speed alone.")]
+        [SerializeField] float runStrideSpeed = 0f;
+        [Tooltip("Speed of the walk slot in the Locomotion blend tree.")]
+        [SerializeField] float walkThreshold = 1.2f;
+        [Tooltip("Speed of the run slot in the Locomotion blend tree.")]
+        [SerializeField] float runThreshold = 4.5f;
+
         static readonly int Speed = Animator.StringToHash("Speed");
+        static readonly int LocomotionSpeed = Animator.StringToHash("LocomotionSpeed");
         NavMeshAgent agent;
         float requestedSpeed;                         // the speed the brain asked for
         float writtenSpeed;                           // the speed we last gave the agent
@@ -64,6 +75,27 @@ namespace Hollowmere.Agents
 
             // Feed the real ground speed to the blend tree, smoothed so it does not flicker.
             animator.SetFloat(Speed, agent.velocity.magnitude, speedSmoothing, Time.deltaTime);
+            MatchFeet(animator.GetFloat(Speed));
+        }
+
+        // Plays the Locomotion state faster or slower so the clip's stride covers the ground the body
+        // actually covers. Only that state uses LocomotionSpeed, so attacks and deaths keep their speed.
+        void MatchFeet(float speed)
+        {
+            if (walkStrideSpeed <= 0f || runStrideSpeed <= 0f) return;
+
+            float multiplier;
+            if (speed <= walkThreshold)
+            {
+                // Idle keeps its own pace; the walk is slowed or sped up more as it blends in.
+                multiplier = Mathf.Lerp(1f, walkThreshold / walkStrideSpeed, speed / walkThreshold);
+            }
+            else
+            {
+                float t = Mathf.InverseLerp(walkThreshold, runThreshold, speed);
+                multiplier = speed / Mathf.Lerp(walkStrideSpeed, runStrideSpeed, t);
+            }
+            animator.SetFloat(LocomotionSpeed, Mathf.Clamp(multiplier, 0.25f, 3f));
         }
 
         void ApplyCornerSlowdown()
