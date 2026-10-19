@@ -8,7 +8,7 @@ namespace Hollowmere.AI.Senses
     public static class Loudness
     {
         public const float CrouchStep = 2f;
-        public const float Walk = 5f;  /// f means float literal, 5f is a float value of 5
+        public const float Walk = 5f;  // f means float literal, 5f is a float value of 5
         public const float Wade = 9f;
         public const float Door = 10f;
         public const float Run = 12f;
