@@ -428,8 +428,8 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.4
-  m_Speed: 1.2
-  m_Acceleration: 10
+  m_Speed: 1.6
+  m_Acceleration: 12
   avoidancePriority: 50
   m_AngularSpeed: 0
   m_StoppingDistance: 1.2
@@ -458,10 +458,12 @@ MonoBehaviour:
   slowStartAngle: 30
   slowFullAngle: 120
   minSpeedFactor: 0.25
-  walkStrideSpeed: 0
-  runStrideSpeed: 0
+  walkStrideSpeed: 0.33
+  runStrideSpeed: 2.36
   walkThreshold: 1.2
   runThreshold: 4.5
+  waterSpeedFactor: 0.75
+  waterEaseTime: 0.5
 --- !u!136 &1721394526610753830
 CapsuleCollider:
   m_ObjectHideFlags: 0
