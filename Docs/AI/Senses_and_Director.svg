@@ -1,0 +1,596 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2800" height="3860" viewBox="0 0 2800 3860">
+<defs>
+<marker id="ah-111827" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#111827"/></marker>
+<marker id="as-111827" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#111827"/></marker>
+<marker id="ah-2563eb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker>
+<marker id="as-2563eb" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker>
+<marker id="ah-c2410c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c2410c"/></marker>
+<marker id="as-c2410c" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c2410c"/></marker>
+<marker id="ah-7c3aed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/></marker>
+<marker id="as-7c3aed" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/></marker>
+<marker id="ah-0f766e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0f766e"/></marker>
+<marker id="as-0f766e" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0f766e"/></marker>
+<marker id="ah-be185d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#be185d"/></marker>
+<marker id="as-be185d" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#be185d"/></marker>
+<marker id="ah-047857" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#047857"/></marker>
+<marker id="as-047857" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#047857"/></marker>
+</defs>
+<rect width="2800" height="3860" fill="#ffffff"/>
+<text x="40" y="70" font-family="Segoe UI, Arial, sans-serif" font-size="46" font-weight="800" fill="#111827">Hollowmere AI: the Senses layer and the Director</text>
+<text x="40" y="108" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#374151">Every file, method and connection in Assets/_Hollowmere/Scripts/Runtime/AI/ (Senses, Scheduling, Director, Debugging). State of dev on 19 Oct 2026. SE3062 Intelligent Systems.</text>
+<rect x="40" y="140" width="30" height="22" rx="5" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+<text x="80" y="157" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#111827">Senses layer (shared)</text>
+<rect x="290.6" y="140" width="30" height="22" rx="5" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+<text x="330.6" y="157" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#111827">Scheduling (shared)</text>
+<rect x="524.0" y="140" width="30" height="22" rx="5" fill="#fde7c7" stroke="#c2410c" stroke-width="2"/>
+<text x="564.0" y="157" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#111827">Director (Minsara's agent)</text>
+<rect x="817.6" y="140" width="30" height="22" rx="5" fill="#d1fae5" stroke="#047857" stroke-width="2"/>
+<text x="857.6" y="157" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#111827">Player side</text>
+<rect x="982.2" y="140" width="30" height="22" rx="5" fill="#eceff3" stroke="#6b7280" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="1022.2" y="157" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#111827">Temporary test code (dashed)</text>
+<rect x="1293.0" y="140" width="30" height="22" rx="5" fill="#fce7f3" stroke="#be185d" stroke-width="2"/>
+<text x="1333.0" y="157" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#111827">Teammates' agents</text>
+<rect x="1509.2" y="140" width="30" height="22" rx="5" fill="#e2e8f0" stroke="#334155" stroke-width="2"/>
+<text x="1549.2" y="157" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#111827">Unity engine</text>
+<path d="M40,200 L110,200" fill="none" stroke="#111827" stroke-width="2.4" marker-end="url(#ah-111827)"/>
+<text x="125" y="205" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#111827">method call</text>
+<path d="M244.6,200 L314.6,200" fill="none" stroke="#c2410c" stroke-width="2.4" stroke-dasharray="9 6" marker-end="url(#ah-c2410c)"/>
+<text x="329.6" y="205" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#111827">event / callback</text>
+<path d="M492.2,200 L562.2,200" fill="none" stroke="#7c3aed" stroke-width="2.4" marker-end="url(#ah-7c3aed)"/>
+<text x="577.2" y="205" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#111827">scheduler calls Think(dt)</text>
+<text x="827.2" y="205" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#374151">✔ done   ✘ missing   Tags on each box: what kind of code it is (plain C# = no Unity objects, testable on its own).</text>
+<rect x="40" y="300" width="640" height="928" rx="16" fill="#f3fdf8" stroke="#047857" stroke-width="3.5"/>
+<text x="62" y="340" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="800" fill="#047857">THE PLAYER</text>
+<text x="62" y="366" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#374151">World scene &gt; DebugPlayer (temporary)</text>
+<rect x="40" y="1262" width="640" height="538" rx="16" fill="#faf8ff" stroke="#7c3aed" stroke-width="3.5"/>
+<text x="62" y="1302" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="800" fill="#7c3aed">SCHEDULING</text>
+<text x="62" y="1328" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#374151">Scripts/Runtime/AI/Scheduling/</text>
+<rect x="40" y="1834" width="640" height="393" rx="16" fill="#f8fafc" stroke="#334155" stroke-width="3.5"/>
+<text x="62" y="1874" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="800" fill="#334155">UNITY ENGINE</text>
+<text x="62" y="1900" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#374151">What our code is built on</text>
+<rect x="760" y="300" width="960" height="1927" rx="16" fill="#f5f9ff" stroke="#2563eb" stroke-width="3.5"/>
+<text x="782" y="340" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="800" fill="#2563eb">SENSES LAYER</text>
+<text x="782" y="366" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#374151">Scripts/Runtime/AI/Senses/  ·  shared by every agent: hearing, sight, memory, the player</text>
+<rect x="1840" y="300" width="920" height="1927" rx="16" fill="#fffaf3" stroke="#c2410c" stroke-width="3.5"/>
+<text x="1862" y="340" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="800" fill="#c2410c">THE DIRECTOR</text>
+<text x="1862" y="366" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#374151">Scripts/Runtime/AI/Director/  ·  World scene &gt; _Director  ·  Utility AI with a stress model</text>
+<rect x="40" y="2317" width="2720" height="393" rx="16" fill="#f2fdfb" stroke="#0f766e" stroke-width="3.5"/>
+<text x="62" y="2357" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="800" fill="#0f766e">AGENTS THAT USE BOTH LAYERS</text>
+<text x="62" y="2383" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#374151">Scripts/Runtime/AI/Debugging/ (stand-ins) and the teammates' folders</text>
+<rect x="58" y="380" width="604" height="163" rx="10" fill="#fafafa" stroke="#6b7280" stroke-width="2" stroke-dasharray="8 5"/>
+<path d="M59,416 L59,390 Q59,381 68,381 L652,381 Q661,381 661,390 L661,416 Z" fill="#eceff3"/>
+<text x="72" y="405" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#6b7280">DebugWalker.cs</text>
+<rect x="569.2" y="388" width="82.8" height="22" rx="11" fill="#ffffff" stroke="#6b7280" stroke-width="1.2"/>
+<text x="610.6" y="403" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#6b7280">temporary</text>
+<text x="72" y="440" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">Moves the stand-in player until the real one is ready.</text>
+<text x="72" y="461" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• WASD walk 3.5 m/s, Shift run 7 m/s, mouse look</text>
+<text x="72" y="482" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• 1-7 jump to test points, F1 hides the help</text>
+<text x="72" y="503" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Tagged "Player": the ZoneStreamer loads zones around it</text>
+<text x="72" y="524" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#4b5563" xml:space="preserve">Replaced by PlayerController.cs (Systems Engineer, PR #33).</text>
+<rect x="58" y="559" width="604" height="184" rx="10" fill="#fafafa" stroke="#6b7280" stroke-width="2" stroke-dasharray="8 5"/>
+<path d="M59,595 L59,569 Q59,560 68,560 L652,560 Q661,560 661,569 L661,595 Z" fill="#eceff3"/>
+<text x="72" y="584" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#6b7280">DebugPlayerState.cs</text>
+<rect x="569.2" y="567" width="82.8" height="22" rx="11" fill="#ffffff" stroke="#6b7280" stroke-width="1.2"/>
+<text x="610.6" y="582" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#6b7280">temporary</text>
+<text x="72" y="619" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">Implements IPlayerState and fakes what the real player will report.</text>
+<text x="72" y="640" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">OnEnable  -&gt; PlayerRegistry.Set(this)</text>
+<text x="72" y="661" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">OnDisable -&gt; PlayerRegistry.Clear(this)</text>
+<text x="72" y="682" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• F flashlight   C crouch   Q weapon (None / Pistol / IceGun)</text>
+<text x="72" y="703" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• K / L health -/+ 0.2    N use ammo 0.2    M refill ammo</text>
+<text x="72" y="724" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• LookDirection = the head camera's forward</text>
+<rect x="58" y="759" width="604" height="247" rx="10" fill="#f3fdf8" stroke="#047857" stroke-width="2"/>
+<path d="M59,795 L59,769 Q59,760 68,760 L652,760 Q661,760 661,769 L661,795 Z" fill="#d1fae5"/>
+<text x="72" y="784" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#047857">PlayerNoiseEmitter.cs</text>
+<rect x="540.4" y="767" width="111.60000000000001" height="22" rx="11" fill="#ffffff" stroke="#047857" stroke-width="1.2"/>
+<text x="596.2" y="782" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#047857">Senses · kept</text>
+<text x="72" y="819" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">Turns the player's movement into footstep noises.</text>
+<text x="72" y="840" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Update(): reads CharacterController.velocity (horizontal)</text>
+<text x="72" y="861" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• No step if speed &lt; 0.5 m/s or in the air</text>
+<text x="72" y="882" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Running (&gt;= 5 m/s): Loudness.Run 12 m, a step every 0.33 s</text>
+<text x="72" y="903" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Walking: Loudness.Walk 5 m, a step every 0.5 s</text>
+<text x="72" y="924" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Crouching (IPlayerState.IsCrouching): CrouchStep 2 m</text>
+<text x="72" y="945" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• InWater(): NavMesh area under the feet is "Water" (the flood) -&gt; kind</text>
+<text x="72" y="966" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    Wading, loudness = max(step, Wade 9 m)</text>
+<text x="72" y="987" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">NoiseSystem.Emit(position, loudness, kind, gameObject)</text>
+<rect x="58" y="1022" width="604" height="184" rx="10" fill="#fafafa" stroke="#6b7280" stroke-width="2" stroke-dasharray="8 5"/>
+<path d="M59,1058 L59,1032 Q59,1023 68,1023 L652,1023 Q661,1023 661,1032 L661,1058 Z" fill="#eceff3"/>
+<text x="72" y="1047" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#6b7280">DebugNoiseKeys.cs</text>
+<rect x="569.2" y="1030" width="82.8" height="22" rx="11" fill="#ffffff" stroke="#6b7280" stroke-width="1.2"/>
+<text x="610.6" y="1045" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#6b7280">temporary</text>
+<text x="72" y="1082" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">Test keys and the AI cost line on screen.</text>
+<text x="72" y="1103" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• P drop a NoiseProbe   O drop a watcher (SensesProbe)   J drop a</text>
+<text x="72" y="1124" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    StandInAgent</text>
+<text x="72" y="1145" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• G  Emit(Gunshot, 45 m)     H  Emit(Door, 10 m)</text>
+<text x="72" y="1166" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Shows the last noise ("heard by N of M") and: thinkers, thoughts this</text>
+<text x="72" y="1187" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    frame, ms, peak ms</text>
+<rect x="58" y="1342" width="604" height="436" rx="10" fill="#faf8ff" stroke="#7c3aed" stroke-width="2"/>
+<path d="M59,1378 L59,1352 Q59,1343 68,1343 L652,1343 Q661,1343 661,1352 L661,1378 Z" fill="#ede9fe"/>
+<text x="72" y="1367" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#7c3aed">AiScheduler.cs</text>
+<rect x="590.8" y="1350" width="61.2" height="22" rx="11" fill="#ffffff" stroke="#7c3aed" stroke-width="1.2"/>
+<text x="621.4" y="1365" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#7c3aed">static</text>
+<text x="72" y="1402" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">Runs every agent's thinking a few times a second, spread across frames.</text>
+<text x="72" y="1423" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">interface IAiThinker {</text>
+<text x="72" y="1444" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">float ThinkInterval { get; }      // 0.2 = five times a second</text>
+<text x="72" y="1465" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">void  Think(float deltaTime);  }</text>
+<text x="72" y="1486" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Register(thinker)    Unregister(thinker)</text>
+<text x="72" y="1507" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Register: the first thought is at a random point in the interval, so</text>
+<text x="72" y="1528" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    agents never all think on the same frame</text>
+<text x="72" y="1549" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• A hidden "AiScheduler" object (DontDestroyOnLoad) calls Tick() in its</text>
+<text x="72" y="1570" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    Update():</text>
+<text x="72" y="1591" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">1  continue round-robin from where the last frame stopped</text>
+<text x="72" y="1612" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">2  skip thinkers that are not due yet</text>
+<text x="72" y="1633" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">3  Think(now - lastThink): the real time since its last thought</text>
+<text x="72" y="1654" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">4  stop after MaxThinksPerFrame = 6</text>
+<text x="72" y="1675" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Measures itself with a Stopwatch: LastFrameMilliseconds, PeakMilliseconds,</text>
+<text x="72" y="1696" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    LastFrameThinks</text>
+<text x="72" y="1717" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Thinkers today: StandInAgent (0.2 s), GameDirector (0.5 s)</text>
+<text x="72" y="1738" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#065f46" xml:space="preserve">Why: 20 agents at 5 Hz = about 2 thoughts per frame, never 20 at once.</text>
+<text x="72" y="1759" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#065f46" xml:space="preserve">Movement still runs every frame.</text>
+<rect x="58" y="1914" width="604" height="247" rx="10" fill="#f8fafc" stroke="#334155" stroke-width="2"/>
+<path d="M59,1950 L59,1924 Q59,1915 68,1915 L652,1915 Q661,1915 661,1924 L661,1950 Z" fill="#e2e8f0"/>
+<text x="72" y="1939" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#334155">Unity engine services</text>
+<rect x="533.2" y="1922" width="118.8" height="22" rx="11" fill="#ffffff" stroke="#334155" stroke-width="1.2"/>
+<text x="592.6" y="1937" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#334155">used, not ours</text>
+<text x="72" y="1974" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• NavMesh.SamplePosition / CalculatePath = A* search on the baked NavMesh</text>
+<text x="72" y="1995" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Agent type 0 = Humanoid (sound, routes); Dog = Biscuit only</text>
+<text x="72" y="2016" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Areas: Walkable cost 1, Water cost 3 (only ground under the flood)</text>
+<text x="72" y="2037" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Humanoid NavMeshes are NOT joined between zones: no sound or route crosses</text>
+<text x="72" y="2058" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    zones</text>
+<text x="72" y="2079" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Physics.Raycast: line of sight (SightSensor, GameDirector)</text>
+<text x="72" y="2100" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• NavMeshAgent: walks agents along paths (StandInAgent, zombies)</text>
+<text x="72" y="2121" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• SceneManager.sceneLoaded / sceneUnloaded: zones streaming in and out</text>
+<text x="72" y="2142" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• OnGUI: labels above agents and the F2 Director view</text>
+<rect x="778" y="380" width="924" height="163" rx="10" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<path d="M779,416 L779,390 Q779,381 788,381 L1692,381 Q1701,381 1701,390 L1701,416 Z" fill="#dbeafe"/>
+<text x="792" y="405" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#2563eb">Noise.cs</text>
+<rect x="1645.2" y="388" width="46.8" height="22" rx="11" fill="#ffffff" stroke="#2563eb" stroke-width="1.2"/>
+<text x="1668.6" y="403" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#2563eb">data</text>
+<text x="792" y="440" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">enum NoiseKind { Footstep, Wading, Gunshot, IceGun, Door, Bark, Groan, Staged }</text>
+<text x="792" y="461" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">static class Loudness: metres of WALKING distance at which a normal ear still hears it</text>
+<text x="792" y="482" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">CrouchStep 2 · Walk 5 · Wade 9 · Door 10 · Run 12 · IceGun 15 · Groan 20 · Bark 25 · Gunshot 45</text>
+<text x="792" y="503" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">readonly struct Noise { Vector3 Position; float Loudness; NoiseKind Kind; GameObject Source; }</text>
+<text x="792" y="524" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#4b5563" xml:space="preserve">A struct: emitting a noise makes no garbage, and no listener can change it for the others.</text>
+<rect x="778" y="559" width="924" height="457" rx="10" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<path d="M779,595 L779,569 Q779,560 788,560 L1692,560 Q1701,560 1701,569 L1701,595 Z" fill="#dbeafe"/>
+<text x="792" y="584" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#2563eb">NoiseSystem.cs</text>
+<rect x="1630.8" y="567" width="61.2" height="22" rx="11" fill="#ffffff" stroke="#2563eb" stroke-width="1.2"/>
+<text x="1661.4" y="582" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#2563eb">static</text>
+<text x="792" y="619" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">Delivers each noise to the listeners that can hear it. Pushed when it happens; nobody polls.</text>
+<text x="792" y="640" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Register(INoiseListener)        Unregister(INoiseListener)</text>
+<text x="792" y="661" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">int   Emit(Vector3 position, float loudness, NoiseKind kind, GameObject source)</text>
+<text x="792" y="682" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">float PathDistance(Vector3 from, Vector3 to)</text>
+<text x="792" y="703" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">event Action&lt;Noise, int&gt; Emitted          int ListenerCount</text>
+<text x="792" y="724" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">Emit(), for every listener (looped backwards so OnHeard may unregister):</text>
+<text x="792" y="745" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">1  reach = loudness x listener.HearingAcuity        (0 = deaf: skip)</text>
+<text x="792" y="766" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">2  cheap cull: straight-line distance &gt; reach -&gt; skip   (a path is never shorter than a straight line)</text>
+<text x="792" y="787" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">3  d = PathDistance(noise, listener.EarPosition)</text>
+<text x="792" y="808" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">4  d &lt;= reach -&gt; listener.OnHeard(noise, d)</text>
+<text x="792" y="829" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">5  after the loop: Emitted(noise, heardBy)  -&gt; the Director listens to this</text>
+<text x="792" y="850" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">PathDistance():</text>
+<text x="792" y="871" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• NavMeshQueryFilter agent type 0 (Humanoid). Without it Unity cannot choose between the Humanoid and Dog NavMeshes</text>
+<text x="792" y="892" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• SamplePosition within 3 m at both ends. Off the NavMesh (a ghost in a wall) -&gt; straight line x 1.5</text>
+<text x="792" y="913" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• CalculatePath (A*). Route incomplete -&gt; infinity (not heard). Else the sum of the corner-to-corner lengths</text>
+<text x="792" y="934" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Reuses one NavMeshPath and one 64-corner array: no allocation per noise</text>
+<text x="792" y="955" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#065f46" xml:space="preserve">Result: walls muffle sound (it travels round through doorways), and no sound crosses into another zone.</text>
+<text x="792" y="976" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#4b5563" xml:space="preserve">All static lists are cleared at the start of Play ([RuntimeInitializeOnLoadMethod]). Also used by Biscuit (smell) and the Director</text>
+<text x="792" y="997" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#4b5563" xml:space="preserve">(distances).</text>
+<rect x="778" y="1032" width="924" height="163" rx="10" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<path d="M779,1068 L779,1042 Q779,1033 788,1033 L1692,1033 Q1701,1033 1701,1042 L1701,1068 Z" fill="#dbeafe"/>
+<text x="792" y="1057" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#2563eb">INoiseListener.cs</text>
+<rect x="1609.2" y="1040" width="82.8" height="22" rx="11" fill="#ffffff" stroke="#2563eb" stroke-width="1.2"/>
+<text x="1650.6" y="1055" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#2563eb">interface</text>
+<text x="792" y="1092" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Vector3 EarPosition      // at the feet, on the floor</text>
+<text x="792" y="1113" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">float   HearingAcuity    // 1 normal, 1.6 the creature, 0 deaf</text>
+<text x="792" y="1134" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">void    OnHeard(in Noise noise, float pathDistance)</text>
+<text x="792" y="1155" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Implemented by: StandInAgent, SensesProbe, NoiseProbe, BiscuitAgent, ZombieMemory (zombie PRs)</text>
+<text x="792" y="1176" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#065f46" xml:space="preserve">Pattern: Register in OnEnable, Unregister in OnDisable. When a zone unloads, its listeners drop out by themselves.</text>
+<rect x="778" y="1211" width="499" height="247" rx="10" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<path d="M779,1247 L779,1221 Q779,1212 788,1212 L1267,1212 Q1276,1212 1276,1221 L1276,1247 Z" fill="#dbeafe"/>
+<text x="792" y="1236" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#2563eb">IPlayerState.cs</text>
+<rect x="1184.2" y="1219" width="82.8" height="22" rx="11" fill="#ffffff" stroke="#2563eb" stroke-width="1.2"/>
+<text x="1225.6" y="1234" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#2563eb">interface</text>
+<text x="792" y="1271" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Vector3 Position       Vector3 LookDirection</text>
+<text x="792" y="1292" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">float Health01  Ammo01   // 0 to 1, independent of real</text>
+<text x="792" y="1313" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">numbers</text>
+<text x="792" y="1334" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">WeaponKind HeldWeapon  // None, Pistol, IceGun</text>
+<text x="792" y="1355" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">bool FlashlightOn      bool IsCrouching</text>
+<text x="792" y="1376" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Implemented by DebugPlayerState now, PlayerController (PR #33)</text>
+<text x="792" y="1397" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">later.</text>
+<text x="792" y="1418" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#b91c1c" xml:space="preserve">Only the Director and Biscuit may read it directly. Enemies</text>
+<text x="792" y="1439" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#b91c1c" xml:space="preserve">must use their senses.</text>
+<rect x="1293" y="1211" width="409" height="247" rx="10" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<path d="M1294,1247 L1294,1221 Q1294,1212 1303,1212 L1692,1212 Q1701,1212 1701,1221 L1701,1247 Z" fill="#dbeafe"/>
+<text x="1307" y="1236" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#2563eb">PlayerRegistry.cs</text>
+<rect x="1630.8" y="1219" width="61.2" height="22" rx="11" fill="#ffffff" stroke="#2563eb" stroke-width="1.2"/>
+<text x="1661.4" y="1234" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#2563eb">static</text>
+<text x="1307" y="1271" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">static IPlayerState Current   // null: no</text>
+<text x="1307" y="1292" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">player</text>
+<text x="1307" y="1313" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Set(player)      Clear(player)</text>
+<text x="1307" y="1334" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#4b5563" xml:space="preserve">PR #33 adds Register / Unregister as other names for Set</text>
+<text x="1307" y="1355" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#4b5563" xml:space="preserve">/ Clear.</text>
+<text x="1307" y="1376" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Agents never search the scene for the player: they</text>
+<text x="1307" y="1397" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">read Current.</text>
+<text x="1307" y="1418" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#065f46" xml:space="preserve">Everyone checks Current for null -&gt; no</text>
+<text x="1307" y="1439" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#065f46" xml:space="preserve">null-reference errors.</text>
+<rect x="778" y="1474" width="924" height="289" rx="10" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<path d="M779,1510 L779,1484 Q779,1475 788,1475 L1692,1475 Q1701,1475 1701,1484 L1701,1510 Z" fill="#dbeafe"/>
+<text x="792" y="1499" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#2563eb">SightSensor.cs</text>
+<rect x="1508.4" y="1482" width="183.6" height="22" rx="11" fill="#ffffff" stroke="#2563eb" stroke-width="1.2"/>
+<text x="1600.2" y="1497" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#2563eb">[Serializable] plain C#</text>
+<text x="792" y="1534" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">The eyes. Each agent shows its own values in the Inspector.</text>
+<text x="792" y="1555" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">viewRange 20 m   viewAngle 110° (whole cone)   detectRate 2/s   forgetRate 0.5/s   eyeHeight 1.7 m   blockers</text>
+<text x="792" y="1576" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">bool Tick(Transform owner, IPlayerState player, float deltaTime)    // true = seen</text>
+<text x="792" y="1597" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">float Meter (0..1)      bool InView</text>
+<text x="792" y="1618" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">CanSee(): cheapest checks first</text>
+<text x="792" y="1639" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">1  distance &lt;= viewRange        2  angle to the player &lt;= viewAngle / 2</text>
+<text x="792" y="1660" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">3  Physics.Raycast from the eyes to the player's chest (1.2 m); a hit more than 0.6 m short of the player = blocked</text>
+<text x="792" y="1681" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">Fill(): the detection meter (recognising takes time)</text>
+<text x="792" y="1702" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">rate = detectRate x lightFactor x (1 - (d / viewRange)^2) x posture      // crouching 0.5</text>
+<text x="792" y="1723" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• In view: Meter += rate x dt (max 1). Out of view: Meter -= forgetRate x dt</text>
+<text x="792" y="1744" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Dark, standing (tested): 4 m -&gt; 1.7 s, 10 m -&gt; 2.2 s, 18 m -&gt; 9 s, 25 m -&gt; never. Flashlight on: 3.3 x faster</text>
+<rect x="778" y="1779" width="454" height="142" rx="10" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<path d="M779,1815 L779,1789 Q779,1780 788,1780 L1222,1780 Q1231,1780 1231,1789 L1231,1815 Z" fill="#dbeafe"/>
+<text x="792" y="1804" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#2563eb">Illumination.cs</text>
+<rect x="1160.8" y="1787" width="61.2" height="22" rx="11" fill="#ffffff" stroke="#2563eb" stroke-width="1.2"/>
+<text x="1191.4" y="1802" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#2563eb">static</text>
+<text x="792" y="1839" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">float LightFactor(Vector3 position, bool</text>
+<text x="792" y="1860" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">flashlightOn)</text>
+<text x="792" y="1881" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Flashlight on 1.0 · within 60 % of a registered lamp's</text>
+<text x="792" y="1902" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">range 0.7 · dark 0.3</text>
+<rect x="1248" y="1779" width="454" height="142" rx="10" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<path d="M1249,1815 L1249,1789 Q1249,1780 1258,1780 L1692,1780 Q1701,1780 1701,1789 L1701,1815 Z" fill="#dbeafe"/>
+<text x="1262" y="1804" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#2563eb">IlluminationSource.cs</text>
+<rect x="1609.2" y="1787" width="82.8" height="22" rx="11" fill="#ffffff" stroke="#2563eb" stroke-width="1.2"/>
+<text x="1650.6" y="1802" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#2563eb">component</text>
+<text x="1262" y="1839" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Put on a lamp's Light. OnEnable Register(light),</text>
+<text x="1262" y="1860" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">OnDisable Unregister.</text>
+<text x="1262" y="1881" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#b91c1c" xml:space="preserve">To do: not yet added to the zone lamps (everything</text>
+<text x="1262" y="1902" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#b91c1c" xml:space="preserve">counts as dark).</text>
+<rect x="778" y="1937" width="381" height="205" rx="10" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<path d="M779,1973 L779,1947 Q779,1938 788,1938 L1149,1938 Q1158,1938 1158,1947 L1158,1973 Z" fill="#dbeafe"/>
+<text x="792" y="1962" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#2563eb">Belief.cs</text>
+<rect x="1102.2" y="1945" width="46.8" height="22" rx="11" fill="#ffffff" stroke="#2563eb" stroke-width="1.2"/>
+<text x="1125.6" y="1960" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#2563eb">data</text>
+<text x="792" y="1997" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">enum BeliefSource { Seen, Heard, Told }</text>
+<text x="792" y="2018" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">readonly struct Belief { Position,</text>
+<text x="792" y="2039" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Confidence, Source, Time }</text>
+<text x="792" y="2060" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">ConfidenceAt(now, tau) = Confidence x</text>
+<text x="792" y="2081" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">e^(-(now - Time) / tau)</text>
+<text x="792" y="2102" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#4b5563" xml:space="preserve">"I think the player is here": confidence fades</text>
+<text x="792" y="2123" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#4b5563" xml:space="preserve">exponentially.</text>
+<rect x="1175" y="1937" width="527" height="268" rx="10" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<path d="M1176,1973 L1176,1947 Q1176,1938 1185,1938 L1692,1938 Q1701,1938 1701,1947 L1701,1973 Z" fill="#dbeafe"/>
+<text x="1189" y="1962" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#2563eb">AgentMemory.cs</text>
+<rect x="1537.2" y="1945" width="154.8" height="22" rx="11" fill="#ffffff" stroke="#2563eb" stroke-width="1.2"/>
+<text x="1614.6" y="1960" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#2563eb">plain C# · testable</text>
+<text x="1189" y="1997" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">Holds the agent's single best Belief (Belief.cs).</text>
+<text x="1189" y="2018" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">SeenConfidence 1.0   HeardConfidence 0.6   ToldConfidence 0.4</text>
+<text x="1189" y="2039" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">new AgentMemory(tau = 8 s, forgetBelow = 0.1)</text>
+<text x="1189" y="2060" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Remember(position, confidence, source, now)   HasBelief(now)</text>
+<text x="1189" y="2081" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">ConfidenceAt(now)   Current   Forget()</text>
+<text x="1189" y="2102" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• A new clue replaces the belief only if it is at least as</text>
+<text x="1189" y="2123" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    convincing as the old one NOW: a footstep never overrides a</text>
+<text x="1189" y="2144" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    sighting</text>
+<text x="1189" y="2165" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Gives up after tau x ln(c0 / 0.1): Seen 18 s · Heard 14 s · Told</text>
+<text x="1189" y="2186" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    11 s</text>
+<rect x="1858" y="380" width="884" height="625" rx="10" fill="#fffaf3" stroke="#c2410c" stroke-width="2"/>
+<path d="M1859,416 L1859,390 Q1859,381 1868,381 L2732,381 Q2741,381 2741,390 L2741,416 Z" fill="#fde7c7"/>
+<text x="1872" y="405" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#c2410c">GameDirector.cs</text>
+<rect x="2526.8" y="388" width="205.20000000000002" height="22" rx="11" fill="#ffffff" stroke="#c2410c" stroke-width="1.2"/>
+<text x="2629.4" y="403" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#c2410c">MonoBehaviour · IAiThinker</text>
+<text x="1872" y="440" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">Paces the game: decides when, where and how many of the dormant dead wake. On _Director in the World scene.</text>
+<text x="1872" y="461" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">thinkInterval 0.5 s  maxAwake 12  considerRadius 50 m  interceptAhead 10 m  stagedLoudness 20 m </text>
+<text x="1872" y="482" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">replanInterval 3 s  exitPrefix "ZoneExit_"</text>
+<text x="1872" y="503" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">OnEnable():</text>
+<text x="1872" y="524" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">AiScheduler.Register(this)   NoiseSystem.Emitted += OnNoise   SceneManager.sceneLoaded/Unloaded +=</text>
+<text x="1872" y="545" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">FindExits</text>
+<text x="1872" y="566" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">Think(dt), twice a second:</text>
+<text x="1872" y="587" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">1  count DirectableRegistry: dormant, awake, and awake within 25 m of the player</text>
+<text x="1872" y="608" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">2  stress.Update(dt, Health01, Ammo01, awakeNear)</text>
+<text x="1872" y="629" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">3  tension.Update(dt, stress)          4  profile.Update(dt)</text>
+<text x="1872" y="650" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">5  every 3 s: route.Plan(player -&gt; nearest ZoneExit_ marker); playerAlong = route.Project(player)</text>
+<text x="1872" y="671" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">6  build DirectorSituation { Stress, Target, Quietness, SecondsSinceLastEvent, DormantCount, AwakeCount, MaxAwake</text>
+<text x="1872" y="692" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    }</text>
+<text x="1872" y="713" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">7  only when target &gt; stress: FindCandidates() -&gt; ScoreCandidate() for each dormant enemy, keep the best 3</text>
+<text x="1872" y="734" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">8  brain.Decide(situation) -&gt; WakeDead() / StageNoise() / hold back</text>
+<text x="1872" y="755" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">9  record stress and target for the F2 graph (last 60 s)</text>
+<text x="1872" y="776" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">ScoreCandidate = distance x hidden x (0.4 + 0.6 x ahead)</text>
+<text x="1872" y="797" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• distance: walking distance (PathDistance). 1 between 15 and 35 m, falling to 0 at 8 m and at 50 m</text>
+<text x="1872" y="818" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• hidden: 0.2 if the player can see it (within 60° of their look + raycast), otherwise 1</text>
+<text x="1872" y="839" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• ahead: (1 if ahead of the player on the route, 0.3 if behind) x closeness to the route (full within 6 m, 0 at</text>
+<text x="1872" y="860" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    26 m)</text>
+<text x="1872" y="881" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">Acting:</text>
+<text x="1872" y="902" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• WakeDead(): wakes 1 to 3 (more when far below the target): candidate.WakeToward(route point 10 m ahead)</text>
+<text x="1872" y="923" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• StageNoise(): a point halfway between the best sleeper and the route ahead -&gt; NoiseSystem.Emit(Staged, 20 m).</text>
+<text x="1872" y="944" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    The dead hear it themselves</text>
+<text x="1872" y="965" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• OnNoise(): noises within 2 m of the player (not Staged) -&gt; profile.RecordNoise(loudness, isGunshot)</text>
+<text x="1872" y="986" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#065f46" xml:space="preserve">It never moves an enemy and never tells one where the player is. The enemies' own senses do the rest.</text>
+<rect x="1858" y="1021" width="434" height="226" rx="10" fill="#fffaf3" stroke="#c2410c" stroke-width="2"/>
+<path d="M1859,1057 L1859,1031 Q1859,1022 1868,1022 L2282,1022 Q2291,1022 2291,1031 L2291,1057 Z" fill="#fde7c7"/>
+<text x="1872" y="1046" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#c2410c">StressModel.cs</text>
+<rect x="2206.4" y="1029" width="75.6" height="22" rx="11" fill="#ffffff" stroke="#c2410c" stroke-width="1.2"/>
+<text x="2244.2" y="1044" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#c2410c">plain C#</text>
+<text x="1872" y="1081" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">How tense the player is, 0 to 1.</text>
+<text x="1872" y="1102" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">rise = 1.5 x healthLost</text>
+<text x="1872" y="1123" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">+ (0.04 x enemiesNear + 0.03 x (1-health)</text>
+<text x="1872" y="1144" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">+ 0.015 x (1-ammo)) x dt</text>
+<text x="1872" y="1165" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">fall = 0.05 x dt   (only if no enemy near)</text>
+<text x="1872" y="1186" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">stress = clamp01(stress + rise - fall)</text>
+<text x="1872" y="1207" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#4b5563" xml:space="preserve">Tested: 2 s with 2 enemies 0.16 · -20 % health 0.50 · 10 s</text>
+<text x="1872" y="1228" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#4b5563" xml:space="preserve">calm 0.06</text>
+<rect x="2308" y="1021" width="434" height="205" rx="10" fill="#fffaf3" stroke="#c2410c" stroke-width="2"/>
+<path d="M2309,1057 L2309,1031 Q2309,1022 2318,1022 L2732,1022 Q2741,1022 2741,1031 L2741,1057 Z" fill="#fde7c7"/>
+<text x="2322" y="1046" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#c2410c">TensionCurve.cs</text>
+<rect x="2656.4" y="1029" width="75.6" height="22" rx="11" fill="#ffffff" stroke="#c2410c" stroke-width="1.2"/>
+<text x="2694.2" y="1044" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#c2410c">plain C#</text>
+<text x="2322" y="1081" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">The tension the Director aims for (a feedback loop).</text>
+<text x="2322" y="1102" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">BuildUp: target 0.2 -&gt; 0.8 over 90 s</text>
+<text x="2322" y="1123" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">-&gt; Peak when stress &gt;= 0.75</text>
+<text x="2322" y="1144" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Peak: 0.8 for 12 s  -&gt; Relax</text>
+<text x="2322" y="1165" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Relax: 0.15, until 35 s passed and stress &lt;= 0.30 (or</text>
+<text x="2322" y="1186" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">105 s at most)  -&gt; BuildUp</text>
+<text x="2322" y="1207" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#4b5563" xml:space="preserve">Target and Phase are read every think.</text>
+<rect x="1858" y="1263" width="434" height="184" rx="10" fill="#fffaf3" stroke="#c2410c" stroke-width="2"/>
+<path d="M1859,1299 L1859,1273 Q1859,1264 1868,1264 L2282,1264 Q2291,1264 2291,1273 L2291,1299 Z" fill="#fde7c7"/>
+<text x="1872" y="1288" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#c2410c">PlayerProfile.cs</text>
+<rect x="2206.4" y="1271" width="75.6" height="22" rx="11" fill="#ffffff" stroke="#c2410c" stroke-width="1.2"/>
+<text x="2244.2" y="1286" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#c2410c">plain C#</text>
+<text x="1872" y="1323" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">Learns the play style from the player's own noise.</text>
+<text x="1872" y="1344" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">RecordNoise(loudness, gunshot)   Update(dt)</text>
+<text x="1872" y="1365" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Moving averages over 30 s: NoiseRate, ShotsPerMinute</text>
+<text x="1872" y="1386" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Quietness = 1 - clamp01((NoiseRate - 3) / 22)</text>
+<text x="1872" y="1407" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Style: &gt; 0.8 Stealthy, &lt; 0.35 Loud, else Balanced</text>
+<text x="1872" y="1428" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">(crouch ≈ 4, walk ≈ 9, run ≈ 31)</text>
+<rect x="2308" y="1263" width="434" height="184" rx="10" fill="#fffaf3" stroke="#c2410c" stroke-width="2"/>
+<path d="M2309,1299 L2309,1273 Q2309,1264 2318,1264 L2732,1264 Q2741,1264 2741,1273 L2741,1299 Z" fill="#fde7c7"/>
+<text x="2322" y="1288" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#c2410c">RoutePredictor.cs</text>
+<rect x="2656.4" y="1271" width="75.6" height="22" rx="11" fill="#ffffff" stroke="#c2410c" stroke-width="1.2"/>
+<text x="2694.2" y="1286" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#c2410c">plain C#</text>
+<text x="2322" y="1323" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">Predicts the player's way to the zone exit.</text>
+<text x="2322" y="1344" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Plan(from, goal)     // A* on the Humanoid NavMesh</text>
+<text x="2322" y="1365" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Project(p, out lateral) -&gt; metres along route</text>
+<text x="2322" y="1386" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">PointAt(metres) -&gt; point on the route</text>
+<text x="2322" y="1407" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Exits: Z1 EstateGate, Z2 Undercroft, Z3 Waterworks.</text>
+<text x="2322" y="1428" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Village start -&gt; gate = 95 m.</text>
+<rect x="1858" y="1463" width="884" height="247" rx="10" fill="#fffaf3" stroke="#c2410c" stroke-width="2"/>
+<path d="M1859,1499 L1859,1473 Q1859,1464 1868,1464 L2732,1464 Q2741,1464 2741,1473 L2741,1499 Z" fill="#fde7c7"/>
+<text x="1872" y="1488" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#c2410c">DirectorBrain.cs</text>
+<rect x="2562.8" y="1471" width="169.20000000000002" height="22" rx="11" fill="#ffffff" stroke="#c2410c" stroke-width="1.2"/>
+<text x="2647.4" y="1486" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#c2410c">plain C# · Utility AI</text>
+<text x="1872" y="1523" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">Scores every action 0 to 1 and picks the highest. Each score is a PRODUCT, so any single 0 vetoes it.</text>
+<text x="1872" y="1544" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">need    = clamp01((target - stress) / 0.4)      excess = clamp01((stress - target) / 0.3)</text>
+<text x="1872" y="1565" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">rested  = clamp01((sinceLastEvent - 5) / (15 - 5))     // a hard 5 s gap between events</text>
+<text x="1872" y="1586" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">available = dormant &gt; 0 and awake &lt; maxAwake ? 1 : 0       room = 1 - awake / maxAwake</text>
+<text x="1872" y="1607" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">WakeDead   = need x rested x available x room x best x (1 - 0.5 x quietness)</text>
+<text x="1872" y="1628" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">StageNoise = need x rested x available x best x (0.3 + 0.7 x quietness)</text>
+<text x="1872" y="1649" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">HoldBack   = 0.1 + 0.9 x excess</text>
+<text x="1872" y="1670" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Tested: calm + loud player -&gt; Wake 0.86 · calm + stealthy -&gt; Stage 0.84 · stress above target -&gt; Hold 1.00 · no</text>
+<text x="1872" y="1691" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">dead left or all in plain sight -&gt; Hold</text>
+<rect x="1858" y="1842" width="434" height="184" rx="10" fill="#fffaf3" stroke="#c2410c" stroke-width="2"/>
+<path d="M1859,1878 L1859,1852 Q1859,1843 1868,1843 L2282,1843 Q2291,1843 2291,1852 L2291,1878 Z" fill="#fde7c7"/>
+<text x="1872" y="1867" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#c2410c">IDirectable.cs</text>
+<rect x="2120.0" y="1850" width="162.0" height="22" rx="11" fill="#ffffff" stroke="#c2410c" stroke-width="1.2"/>
+<text x="2201.0" y="1865" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#c2410c">interface + registry</text>
+<text x="1872" y="1902" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Vector3 Position   bool IsAwake</text>
+<text x="1872" y="1923" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">void WakeToward(Vector3 point)</text>
+<text x="1872" y="1944" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">DirectableRegistry: Register / Unregister / Count</text>
+<text x="1872" y="1965" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">/ Get(i)</text>
+<text x="1872" y="1986" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Done: StandInAgent.</text>
+<text x="1872" y="2007" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" fill="#b91c1c" xml:space="preserve">To do: zombie (ZombieBody), creature, ghosts.</text>
+<rect x="1858" y="1726" width="884" height="100" rx="10" fill="#fffaf3" stroke="#c2410c" stroke-width="2"/>
+<path d="M1859,1762 L1859,1736 Q1859,1727 1868,1727 L2732,1727 Q2741,1727 2741,1736 L2741,1762 Z" fill="#fde7c7"/>
+<text x="1872" y="1751" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#c2410c">F2 view  (GameDirector.OnGUI)</text>
+<rect x="2678.0" y="1734" width="54.0" height="22" rx="11" fill="#ffffff" stroke="#c2410c" stroke-width="1.2"/>
+<text x="2705.0" y="1749" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#c2410c">debug</text>
+<text x="1872" y="1786" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Phase and time · stress vs target · player style · dormant / awake · route length and progress · the 3 action</text>
+<text x="1872" y="1807" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">scores (chosen one orange) · last event · 60 s graph: red = stress, white = target</text>
+<rect x="2308" y="1842" width="434" height="163" rx="10" fill="#fafafa" stroke="#6b7280" stroke-width="2" stroke-dasharray="8 5"/>
+<path d="M2309,1878 L2309,1852 Q2309,1843 2318,1843 L2732,1843 Q2741,1843 2741,1852 L2741,1878 Z" fill="#eceff3"/>
+<text x="2322" y="1867" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#6b7280">DebugRosterSpawner.cs</text>
+<rect x="2649.2" y="1850" width="82.8" height="22" rx="11" fill="#ffffff" stroke="#6b7280" stroke-width="1.2"/>
+<text x="2690.6" y="1865" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#6b7280">temporary</text>
+<text x="2322" y="1902" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">On _Director. When Z1_Outskirts loads:</text>
+<text x="2322" y="1923" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">3 stand-ins around every SpawnPoint_ marker (±5 m) -&gt;</text>
+<text x="2322" y="1944" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    StandInAgent.Create, moved into the zone's scene</text>
+<text x="2322" y="1965" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">    so they unload with it.</text>
+<text x="2322" y="1986" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Village: 3 markers -&gt; 9 dormant dead.</text>
+<rect x="58" y="2397" width="1100" height="289" rx="10" fill="#fafafa" stroke="#6b7280" stroke-width="2" stroke-dasharray="8 5"/>
+<path d="M59,2433 L59,2407 Q59,2398 68,2398 L1148,2398 Q1157,2398 1157,2407 L1157,2433 Z" fill="#eceff3"/>
+<text x="72" y="2422" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#6b7280">StandInAgent.cs</text>
+<rect x="748.4" y="2405" width="399.6" height="22" rx="11" fill="#ffffff" stroke="#6b7280" stroke-width="1.2"/>
+<text x="948.2" y="2420" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#6b7280">temporary · INoiseListener · IAiThinker · IDirectable</text>
+<text x="72" y="2457" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-style="italic" fill="#374151" xml:space="preserve">A grey capsule enemy, until the real zombies are connected. Shows how an agent uses both layers.</text>
+<text x="72" y="2478" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">OnEnable: NoiseSystem.Register · AiScheduler.Register · DirectableRegistry.Register  (OnDisable: Unregister all)</text>
+<text x="72" y="2499" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">OnHeard(noise)   -&gt; memory.Remember(noise.Position, Heard 0.6)</text>
+<text x="72" y="2520" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">WakeToward(p)    -&gt; memory.Remember(p, Told 0.4)               // from the Director</text>
+<text x="72" y="2541" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">Think(dt), every 0.2 s:</text>
+<text x="72" y="2562" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">1  sight.Tick(...) true -&gt; memory.Remember(player.Position, Seen 1.0)</text>
+<text x="72" y="2583" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">2  no belief left -&gt; Dormant (stop)</text>
+<text x="72" y="2604" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">3  confidence &gt;= 0.8 -&gt; Chasing 3.5 m/s, else Investigating 1.4 m/s</text>
+<text x="72" y="2625" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">4  SetDestination(belief) only if the target moved more than 1 m</text>
+<text x="72" y="2646" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">static Create(near, yaw, name): feet-level root + capsule + nose + NavMeshAgent (Humanoid, radius 0.4, stop 1.2 m)</text>
+<text x="72" y="2667" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#4b5563" xml:space="preserve">Label above its head (DebugLabel.cs): name, mode, sight meter, belief.</text>
+<rect x="1174" y="2397" width="520" height="142" rx="10" fill="#fafafa" stroke="#6b7280" stroke-width="2" stroke-dasharray="8 5"/>
+<path d="M1175,2433 L1175,2407 Q1175,2398 1184,2398 L1684,2398 Q1693,2398 1693,2407 L1693,2433 Z" fill="#eceff3"/>
+<text x="1188" y="2422" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#6b7280">SensesProbe.cs · NoiseProbe.cs</text>
+<rect x="1601.2" y="2405" width="82.8" height="22" rx="11" fill="#ffffff" stroke="#6b7280" stroke-width="1.2"/>
+<text x="1642.6" y="2420" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#6b7280">temporary</text>
+<text x="1188" y="2457" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">O "Watcher": hears + sees + remembers, never moves; shows its</text>
+<text x="1188" y="2478" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">sight meter and belief.</text>
+<text x="1188" y="2499" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">P cube: flashes red when it hears a noise; logs the path</text>
+<text x="1188" y="2520" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">distance.</text>
+<rect x="1710" y="2397" width="1032" height="268" rx="10" fill="#fff7fb" stroke="#be185d" stroke-width="2"/>
+<path d="M1711,2433 L1711,2407 Q1711,2398 1720,2398 L2732,2398 Q2741,2398 2741,2407 L2741,2433 Z" fill="#fce7f3"/>
+<text x="1724" y="2422" font-family="Consolas, 'Courier New', monospace" font-size="18" font-weight="700" fill="#be185d">Teammates' agents: how they plug in</text>
+<text x="1724" y="2457" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">Zombie  (ZombieBody, PRs #34 / #35)</text>
+<text x="1724" y="2478" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">INoiseListener ✔ (ZombieMemory)    SightSensor ✘ (needed to chase)    IDirectable ✘    AiScheduler ✘ (own coroutine)</text>
+<text x="1724" y="2499" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">Creature</text>
+<text x="1724" y="2520" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">The zombie brain with HearingAcuity 1.6 and no sight. IDirectable ✘</text>
+<text x="1724" y="2541" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">Ghost  (GhostMovement, branch agent-locomotion)</text>
+<text x="1724" y="2562" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Not connected yet. Needs IDirectable ("drift toward") and the player through PlayerRegistry / SightSensor.</text>
+<text x="1724" y="2583" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">Biscuit  (BiscuitAgent, merged)</text>
+<text x="1724" y="2604" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">INoiseListener ✔ · Emit(Bark 25 m) ✔ · PathDistance for smell ✔ · PlayerRegistry.Current ✔</text>
+<text x="1724" y="2625" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">Player  (PlayerController, PR #33)</text>
+<text x="1724" y="2646" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">IPlayerState ✔ · PlayerNoiseEmitter ✔ · should also Emit Gunshot 45 / IceGun 15 / Door 10</text>
+<path d="M662,632.6 L710.0,632.6 L710.0,1272.75 L778,1272.75" fill="none" stroke="#047857" stroke-width="2.4" marker-end="url(#ah-047857)"/>
+<rect x="671.5" y="938.675" width="77.0" height="19" rx="4" fill="#ffffff" stroke="#047857" stroke-width="1"/>
+<text x="710.0" y="952.675" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#047857">Set(this)</text>
+<path d="M662,882.5 L732.0,882.5 L732.0,613.84 L778,613.84" fill="none" stroke="#111827" stroke-width="2.4" marker-end="url(#ah-111827)"/>
+<rect x="690.0" y="774.1700000000001" width="84.0" height="19" rx="4" fill="#ffffff" stroke="#111827" stroke-width="1"/>
+<text x="732.0" y="788.1700000000001" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#111827">Emit(step)</text>
+<path d="M662,1114.0 L750.0,1114.0 L750.0,650.4 L778,650.4" fill="none" stroke="#111827" stroke-width="2.4" marker-end="url(#ah-111827)"/>
+<text x="680.0" y="1106.0" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#111827">G / H: Emit</text>
+<path d="M962.8,1763 L914.2,1779" fill="none" stroke="#2563eb" stroke-width="2.4" marker-end="url(#ah-2563eb)"/>
+<rect x="946.0" y="1761.0" width="105.0" height="19" rx="4" fill="#ffffff" stroke="#2563eb" stroke-width="1"/>
+<text x="998.5" y="1775.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#2563eb">LightFactor()</text>
+<path d="M1471.0,1474 L1471.0,1466.0 L1497.5,1466.0 L1497.5,1458" fill="none" stroke="#2563eb" stroke-width="2.4" marker-end="url(#ah-2563eb)"/>
+<rect x="1418.5" y="1454.0" width="105.0" height="19" rx="4" fill="#ffffff" stroke="#2563eb" stroke-width="1"/>
+<text x="1471.0" y="1468.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#2563eb">reads Current</text>
+<path d="M1563.4,1016 L1563.4,1032" fill="none" stroke="#2563eb" stroke-width="2.4" marker-end="url(#ah-2563eb)"/>
+<rect x="1416.9" y="1015.0" width="133.0" height="19" rx="4" fill="#ffffff" stroke="#2563eb" stroke-width="1"/>
+<text x="1483.4" y="1029.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#2563eb">OnHeard(noise, d)</text>
+<path d="M1338.8,1779 L1471.0,1763" fill="none" stroke="#2563eb" stroke-width="2.4" marker-end="url(#ah-2563eb)"/>
+<rect x="1359.3" y="1761.0" width="119.0" height="19" rx="4" fill="#ffffff" stroke="#2563eb" stroke-width="1"/>
+<text x="1418.8" y="1775.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#2563eb">Register(light)</text>
+<path d="M1702,673.25 L1768.0,673.25 L1768.0,455.0 L1858,455.0" fill="none" stroke="#c2410c" stroke-width="2.4" stroke-dasharray="9 6" marker-end="url(#ah-c2410c)"/>
+<rect x="1726.0" y="540.125" width="84.0" height="19" rx="4" fill="#ffffff" stroke="#c2410c" stroke-width="1"/>
+<text x="1768.0" y="554.125" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#c2410c">Emitted -&gt;</text>
+<rect x="1729.5" y="559.125" width="77.0" height="19" rx="4" fill="#ffffff" stroke="#c2410c" stroke-width="1"/>
+<text x="1768.0" y="573.125" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#c2410c">OnNoise()</text>
+<path d="M1858,767.5 L1792.0,767.5 L1792.0,833.2 L1702,833.2" fill="none" stroke="#111827" stroke-width="2.4" marker-end="url(#ah-111827)"/>
+<rect x="1743.0" y="816.35" width="98.0" height="19" rx="4" fill="#ffffff" stroke="#111827" stroke-width="1"/>
+<text x="1792.0" y="830.35" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#111827">Emit(Staged)</text>
+<rect x="1736.0" y="835.35" width="112.0" height="19" rx="4" fill="#ffffff" stroke="#111827" stroke-width="1"/>
+<text x="1792.0" y="849.35" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#111827">PathDistance()</text>
+<path d="M1858,911.25 L1776.0,911.25 L1776.0,1309.8 L1702,1309.8" fill="none" stroke="#111827" stroke-width="2.4" marker-end="url(#ah-111827)"/>
+<rect x="1751.5" y="1116.525" width="49.0" height="19" rx="4" fill="#ffffff" stroke="#111827" stroke-width="1"/>
+<text x="1776.0" y="1130.525" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#111827">reads</text>
+<rect x="1744.5" y="1135.525" width="63.0" height="19" rx="4" fill="#ffffff" stroke="#111827" stroke-width="1"/>
+<text x="1776.0" y="1149.525" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#111827">Current</text>
+<path d="M2075.0,1005 L2075.0,1021" fill="none" stroke="#c2410c" stroke-width="2.4" marker-end="url(#ah-c2410c)"/>
+<path d="M2525.0,1005 L2525.0,1021" fill="none" stroke="#c2410c" stroke-width="2.4" marker-end="url(#ah-c2410c)"/>
+<path d="M2292,1237.96 L2308,1237.96" fill="none" stroke="#c2410c" stroke-width="2.4" marker-end="url(#ah-c2410c)"/>
+<path d="M2525.0,1447 L2521.0,1463" fill="none" stroke="#c2410c" stroke-width="2.4" marker-end="url(#ah-c2410c)"/>
+<path d="M2075.0,1447 L2079.0,1463" fill="none" stroke="#c2410c" stroke-width="2.4" marker-end="url(#ah-c2410c)"/>
+<rect x="2106.5" y="1445.0" width="77.0" height="19" rx="4" fill="#ffffff" stroke="#c2410c" stroke-width="1"/>
+<text x="2145.0" y="1459.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#c2410c">situation</text>
+<path d="M662,1429.2 L694,1429.2 L694,2267 L2778,2267 L2778,440 L2742,440" fill="none" stroke="#7c3aed" stroke-width="2.4" marker-end="url(#ah-7c3aed)"/>
+<rect x="2519.5" y="2258" width="161.0" height="19" rx="4" fill="#ffffff" stroke="#7c3aed" stroke-width="1"/>
+<text x="2600" y="2272" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#7c3aed">Think(dt) every 0.5 s</text>
+<path d="M694,2267 L694,2331" fill="none" stroke="#7c3aed" stroke-width="2.4" marker-end="url(#ah-7c3aed)"/>
+<path d="M694,2331 L694,2395" fill="none" stroke="#7c3aed" stroke-width="2.4" marker-end="url(#ah-7c3aed)"/>
+<rect x="613.5" y="2343" width="161.0" height="19" rx="4" fill="#ffffff" stroke="#7c3aed" stroke-width="1"/>
+<text x="694" y="2357" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#7c3aed">Think(dt) every 0.2 s</text>
+<path d="M790,1195 L790,2297 L758,2297 L758,2395" fill="none" stroke="#2563eb" stroke-width="2.4" marker-end="url(#ah-2563eb)"/>
+<rect x="621.5" y="2305" width="273.0" height="19" rx="4" fill="#ffffff" stroke="#2563eb" stroke-width="1"/>
+<text x="758" y="2319" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#2563eb">OnHeard() · SightSensor · AgentMemory</text>
+<path d="M2075.0,2026 L2075.0,2327 L1058,2327 L1058,2395" fill="none" stroke="#c2410c" stroke-width="2.4" marker-end="url(#ah-c2410c)"/>
+<rect x="1670.0" y="2313" width="210.0" height="19" rx="4" fill="#ffffff" stroke="#c2410c" stroke-width="1"/>
+<text x="1775.0" y="2327" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#c2410c">WakeToward(point 10 m ahead)</text>
+<path d="M2525.0,2026 L2525.0,2349 L1118,2349 L1118,2395" fill="none" stroke="#6b7280" stroke-width="2.4" stroke-dasharray="9 6" marker-end="url(#ah-6b7280)"/>
+<rect x="2284.5" y="2335" width="161.0" height="19" rx="4" fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
+<text x="2365.0" y="2349" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="600" fill="#6b7280">StandInAgent.Create()</text>
+<rect x="40" y="2760" width="2720" height="470" rx="16" fill="#f5f9ff" stroke="#2563eb" stroke-width="3.5"/>
+<text x="62" y="2800" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="800" fill="#2563eb">ONE MOMENT IN THE VILLAGE: what runs, in order</text>
+<text x="62" y="2826" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#374151">Example: the player fires a gun near three sleeping dead, then escapes. Read left to right, then the second row.</text>
+<rect x="70" y="2860" width="500" height="150" rx="12" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<text x="86" y="2890" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#2563eb">1  Player</text>
+<text x="86" y="2918" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Presses G (later: fires the pistol).</text>
+<text x="86" y="2939" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">NoiseSystem.Emit(position, 45 m, Gunshot).</text>
+<path d="M572,2935.0 L602,2935.0" fill="none" stroke="#111827" stroke-width="2.4" marker-end="url(#ah-111827)"/>
+<rect x="604" y="2860" width="500" height="150" rx="12" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<text x="620" y="2890" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#2563eb">2  Cull</text>
+<text x="620" y="2918" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">NoiseSystem loops the listeners. Straight-line &gt; 45 m:</text>
+<text x="620" y="2939" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">skipped, no path search.</text>
+<path d="M1106,2935.0 L1136,2935.0" fill="none" stroke="#111827" stroke-width="2.4" marker-end="url(#ah-111827)"/>
+<rect x="1138" y="2860" width="500" height="150" rx="12" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<text x="1154" y="2890" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#2563eb">3  Path</text>
+<text x="1154" y="2918" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">PathDistance: A* on the Humanoid NavMesh. Around walls,</text>
+<text x="1154" y="2939" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">through doors. d &lt;= 45 m -&gt; OnHeard.</text>
+<path d="M1640,2935.0 L1670,2935.0" fill="none" stroke="#111827" stroke-width="2.4" marker-end="url(#ah-111827)"/>
+<rect x="1672" y="2860" width="500" height="150" rx="12" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<text x="1688" y="2890" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#2563eb">4  Memory</text>
+<text x="1688" y="2918" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">StandInAgent.OnHeard -&gt; AgentMemory.Remember(gunshot spot,</text>
+<text x="1688" y="2939" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Heard 0.6).</text>
+<path d="M2174,2935.0 L2204,2935.0" fill="none" stroke="#111827" stroke-width="2.4" marker-end="url(#ah-111827)"/>
+<rect x="2206" y="2860" width="500" height="150" rx="12" fill="#fffaf3" stroke="#c2410c" stroke-width="2"/>
+<text x="2222" y="2890" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#c2410c">5  Director</text>
+<text x="2222" y="2918" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Emitted event -&gt; GameDirector.OnNoise -&gt; PlayerProfile records</text>
+<text x="2222" y="2939" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">a loud shot.</text>
+<rect x="70" y="3050" width="500" height="150" rx="12" fill="#faf8ff" stroke="#7c3aed" stroke-width="2"/>
+<text x="86" y="3080" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#7c3aed">6  Think</text>
+<text x="86" y="3108" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Within 0.2 s the AiScheduler runs the agent's Think: belief</text>
+<text x="86" y="3129" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">0.6 &lt; 0.8 -&gt; Investigating, walks there.</text>
+<path d="M572,3125.0 L602,3125.0" fill="none" stroke="#111827" stroke-width="2.4" marker-end="url(#ah-111827)"/>
+<rect x="604" y="3050" width="500" height="150" rx="12" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<text x="620" y="3080" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#2563eb">7  Sight</text>
+<text x="620" y="3108" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">On the way, SightSensor.Tick: in range, in cone, ray clear,</text>
+<text x="620" y="3129" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">meter fills -&gt; Seen 1.0 -&gt; Chasing.</text>
+<path d="M1106,3125.0 L1136,3125.0" fill="none" stroke="#111827" stroke-width="2.4" marker-end="url(#ah-111827)"/>
+<rect x="1138" y="3050" width="500" height="150" rx="12" fill="#fffaf3" stroke="#c2410c" stroke-width="2"/>
+<text x="1154" y="3080" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#c2410c">8  Stress</text>
+<text x="1154" y="3108" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Director Think: 2 awake within 25 m -&gt; stress rises; at 0.75</text>
+<text x="1154" y="3129" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">the curve goes Peak, then Relax -&gt; HoldBack.</text>
+<path d="M1640,3125.0 L1670,3125.0" fill="none" stroke="#111827" stroke-width="2.4" marker-end="url(#ah-111827)"/>
+<rect x="1672" y="3050" width="500" height="150" rx="12" fill="#f5f9ff" stroke="#2563eb" stroke-width="2"/>
+<text x="1688" y="3080" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#2563eb">9  Escape</text>
+<text x="1688" y="3108" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Player breaks line of sight. Beliefs fade (Seen gives up after</text>
+<text x="1688" y="3129" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">18 s) -&gt; the dead fall Dormant again.</text>
+<path d="M2174,3125.0 L2204,3125.0" fill="none" stroke="#111827" stroke-width="2.4" marker-end="url(#ah-111827)"/>
+<rect x="2206" y="3050" width="500" height="150" rx="12" fill="#fffaf3" stroke="#c2410c" stroke-width="2"/>
+<text x="2222" y="3080" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="800" fill="#c2410c">10  Build</text>
+<text x="2222" y="3108" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">Relax ends, BuildUp: target &gt; stress -&gt; Director scores hidden</text>
+<text x="2222" y="3129" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">sleepers ahead on the route -&gt; WakeToward / StageNoise.</text>
+<path d="M2456.0,3012 L2456.0,3030 L320.0,3030 L320.0,3048" fill="none" stroke="#111827" stroke-width="2.4" marker-end="url(#ah-111827)"/>
+<rect x="40" y="3280" width="1300" height="520" rx="16" fill="#fffaf3" stroke="#c2410c" stroke-width="3.5"/>
+<text x="62" y="3320" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="800" fill="#c2410c">THE DIRECTOR'S CYCLE (illustration)</text>
+<text x="62" y="3346" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#374151">TensionCurve target (white line on dark) and measured stress (red). The Director acts to close the gap.</text>
+<rect x="90" y="3390" width="1200" height="330" fill="#1f2937" rx="6"/>
+<rect x="90.0" y="3390" width="420.0" height="330" fill="#334155" opacity="0.9"/>
+<text x="300.0" y="3414" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#e5e7eb">BuildUp</text>
+<rect x="510.0" y="3390" width="72.0" height="330" fill="#7f1d1d" opacity="0.9"/>
+<text x="546.0" y="3414" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#e5e7eb">Peak</text>
+<rect x="582.0" y="3390" width="258.0" height="330" fill="#1e3a5f" opacity="0.9"/>
+<text x="711.0" y="3414" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#e5e7eb">Relax</text>
+<rect x="840.0" y="3390" width="450.0" height="330" fill="#334155" opacity="0.9"/>
+<text x="1065.0" y="3414" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#e5e7eb">BuildUp</text>
+<polyline points="90.0,3654.0 96.0,3651.8 102.0,3649.6 108.0,3647.4 114.0,3645.2 120.0,3643.0 126.0,3640.8 132.0,3638.6 138.0,3636.4 144.0,3634.2 150.0,3632.0 156.0,3629.8 162.0,3627.6 168.0,3625.4 174.0,3623.2 180.0,3621.0 186.0,3618.8 192.0,3616.6 198.0,3614.4 204.0,3612.2 210.0,3610.0 216.0,3607.8 222.0,3605.6 228.0,3603.4 234.0,3601.2 240.0,3599.0 246.0,3596.8 252.0,3594.6 258.0,3592.4 264.0,3590.2 270.0,3588.0 276.0,3585.8 282.0,3583.6 288.0,3581.4 294.0,3579.2 300.0,3577.0 306.0,3574.8 312.0,3572.6 318.0,3570.4 324.0,3568.2 330.0,3566.0 336.0,3563.8 342.0,3561.6 348.0,3559.4 354.0,3557.2 360.0,3555.0 366.0,3552.8 372.0,3550.6 378.0,3548.4 384.0,3546.2 390.0,3544.0 396.0,3541.8 402.0,3539.6 408.0,3537.4 414.0,3535.2 420.0,3533.0 426.0,3530.8 432.0,3528.6 438.0,3526.4 444.0,3524.2 450.0,3522.0 456.0,3519.8 462.0,3517.6 468.0,3515.4 474.0,3513.2 480.0,3511.0 486.0,3508.8 492.0,3506.6 498.0,3504.4 504.0,3502.2 510.0,3456.0 516.0,3456.0 522.0,3456.0 528.0,3456.0 534.0,3456.0 540.0,3456.0 546.0,3456.0 552.0,3456.0 558.0,3456.0 564.0,3456.0 570.0,3456.0 576.0,3456.0 582.0,3670.5 588.0,3670.5 594.0,3670.5 600.0,3670.5 606.0,3670.5 612.0,3670.5 618.0,3670.5 624.0,3670.5 630.0,3670.5 636.0,3670.5 642.0,3670.5 648.0,3670.5 654.0,3670.5 660.0,3670.5 666.0,3670.5 672.0,3670.5 678.0,3670.5 684.0,3670.5 690.0,3670.5 696.0,3670.5 702.0,3670.5 708.0,3670.5 714.0,3670.5 720.0,3670.5 726.0,3670.5 732.0,3670.5 738.0,3670.5 744.0,3670.5 750.0,3670.5 756.0,3670.5 762.0,3670.5 768.0,3670.5 774.0,3670.5 780.0,3670.5 786.0,3670.5 792.0,3670.5 798.0,3670.5 804.0,3670.5 810.0,3670.5 816.0,3670.5 822.0,3670.5 828.0,3670.5 834.0,3670.5 840.0,3654.0 846.0,3651.8 852.0,3649.6 858.0,3647.4 864.0,3645.2 870.0,3643.0 876.0,3640.8 882.0,3638.6 888.0,3636.4 894.0,3634.2 900.0,3632.0 906.0,3629.8 912.0,3627.6 918.0,3625.4 924.0,3623.2 930.0,3621.0 936.0,3618.8 942.0,3616.6 948.0,3614.4 954.0,3612.2 960.0,3610.0 966.0,3607.8 972.0,3605.6 978.0,3603.4 984.0,3601.2 990.0,3599.0 996.0,3596.8 1002.0,3594.6 1008.0,3592.4 1014.0,3590.2 1020.0,3588.0 1026.0,3585.8 1032.0,3583.6 1038.0,3581.4 1044.0,3579.2 1050.0,3577.0 1056.0,3574.8 1062.0,3572.6 1068.0,3570.4 1074.0,3568.2 1080.0,3566.0 1086.0,3563.8 1092.0,3561.6 1098.0,3559.4 1104.0,3557.2 1110.0,3555.0 1116.0,3552.8 1122.0,3550.6 1128.0,3548.4 1134.0,3546.2 1140.0,3544.0 1146.0,3541.8 1152.0,3539.6 1158.0,3537.4 1164.0,3535.2 1170.0,3533.0 1176.0,3530.8 1182.0,3528.6 1188.0,3526.4 1194.0,3524.2 1200.0,3522.0 1206.0,3519.8 1212.0,3517.6 1218.0,3515.4 1224.0,3513.2 1230.0,3511.0 1236.0,3508.8 1242.0,3506.6 1248.0,3504.4 1254.0,3502.2 1260.0,3500.0 1266.0,3497.8 1272.0,3495.6 1278.0,3493.4 1284.0,3491.2 1290.0,3489.0" fill="none" stroke="#f9fafb" stroke-width="3"/>
+<polyline points="90.0,3713.4 96.0,3713.4 102.0,3713.4 108.0,3713.4 114.0,3713.4 120.0,3713.4 126.0,3713.4 132.0,3713.4 138.0,3713.4 144.0,3713.4 150.0,3713.4 156.0,3713.4 162.0,3713.4 168.0,3713.4 174.0,3713.4 180.0,3709.0 186.0,3704.6 192.0,3700.2 198.0,3695.8 204.0,3691.4 210.0,3687.0 216.0,3686.4 222.0,3685.9 228.0,3685.3 234.0,3684.8 240.0,3684.2 246.0,3683.7 252.0,3683.2 258.0,3682.6 264.0,3682.1 270.0,3681.5 276.0,3680.9 282.0,3680.4 288.0,3674.6 294.0,3668.8 300.0,3663.1 306.0,3657.3 312.0,3651.5 318.0,3645.8 324.0,3640.0 330.0,3634.2 336.0,3633.1 342.0,3632.0 348.0,3630.9 354.0,3629.8 360.0,3628.7 366.0,3627.6 372.0,3626.5 378.0,3625.4 384.0,3624.3 390.0,3623.2 396.0,3622.1 402.0,3621.0 408.0,3610.7 414.0,3600.4 420.0,3590.1 426.0,3579.8 432.0,3569.4 438.0,3559.1 444.0,3548.8 450.0,3538.5 456.0,3529.4 462.0,3520.3 468.0,3511.3 474.0,3502.2 480.0,3493.1 486.0,3484.1 492.0,3475.0 498.0,3465.9 504.0,3464.0 510.0,3462.1 516.0,3460.2 522.0,3458.4 528.0,3456.5 534.0,3454.6 540.0,3452.7 546.0,3450.8 552.0,3448.9 558.0,3447.0 564.0,3445.2 570.0,3443.3 576.0,3441.4 582.0,3439.5 588.0,3449.7 594.0,3459.8 600.0,3470.0 606.0,3480.1 612.0,3490.3 618.0,3500.4 624.0,3510.6 630.0,3520.7 636.0,3530.9 642.0,3541.0 648.0,3551.2 654.0,3561.3 660.0,3571.5 666.0,3577.4 672.0,3583.4 678.0,3589.3 684.0,3595.3 690.0,3601.2 696.0,3607.1 702.0,3613.1 708.0,3619.0 714.0,3625.0 720.0,3630.9 726.0,3636.8 732.0,3642.8 738.0,3648.7 744.0,3654.7 750.0,3660.6 756.0,3661.9 762.0,3663.2 768.0,3664.6 774.0,3665.9 780.0,3667.2 786.0,3668.5 792.0,3669.8 798.0,3671.2 804.0,3672.5 810.0,3673.8 816.0,3675.1 822.0,3676.4 828.0,3677.8 834.0,3679.1 840.0,3680.4 846.0,3680.8 852.0,3681.3 858.0,3681.7 864.0,3682.2 870.0,3682.6 876.0,3683.0 882.0,3683.5 888.0,3683.9 894.0,3684.4 900.0,3684.8 906.0,3685.2 912.0,3685.7 918.0,3686.1 924.0,3686.6 930.0,3687.0 936.0,3683.0 942.0,3679.1 948.0,3675.1 954.0,3671.2 960.0,3667.2 966.0,3663.2 972.0,3659.3 978.0,3655.3 984.0,3651.4 990.0,3647.4 996.0,3646.1 1002.0,3644.8 1008.0,3643.4 1014.0,3642.1 1020.0,3640.8 1026.0,3639.5 1032.0,3638.2 1038.0,3636.8 1044.0,3635.5 1050.0,3634.2 1056.0,3632.9 1062.0,3631.6 1068.0,3630.2 1074.0,3628.9 1080.0,3627.6 1086.0,3626.3 1092.0,3625.0 1098.0,3623.6 1104.0,3622.3 1110.0,3621.0 1116.0,3618.4 1122.0,3615.7 1128.0,3613.1 1134.0,3610.4 1140.0,3607.8 1146.0,3605.2 1152.0,3602.5 1158.0,3599.9 1164.0,3597.2 1170.0,3594.6 1176.0,3592.0 1182.0,3589.3 1188.0,3586.7 1194.0,3584.0 1200.0,3581.4 1206.0,3580.7 1212.0,3580.1 1218.0,3579.4 1224.0,3578.8 1230.0,3578.1 1236.0,3577.4 1242.0,3576.8 1248.0,3576.1 1254.0,3575.5 1260.0,3574.8 1266.0,3574.1 1272.0,3573.5 1278.0,3572.8 1284.0,3572.2 1290.0,3571.5" fill="none" stroke="#f87171" stroke-width="3.5"/>
+<line x1="90" x2="1290" y1="3637.5" y2="3637.5" stroke="#94a3b8" stroke-width="0.6" stroke-dasharray="3 5"/>
+<text x="82" y="3642.5" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#374151">0.25</text>
+<line x1="90" x2="1290" y1="3555.0" y2="3555.0" stroke="#94a3b8" stroke-width="0.6" stroke-dasharray="3 5"/>
+<text x="82" y="3560.0" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#374151">0.5</text>
+<line x1="90" x2="1290" y1="3472.5" y2="3472.5" stroke="#94a3b8" stroke-width="0.6" stroke-dasharray="3 5"/>
+<text x="82" y="3477.5" text-anchor="end" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#374151">0.75</text>
+<line x1="186.0" x2="186.0" y1="3712" y2="3738" stroke="#c2410c" stroke-width="2"/>
+<text x="186.0" y="3756" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#c2410c">wakes 2 ahead</text>
+<line x1="318.0" x2="318.0" y1="3712" y2="3738" stroke="#c2410c" stroke-width="2"/>
+<text x="318.0" y="3756" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#c2410c">stages a noise</text>
+<line x1="438.0" x2="438.0" y1="3712" y2="3738" stroke="#c2410c" stroke-width="2"/>
+<text x="438.0" y="3756" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#c2410c">wakes 3</text>
+<line x1="630.0" x2="630.0" y1="3712" y2="3738" stroke="#c2410c" stroke-width="2"/>
+<text x="630.0" y="3756" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#c2410c">holds back</text>
+<line x1="990.0" x2="990.0" y1="3712" y2="3738" stroke="#c2410c" stroke-width="2"/>
+<text x="990.0" y="3756" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#c2410c">wakes 1</text>
+<text x="90" y="3784" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#374151">Time (s) 0 to 200 · stress rises when the dead are near or the player is hurt, and falls at 0.05/s when nothing is near · the 5 s minimum gap keeps events apart</text>
+<rect x="1380" y="3280" width="1380" height="520" rx="16" fill="#f8fafc" stroke="#334155" stroke-width="3.5"/>
+<text x="1402" y="3320" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="800" fill="#334155">WHERE EVERYTHING IS</text>
+<text x="1402" y="3346" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#374151">Assets/_Hollowmere/Scripts/Runtime/AI/   and   Scenes/World.unity</text>
+<text x="1404" y="3390" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Senses/      Noise · NoiseSystem · INoiseListener · PlayerNoiseEmitter · IPlayerState</text>
+<text x="1404" y="3411" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">PlayerRegistry · SightSensor · Illumination · IlluminationSource</text>
+<text x="1404" y="3432" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Belief · AgentMemory</text>
+<text x="1404" y="3453" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Scheduling/  AiScheduler (+ IAiThinker)</text>
+<text x="1404" y="3474" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Director/    GameDirector · DirectorBrain · StressModel · TensionCurve</text>
+<text x="1404" y="3495" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">PlayerProfile · RoutePredictor · IDirectable (+ DirectableRegistry)</text>
+<text x="1404" y="3516" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">Debugging/   (temporary) DebugPlayerState · DebugNoiseKeys · NoiseProbe</text>
+<text x="1404" y="3537" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">SensesProbe · StandInAgent · DebugRosterSpawner · DebugLabel</text>
+<text x="1404" y="3579" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">World.unity</text>
+<text x="1404" y="3600" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">DebugPlayer (temporary): DebugWalker · DebugPlayerState · PlayerNoiseEmitter · DebugNoiseKeys</text>
+<text x="1404" y="3621" font-family="Consolas, 'Courier New', monospace" font-size="14.5" fill="#0f172a" xml:space="preserve">_Director: GameDirector · DebugRosterSpawner</text>
+<text x="1404" y="3663" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#111827" xml:space="preserve">Rules for every agent</text>
+<text x="1404" y="3684" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Brain = plain C# (decides); body = one MonoBehaviour (senses in, NavMeshAgent / animation events out)</text>
+<text x="1404" y="3705" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Register in OnEnable, Unregister in OnDisable (NoiseSystem, AiScheduler, DirectableRegistry)</text>
+<text x="1404" y="3726" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Think through the AiScheduler; never search the scene or allocate inside a thought</text>
+<text x="1404" y="3747" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• Check PlayerRegistry.Current for null; enemies see the player only through SightSensor</text>
+<text x="1404" y="3768" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#111827" xml:space="preserve">• All AI together under 2 ms per frame on the RTX 2050 laptop</text>
+</svg>
