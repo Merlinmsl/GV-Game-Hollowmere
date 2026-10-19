@@ -1,3 +1,4 @@
+using Hollowmere.AI.Director;
 using Hollowmere.AI.Scheduling;
 using Hollowmere.AI.Senses;
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace Hollowmere.AI.Debugging
     /// something real to wake. The zombie owner replaces it with the real brain.
     /// </summary>
     [RequireComponent(typeof(NavMeshAgent))]
-    public sealed class StandInAgent : MonoBehaviour, INoiseListener, IAiThinker
+    public sealed class StandInAgent : MonoBehaviour, INoiseListener, IAiThinker, IDirectable
     {
         public enum Mode { Dormant, Investigating, Chasing }
 
@@ -33,6 +34,7 @@ namespace Hollowmere.AI.Debugging
         public bool IsAwake => mode != Mode.Dormant;
         public AgentMemory Memory => memory;
 
+        public Vector3 Position => transform.position;
         public Vector3 EarPosition => transform.position;
         public float HearingAcuity => 1f;
         public float ThinkInterval => thinkInterval;
@@ -47,12 +49,14 @@ namespace Hollowmere.AI.Debugging
         {
             NoiseSystem.Register(this);
             AiScheduler.Register(this);
+            DirectableRegistry.Register(this);
         }
 
         void OnDisable()
         {
             NoiseSystem.Unregister(this);
             AiScheduler.Unregister(this);
+            DirectableRegistry.Unregister(this);
         }
 
         public void OnHeard(in Noise noise, float pathDistance)
