@@ -85,5 +85,25 @@ namespace Hollowmere.Agents
             writtenSpeed = requestedSpeed * factor;
             agent.speed = writtenSpeed;
         }
+
+        // Draws the path array (agent.path.corners) in the Scene view while this object is selected.
+        void OnDrawGizmosSelected()
+        {
+            var navAgent = agent != null ? agent : GetComponent<NavMeshAgent>();
+            if (navAgent == null || !navAgent.isActiveAndEnabled || !navAgent.hasPath) return;
+
+            Vector3[] corners = navAgent.path.corners;
+            Gizmos.color = Color.yellow;
+            for (int i = 0; i < corners.Length - 1; i++)
+                Gizmos.DrawLine(corners[i], corners[i + 1]);
+
+            Gizmos.color = Color.cyan;
+            foreach (Vector3 corner in corners)
+                Gizmos.DrawSphere(corner, 0.1f);
+
+            // The corner the agent is heading for right now, which the corner slow-down measures against.
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(navAgent.steeringTarget, 0.25f);
+        }
     }
 }
