@@ -36,7 +36,7 @@ namespace Hollowmere.AI.Zombie
         {
             Debug.Log("<color=cyan><b>[ZombieMemoryTests]</b> Starting test suite execution...</color>");
             int passed = 0;
-            int total = 5;
+            int total = 7;
 
             try
             {
@@ -53,6 +53,12 @@ namespace Hollowmere.AI.Zombie
                 passed++;
 
                 Test_ClearBelief_ResetsBeliefToEmpty();
+                passed++;
+
+                Test_ExponentialDecay_FadesConfidenceCorrectly();
+                passed++;
+
+                Test_ExponentialDecay_ClearsBeliefBelowMinConfidence();
                 passed++;
 
                 Debug.Log($"<color=green><b>[ZombieMemoryTests] ALL {passed}/{total} TESTS PASSED!</b></color>");
@@ -184,6 +190,63 @@ namespace Hollowmere.AI.Zombie
             Assert.AreEqual(BeliefSource.None, memory.GetBelief().Source, "Source must be None.");
 
             LogPass("Test_ClearBelief_ResetsBeliefToEmpty");
+        }
+
+        /// <summary>
+        /// Test 6: Confidence decays exponentially according to c = c0 * exp(-elapsed / tau).
+        /// At tau = 12s, after 12s confidence should be ~36.8% of c0.
+        /// </summary>
+        public void Test_ExponentialDecay_FadesConfidenceCorrectly()
+        {
+            // Arrange
+            var memory = new ZombieMemory();
+            Vector3 pos = new Vector3(10f, 0f, 10f);
+            float c0 = 1.0f;
+            memory.UpdateBelief(pos, c0, BeliefSource.Seen, timestamp: 0f);
+
+            // Act: Tick at t = 12s (elapsed = 1 tau = 12s)
+            memory.Tick(currentTime: 12f);
+
+            // Assert: c = 1.0 * exp(-1) = 0.367879...
+            ZombieBelief belief1Tau = memory.GetBelief();
+            float expected1Tau = c0 * Mathf.Exp(-12f / 12f); // ~0.368f
+            Assert.IsTrue(belief1Tau.IsValid, "Belief must still be valid after 1 tau.");
+            Assert.AreApproximatelyEqual(expected1Tau, belief1Tau.Confidence, 0.01f, "Confidence after 1 tau must match c0 * exp(-1).");
+
+            // Act: Tick at t = 24s (elapsed = 2 tau = 24s)
+            memory.Tick(currentTime: 24f);
+
+            // Assert: c = 1.0 * exp(-2) = 0.1353...
+            ZombieBelief belief2Tau = memory.GetBelief();
+            float expected2Tau = c0 * Mathf.Exp(-24f / 12f); // ~0.135f
+            Assert.IsTrue(belief2Tau.IsValid, "Belief must still be valid after 2 tau.");
+            Assert.AreApproximatelyEqual(expected2Tau, belief2Tau.Confidence, 0.01f, "Confidence after 2 tau must match c0 * exp(-2).");
+
+            LogPass("Test_ExponentialDecay_FadesConfidenceCorrectly");
+        }
+
+        /// <summary>
+        /// Test 7: When confidence decays below minConfidence (0.1), the belief is forgotten
+        /// and memory clears itself to Empty.
+        /// </summary>
+        public void Test_ExponentialDecay_ClearsBeliefBelowMinConfidence()
+        {
+            // Arrange
+            var memory = new ZombieMemory();
+            Vector3 pos = new Vector3(15f, 0f, 25f);
+            memory.UpdateBelief(pos, 0.60f, BeliefSource.Heard, timestamp: 0f);
+
+            // At tau = 12s, c0 = 0.60:
+            // c(28s) = 0.60 * exp(-28/12) = 0.60 * 0.0969 = 0.058 < 0.10 (minConfidence)
+            // Act: Tick at t = 28s
+            memory.Tick(currentTime: 28f);
+
+            // Assert: Belief has fallen below minConfidence and must be forgotten/cleared
+            ZombieBelief belief = memory.GetBelief();
+            Assert.IsFalse(memory.HasBelief, "Memory must clear belief when confidence falls below minConfidence (0.1).");
+            Assert.AreEqual(0f, belief.Confidence, "Confidence must be 0 after memory fadeout.");
+
+            LogPass("Test_ExponentialDecay_ClearsBeliefBelowMinConfidence");
         }
 
         private void LogPass(string testName)

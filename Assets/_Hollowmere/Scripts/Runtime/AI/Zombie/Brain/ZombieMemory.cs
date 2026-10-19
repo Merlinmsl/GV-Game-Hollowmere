@@ -7,16 +7,39 @@ namespace Hollowmere.AI.Zombie
     /// <summary>
     /// Manages the mental state, sensory input, and target belief of a single Runner Zombie.
     /// Implements INoiseListener to receive path-distance acoustic events from NoiseSystem.
+    /// Manages exponential confidence decay over time: confidence = c0 * exp(-elapsed / tau).
     /// Pure C# class decoupled from MonoBehaviour, designed for deterministic unit testing.
     /// </summary>
     public class ZombieMemory : INoiseListener
     {
         private readonly ZombieConfig config;
         private ZombieBelief currentBelief = ZombieBelief.Empty;
+        private float initialConfidence = 0f;
 
         private Func<Vector3> earPositionProvider;
         private Vector3 staticEarPosition = Vector3.zero;
         private float hearingAcuityOverride = -1f;
+
+        private const float FallbackTau = 12.0f;
+        private const float FallbackMinConfidence = 0.1f;
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // CONFIGURATION PROPERTIES
+        // ─────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Exponential decay time constant tau in seconds (default 12s from ZombieConfig).
+        /// Controls the rate of forgetting:
+        /// - After 1 tau (12s): confidence = 37% of c0
+        /// - After 2 tau (24s): confidence = 14% of c0
+        /// - After ~28s: confidence < 10% (gives up search)
+        /// </summary>
+        public float BeliefTau => (config != null && config.beliefTau > 0.001f) ? config.beliefTau : FallbackTau;
+
+        /// <summary>
+        /// Minimum confidence threshold before giving up search and clearing belief (default 0.1).
+        /// </summary>
+        public float MinConfidence => config != null ? config.minConfidence : FallbackMinConfidence;
 
         // ─────────────────────────────────────────────────────────────────────────
         // INoiseListener IMPLEMENTATION
@@ -101,6 +124,54 @@ namespace Hollowmere.AI.Zombie
         }
 
         // ─────────────────────────────────────────────────────────────────────────
+        // MEMORY DECAY EVALUATION
+        // ─────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Fades belief confidence exponentially based on elapsed time:
+        /// confidence = c0 * exp(-elapsed / tau).
+        /// Clears belief to Empty when confidence drops below MinConfidence (0.1).
+        /// Zero heap allocations during execution.
+        /// </summary>
+        public void Tick()
+        {
+            Tick(Time.time);
+        }
+
+        /// <summary>
+        /// Explicit timestamp overload of Tick for deterministic offline unit testing.
+        /// </summary>
+        /// <param name="currentTime">Current timestamp in seconds.</param>
+        public void Tick(float currentTime)
+        {
+            if (!currentBelief.IsValid)
+            {
+                return;
+            }
+
+            float elapsed = Mathf.Max(0f, currentTime - currentBelief.Timestamp);
+            float tau = BeliefTau;
+            float c0 = initialConfidence > 0f ? initialConfidence : currentBelief.InitialConfidence;
+
+            float decayedConfidence = c0 * Mathf.Exp(-elapsed / tau);
+
+            if (decayedConfidence < MinConfidence)
+            {
+                ClearBelief();
+            }
+            else
+            {
+                currentBelief = new ZombieBelief(
+                    currentBelief.Position,
+                    decayedConfidence,
+                    currentBelief.Timestamp,
+                    currentBelief.Source,
+                    c0
+                );
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────
         // SENSORY RECEPTION
         // ─────────────────────────────────────────────────────────────────────────
 
@@ -122,8 +193,6 @@ namespace Hollowmere.AI.Zombie
         /// │ Staged / Default    │ 0.40       │ Ambient or unclassified sound cue        │
         /// └─────────────────────┴────────────┴──────────────────────────────────────────┘
         /// </summary>
-        /// <param name="kind">The sensory noise category.</param>
-        /// <returns>Initial confidence score between 0.0 and 1.0.</returns>
         public static float ConfidenceFromKind(NoiseKind kind)
         {
             switch (kind)
@@ -194,7 +263,8 @@ namespace Hollowmere.AI.Zombie
         /// </summary>
         public void UpdateBelief(Vector3 position, float confidence, BeliefSource source, float timestamp)
         {
-            currentBelief = new ZombieBelief(position, confidence, timestamp, source);
+            initialConfidence = Mathf.Clamp01(confidence);
+            currentBelief = new ZombieBelief(position, initialConfidence, timestamp, source, initialConfidence);
         }
 
         /// <summary>
@@ -202,6 +272,7 @@ namespace Hollowmere.AI.Zombie
         /// </summary>
         public void UpdateBelief(in ZombieBelief newBelief)
         {
+            initialConfidence = newBelief.InitialConfidence > 0f ? newBelief.InitialConfidence : newBelief.Confidence;
             currentBelief = newBelief;
         }
 
@@ -210,6 +281,7 @@ namespace Hollowmere.AI.Zombie
         /// </summary>
         public void ClearBelief()
         {
+            initialConfidence = 0f;
             currentBelief = ZombieBelief.Empty;
         }
     }

@@ -98,6 +98,7 @@ namespace Hollowmere.AI.Zombie
         /// </summary>
         public BtStatus Tick()
         {
+            memory?.Tick();
             BtStatus status = rootNode.Tick();
 
             BtNode currentActive = ActiveNode;
