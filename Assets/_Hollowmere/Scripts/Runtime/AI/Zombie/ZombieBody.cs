@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using Hollowmere.AI.Senses;
 
 namespace Hollowmere.AI.Zombie
 {
@@ -11,6 +12,7 @@ namespace Hollowmere.AI.Zombie
     /// - Ticks the brain in a background coroutine at configurable Hz (WaitForSeconds(1f / config.brainTickRate)).
     /// - Manages sensory NoiseSystem registration in OnEnable / OnDisable.
     /// - Emits state change and attack events for visual and animation listeners.
+    /// - Emits zombie groan acoustic alert on entering Chase state.
     /// </summary>
     [RequireComponent(typeof(NavMeshAgent))]
     public class ZombieBody : MonoBehaviour
@@ -22,6 +24,7 @@ namespace Hollowmere.AI.Zombie
         private NavMeshAgent agent;
         private ZombieBrain brain;
         private Coroutine brainTickCoroutine;
+        private bool _groanEmitted = false;
 
         /// <summary>Access to the decoupled pure C# brain instance.</summary>
         public ZombieBrain Brain => brain;
@@ -38,6 +41,9 @@ namespace Hollowmere.AI.Zombie
         /// <summary>Name of the actively running Behaviour Tree leaf node.</summary>
         public string CurrentStateName => brain?.ActiveNode != null ? brain.ActiveNode.Name : "None";
 
+        /// <summary>Whether a groan has been emitted during the current Chase activation.</summary>
+        public bool GroanEmitted => _groanEmitted;
+
         /// <summary>Fired when the active BT node transitions (e.g. Dormant -> Chase).</summary>
         public event Action<string> OnStateChanged;
 
@@ -51,7 +57,7 @@ namespace Hollowmere.AI.Zombie
             // Instantiate decoupled pure C# brain
             brain = new ZombieBrain(config, agent, transform);
 
-            brain.OnStateChanged += state => OnStateChanged?.Invoke(state);
+            brain.OnStateChanged += HandleStateChanged;
             brain.OnAttack += () => OnAttack?.Invoke();
         }
 
@@ -69,6 +75,8 @@ namespace Hollowmere.AI.Zombie
             // Unregister acoustic listener to prevent dangling callbacks
             brain?.Memory?.OnDisable();
 
+            _groanEmitted = false;
+
             if (brainTickCoroutine != null)
             {
                 StopCoroutine(brainTickCoroutine);
@@ -79,6 +87,32 @@ namespace Hollowmere.AI.Zombie
             {
                 agent.ResetPath();
             }
+        }
+
+        private const NoiseKind ZombieGroan = NoiseKind.Groan;
+
+        /// <summary>
+        /// Handles state transitions reported by ZombieBrain.
+        /// Emits a zombie groan noise on entering Chase state from non-Chase to alert nearby zombies,
+        /// guarded by _groanEmitted to ensure only one groan is emitted per state transition.
+        /// </summary>
+        /// <param name="newState">The newly activated behaviour tree state name.</param>
+        private void HandleStateChanged(string newState)
+        {
+            if (newState == "Chase")
+            {
+                if (!_groanEmitted)
+                {
+                    NoiseSystem.Emit(transform.position, 20f, ZombieGroan, gameObject);
+                    _groanEmitted = true;
+                }
+            }
+            else
+            {
+                _groanEmitted = false;
+            }
+
+            OnStateChanged?.Invoke(newState);
         }
 
         /// <summary>
