@@ -1,3 +1,4 @@
+using Hollowmere.AI.Scheduling;
 using Hollowmere.AI.Senses;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -8,6 +9,7 @@ namespace Hollowmere.AI.Debugging
     public sealed class DebugNoiseKeys : MonoBehaviour
     {
         string lastResult = "";
+        int standInCount;
 
         void OnEnable() => NoiseSystem.Emitted += OnEmitted;
         void OnDisable() => NoiseSystem.Emitted -= OnEmitted;
@@ -19,6 +21,7 @@ namespace Hollowmere.AI.Debugging
 
             if (keyboard.pKey.wasPressedThisFrame) DropProbe();
             if (keyboard.oKey.wasPressedThisFrame) DropSensesProbe();
+            if (keyboard.jKey.wasPressedThisFrame) DropStandIn();
             if (keyboard.gKey.wasPressedThisFrame)
                 NoiseSystem.Emit(transform.position, Loudness.Gunshot, NoiseKind.Gunshot, gameObject);
             if (keyboard.hKey.wasPressedThisFrame)
@@ -52,6 +55,13 @@ namespace Hollowmere.AI.Debugging
             probe.AddComponent<SensesProbe>();
         }
 
+        // Faces the way you came from, so it can only hear you until you walk round in front of it.
+        void DropStandIn()
+        {
+            standInCount++;
+            StandInAgent.Create(transform.position, transform.eulerAngles.y + 180f, "StandIn " + standInCount);
+        }
+
         void OnEmitted(Noise noise, int heardBy)
         {
             lastResult = noise.Kind + " (" + noise.Loudness + " m) heard by " + heardBy + " of " + NoiseSystem.ListenerCount + " listeners";
@@ -59,14 +69,10 @@ namespace Hollowmere.AI.Debugging
 
         void OnGUI()
         {
-            GUI.Label(new Rect(12, 64, 900, 40), "NOISE TEST   P drop a listener | O drop a watcher | G gunshot | H door noise\n" + lastResult);
+            GUI.Label(new Rect(12, 64, 900, 40), "NOISE TEST   P drop a listener | O drop a watcher | J drop a stand-in | G gunshot | H door noise\n" + lastResult);
+            GUI.Label(new Rect(12, 136, 900, 22), "AI   " + AiScheduler.Count + " thinkers | " + AiScheduler.LastFrameThinks
+                + " thoughts this frame | " + AiScheduler.LastFrameMilliseconds.ToString("F3") + " ms (peak "
+                + AiScheduler.PeakMilliseconds.ToString("F3") + " ms)");
         }
     }
 }
-
-
-
-
-
-
-
