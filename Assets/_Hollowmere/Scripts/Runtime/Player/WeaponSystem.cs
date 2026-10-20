@@ -268,10 +268,26 @@ namespace Hollowmere.Player
             Vector3 eyePos = cameraTransform.position;
             Vector3 aimDir = cameraTransform.forward;
             float cosThreshold = Mathf.Cos(iceConeAngle * Mathf.Deg2Rad);
-
-            // Find all potential targets within iceRange
-            Collider[] colliders = Physics.OverlapSphere(eyePos, iceRange, hitMask, QueryTriggerInteraction.Ignore);
             bool hitAny = false;
+
+            // 1. Direct crosshair raycast (QueryTriggerInteraction.Collide so ghost trigger colliders are hit)
+            Ray ray = new Ray(eyePos, aimDir);
+            if (Physics.Raycast(ray, out RaycastHit directHit, iceRange, hitMask, QueryTriggerInteraction.Collide))
+            {
+                if (!directHit.transform.IsChildOf(transform))
+                {
+                    var directIceable = directHit.collider.GetComponentInParent<IIceable>();
+                    if (directIceable != null)
+                    {
+                        directIceable.ReceiveIce(freezeSeconds);
+                        hitAny = true;
+                        Debug.Log($"<color=cyan><b>[WeaponSystem]</b> Direct hit froze {directHit.collider.name} for {freezeSeconds} seconds!</color>");
+                    }
+                }
+            }
+
+            // 2. Cone spray check (QueryTriggerInteraction.Collide so ghost trigger colliders are included)
+            Collider[] colliders = Physics.OverlapSphere(eyePos, iceRange, hitMask, QueryTriggerInteraction.Collide);
 
             foreach (var col in colliders)
             {
@@ -287,7 +303,7 @@ namespace Hollowmere.Player
                     Vector3 dir = toTarget / dist;
                     if (Vector3.Dot(aimDir, dir) < cosThreshold) continue;
 
-                    // Line of sight check: ensure walls do not block the spray
+                    // Line of sight check: ensure solid walls do not block the spray
                     if (Physics.Raycast(eyePos, dir, dist - 0.2f, hitMask, QueryTriggerInteraction.Ignore))
                     {
                         continue;
