@@ -50,7 +50,7 @@ namespace Hollowmere.Tests.Ghost
         }
 
         [Test]
-        public void HeardOnly_StalksWithoutKnowingTheLook()
+        public void HeardOnly_LiesInWaitWithoutKnowingTheLook()
         {
             GhostBrain brain = NewBrain(out _);
             brain.Hear(Middle, NoiseKind.Footstep, now: 1f);
@@ -59,8 +59,9 @@ namespace Hollowmere.Tests.Ghost
 
             Assert.AreEqual(BeliefSource.Heard, brain.Memory.Current.Source);
             Assert.AreEqual(AgentMemory.HeardConfidence, brain.Memory.ConfidenceAt(1f), 1e-4f);
-            Assert.AreEqual(GhostMode.Stalk, brain.Mode);
+            Assert.AreEqual(GhostMode.Ambush, brain.Mode, "knows roughly where, not where they look: ambush");
             Assert.IsFalse(brain.Scorer.Query.HasLook, "a footstep says nothing about where the player looks");
+            Assert.AreEqual(ModeTuning.Servant.ambushRange.max, brain.Scorer.Query.Range.max, 1e-4f, "ambush weights and range");
         }
 
         [Test]
