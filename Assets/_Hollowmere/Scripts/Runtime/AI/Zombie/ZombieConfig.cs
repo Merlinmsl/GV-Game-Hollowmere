@@ -54,6 +54,7 @@ namespace Hollowmere.AI.Zombie
 
         [Header("Memory")]
 
+        // At tau=12, c=0.37 after 12 s, c<0.1 after 28 s — zombie searches ~24 s then gives up
         [Tooltip("Exponential decay time constant τ (tau) in seconds. " +
                  "confidence = c₀ × exp(−t / tau). " +
                  "At tau = 12 s:  after 12 s → 37 %,  after 24 s → 14 %,  after 28 s < 10 %. " +
