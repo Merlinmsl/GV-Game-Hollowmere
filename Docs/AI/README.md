@@ -8,6 +8,10 @@ For the story see [Docs/Story](../Story/README.md). For running the game see
 
 **Deadline: 21 October 2026.** Owners are not assigned yet (see section 10).
 
+**How the built code fits together:** [Senses_and_Director.svg](Senses_and_Director.svg) (also as
+[PNG](Senses_and_Director.png)) shows every file, method and connection in the senses layer, the
+scheduler and the Director, and how each agent plugs in. Open the SVG in a browser to zoom.
+
 ---
 
 ## 1. What the assignment marks
