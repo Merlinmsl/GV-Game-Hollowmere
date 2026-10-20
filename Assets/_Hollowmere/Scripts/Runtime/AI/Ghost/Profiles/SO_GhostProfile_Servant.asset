@@ -1,0 +1,106 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ead2b09803bd9624aaedfe5b745fb78b, type: 3}
+  m_Name: SO_GhostProfile_Servant
+  m_EditorClassIdentifier: Hollowmere.AI.Ghost::Hollowmere.AI.Ghost.GhostProfile
+  notes: 'A servant of Marrow House: patient, wary of the ice gun, keeps to its haunt
+    (6 m leash).'
+  tuning:
+    weights:
+      behind: 1
+      dark: 1
+      unseen: 1.2
+      cover: 0.4
+      range: 1.5
+      home: 0.5
+      threat: 3
+      crowd: 1
+    range:
+      min: 4
+      max: 8
+      softness: 4
+    climb:
+      rings: 3
+      seedsPerRing: 8
+      innerRadius: 3
+      outerRadius: 12
+      randomRestarts: 2
+      restartRadius: 12
+      maxSteps: 24
+      wallSkip: 2
+      switchMargin: 0.15
+      useAnnealing: 0
+      annealSteps: 40
+      startTemperature: 0.6
+      cooling: 0.9
+    costs:
+      kWatched: 3
+      kLight: 2
+      solidFactor: 0.7
+    lookMemory: 4
+    iceGunHalfAngle: 12
+    iceGunRange: 15
+    crowdRadius: 3
+    replanInterval: 1
+    maxRouteNodes: 4000
+    fullSearchInterval: 1
+  modes:
+    stalkBase: 0.5
+    ambushWeight: 0.8
+    strikeWeight: 1
+    fleeWeight: 1.2
+    aggression: 0.4
+    switchMargin: 0.1
+    ambushWeights:
+      behind: 0
+      dark: 1.4
+      unseen: 1.5
+      cover: 1.2
+      range: 1.5
+      home: 0.5
+      threat: 3
+      crowd: 1
+    ambushRange:
+      min: 1.5
+      max: 3.5
+      softness: 2
+    strikeDistance: 1.6
+    strikeReach: 8
+    strikeCooldown: 6
+    patienceSeconds: 15
+    fleeMinSeconds: 1.5
+    fleeAfterStrike: 1.5
+    fleeAfterFreeze: 2
+    fleeDepth: 10
+    aimFreshness: 1
+    carefulRange:
+      min: 6
+      max: 10
+      softness: 4
+    carefulCoverScale: 1.5
+    carefulUnseenScale: 1.3
+    carefulStrikeScale: 0.4
+    boldStrikeScale: 1.2
+    iceGunMemory: 20
+    lurkExposure: 0.7
+    corneredOpenCells: 3
+    thresholdSearch: 6
+    partialReplan: 0.4
+    notHereRadius: 1.5
+    notHereSeconds: 1
+    wanderRadius: 4
+    wanderPause: 6
+    wanderSpeed: 0.35
+    huntSpeed: 1
+    strikeSpeed: 1.4
+    fleeSpeed: 1.5
+  leash: 6
