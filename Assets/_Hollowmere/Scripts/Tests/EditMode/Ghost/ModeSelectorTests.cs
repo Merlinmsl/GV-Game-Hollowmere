@@ -73,6 +73,17 @@ namespace Hollowmere.Tests.Ghost
         }
 
         [Test]
+        public void PlayerOutsideTheHouse_VetoesStrike()
+        {
+            ModeInputs i = Seen();
+            i.Distance = 1.5f;
+            i.FacingAway = 1f;
+            i.PlayerOutside = true;
+            ModeSelector.Evaluate(i, ModeTuning.Mara, utility);
+            Assert.AreEqual(0f, utility[(int)GhostMode.Strike], "ghosts never leave the house");
+        }
+
+        [Test]
         public void AimedAt_FleeBeatsEverything_EvenAStrikeChance()
         {
             ModeInputs i = Seen();
