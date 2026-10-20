@@ -187,6 +187,53 @@ namespace Hollowmere.Tests.Ghost
         }
 
         [Test]
+        public void ReSearches_OnlyWhenWhatItKnowsChanges()
+        {
+            GhostBrain brain = NewBrain(out _);
+            brain.See(Middle, Vector3.right, WeaponKind.None, false, now: 1f);
+            brain.Think(GhostStart, now: 1f);
+            int target = brain.TargetCell;
+            Assert.AreEqual(1, brain.FullSearches);
+
+            brain.See(Middle, Vector3.right, WeaponKind.None, false, now: 1.2f);       // the same picture again
+            brain.Think(GhostStart, now: 1.2f);
+            Assert.AreEqual(1, brain.FullSearches, "nothing changed: only the current target is re-scored");
+            Assert.AreEqual(1, brain.SearchesSkipped);
+            Assert.AreEqual(target, brain.TargetCell);
+
+            brain.See(Middle, Vector3.forward, WeaponKind.None, false, now: 1.4f);     // turned 90 degrees
+            brain.Think(GhostStart, now: 1.4f);
+            Assert.AreEqual(2, brain.FullSearches, "the look changed: search again");
+
+            brain.See(Middle, Vector3.forward, WeaponKind.None, false, now: 2.5f);
+            brain.Think(GhostStart, now: 2.5f);
+            Assert.AreEqual(3, brain.FullSearches, "and at least every fullSearchInterval");
+        }
+
+        [Test]
+        public void SearchTokenTaken_KeepsAWorkingTarget_ButNeverLeavesTheGhostWithout()
+        {
+            GhostBrain brain = NewBrain(out _);
+            brain.MayRunFullSearch = false;                                              // another ghost searched this frame
+            brain.See(Middle, Vector3.right, WeaponKind.None, false, now: 1f);
+            brain.Think(GhostStart, now: 1f);
+            Assert.AreEqual(1, brain.FullSearches, "no target yet: it must search anyway");
+            int target = brain.TargetCell;
+
+            Vector3 turned = Quaternion.Euler(0f, 25f, 0f) * Vector3.right;            // a change, but the target still holds
+            brain.See(Middle, turned, WeaponKind.None, false, now: 1.2f);
+            brain.Think(GhostStart, now: 1.2f);
+            Assert.AreEqual(1, brain.FullSearches, "has a target worth keeping: waits for its turn");
+            Assert.IsFalse(brain.LastThinkHeavy);
+            Assert.AreEqual(target, brain.TargetCell);
+
+            brain.MayRunFullSearch = true;
+            brain.Think(GhostStart, now: 1.4f);
+            Assert.AreEqual(2, brain.FullSearches, "its turn: the change is acted on");
+            Assert.IsTrue(brain.LastThinkHeavy);
+        }
+
+        [Test]
         public void NoBeliefAndNoAnchor_StaysPut()
         {
             GhostBrain brain = NewBrain(out _);
