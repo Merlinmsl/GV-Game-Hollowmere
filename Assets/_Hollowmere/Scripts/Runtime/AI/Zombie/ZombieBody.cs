@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Hollowmere.AI.Senses;
 using Hollowmere.AI.Director;
+using Hollowmere.Combat;
 
 namespace Hollowmere.AI.Zombie
 {
@@ -15,14 +16,20 @@ namespace Hollowmere.AI.Zombie
     /// - Emits state change and attack events for visual and animation listeners.
     /// - Emits zombie groan acoustic alert on entering Chase state.
     /// - Implements IDirectable for GameDirector AI waking and coordination.
+    /// - Implements IDamageable for taking firearm damage and dying when HP reaches 0.
+    /// - Implements IIceable for freezing in place when hit by the Ice Gun.
     /// - Triggers Animator parameters: Attack, Hit, and Dead.
     /// </summary>
     [RequireComponent(typeof(NavMeshAgent))]
-    public class ZombieBody : MonoBehaviour, IDirectable
+    public class ZombieBody : MonoBehaviour, IDirectable, IDamageable, IIceable
     {
         [Header("Configuration")]
         [Tooltip("Zombie tuning ScriptableObject asset.")]
         [SerializeField] private ZombieConfig config;
+
+        [Header("Health & Combat")]
+        [Tooltip("Maximum health points for this zombie.")]
+        [SerializeField] private float maxHealth = 100f;
 
         [Header("Animation")]
         [Tooltip("Optional Animator reference. If null, auto-discovered in children.")]
@@ -31,7 +38,12 @@ namespace Hollowmere.AI.Zombie
         private NavMeshAgent agent;
         private ZombieBrain brain;
         private Coroutine brainTickCoroutine;
+        private Coroutine freezeCoroutine;
         private bool _groanEmitted = false;
+        private float currentHealth = 100f;
+
+        public float Health01 => Mathf.Clamp01(currentHealth / maxHealth);
+        public bool IsDead { get; private set; }
 
         // Stuck detection (Edge case: zombie stuck > 3s)
         private Vector3 _lastStuckCheckPosition;
@@ -98,6 +110,18 @@ namespace Hollowmere.AI.Zombie
                 animator.SetTrigger("Attack");
             }
             OnAttack?.Invoke();
+
+            // Deal melee damage to the player if within reach
+            IPlayerState player = PlayerRegistry.Instance;
+            if (player is MonoBehaviour mb)
+            {
+                float meleeReach = config != null ? config.attackRange + 0.5f : 2.3f;
+                if (Vector3.Distance(transform.position, player.Position) <= meleeReach)
+                {
+                    var damageable = mb.GetComponent<IDamageable>();
+                    damageable?.TakeDamage(25f, player.Position, (player.Position - transform.position).normalized, gameObject);
+                }
+            }
         }
 
         /// <summary>Triggers the Hit reaction animation.</summary>
@@ -107,6 +131,71 @@ namespace Hollowmere.AI.Zombie
             {
                 animator.SetTrigger("Hit");
             }
+        }
+
+        /// <summary>
+        /// Inflicts firearm damage, notifies memory of the attacker's position,
+        /// and transitions to death state if HP is exhausted.
+        /// </summary>
+        public void TakeDamage(float amount, Vector3 hitPoint, Vector3 hitDirection, GameObject attacker = null)
+        {
+            if (IsDead) return;
+
+            currentHealth = Mathf.Max(0f, currentHealth - amount);
+
+            if (attacker != null)
+            {
+                brain?.Memory?.UpdateBelief(attacker.transform.position, 1.0f, BeliefSource.Seen);
+            }
+
+            if (currentHealth <= 0f)
+            {
+                IsDead = true;
+                SetDead(true);
+
+                // Disable physical colliders and agent so player isn't blocked by corpse
+                var cols = GetComponentsInChildren<Collider>();
+                foreach (var c in cols) c.enabled = false;
+                if (agent != null && agent.enabled) agent.enabled = false;
+            }
+            else
+            {
+                TriggerHit();
+            }
+        }
+
+        /// <summary>
+        /// Freezes zombie in place when hit by the Ice Gun spray.
+        /// </summary>
+        public void ReceiveIce(float seconds)
+        {
+            if (IsDead) return;
+            if (freezeCoroutine != null) StopCoroutine(freezeCoroutine);
+            freezeCoroutine = StartCoroutine(FreezeRoutine(seconds));
+        }
+
+        private IEnumerator FreezeRoutine(float seconds)
+        {
+            float prevSpeed = agent != null ? agent.speed : 3.5f;
+            if (agent != null && agent.isOnNavMesh)
+            {
+                agent.isStopped = true;
+                agent.speed = 0f;
+            }
+
+            float prevAnimSpeed = animator != null ? animator.speed : 1f;
+            if (animator != null) animator.speed = 0f;
+
+            yield return new WaitForSeconds(seconds);
+
+            if (animator != null) animator.speed = prevAnimSpeed;
+            if (agent != null && agent.isOnNavMesh && !IsDead)
+            {
+                agent.speed = prevSpeed;
+                agent.isStopped = false;
+            }
+
+            freezeCoroutine = null;
         }
 
         /// <summary>Sets the Dead state parameter on the Animator and stops agent navigation & AI loop.</summary>
@@ -134,6 +223,7 @@ namespace Hollowmere.AI.Zombie
 
         private void Awake()
         {
+            currentHealth = maxHealth;
             agent = GetComponent<NavMeshAgent>();
 
             if (animator == null)

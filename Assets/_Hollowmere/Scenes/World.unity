@@ -935,6 +935,8 @@ GameObject:
   - component: {fileID: 1837528443}
   - component: {fileID: 1837528446}
   - component: {fileID: 1837528442}
+  - component: {fileID: 1837528448}
+  - component: {fileID: 1837528449}
   m_Layer: 0
   m_Name: PF_Player
   m_TagString: Player
@@ -1024,6 +1026,52 @@ MonoBehaviour:
   walkStepInterval: 0.5
   runStepInterval: 0.33
   crouchNoiseFactor: 0.4
+--- !u!114 &1837528448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837528441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6a49745a1e74dd78d13df757c9aa65c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.Player.PlayerHealth
+  maxHealth: 100
+  invulnerabilityDuration: 0.4
+  damageFlashDuration: 0.3
+--- !u!114 &1837528449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837528441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd97394af44747cf88cf646d0b5ca108, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.Player.WeaponSystem
+  pistolDamage: 35
+  headshotMultiplier: 3
+  pistolRange: 60
+  pistolFireRate: 0.25
+  maxPistolAmmo: 36
+  currentPistolAmmo: 18
+  freezeSeconds: 3.5
+  iceRange: 15
+  iceConeAngle: 10
+  iceFireRate: 0.6
+  maxIceAmmo: 100
+  currentIceAmmo: 100
+  iceCostPerShot: 20
+  cameraTransform: {fileID: 369002222}
+  pistolModel: {fileID: 0}
+  iceGunModel: {fileID: 0}
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &1966642893
 GameObject:
   m_ObjectHideFlags: 0

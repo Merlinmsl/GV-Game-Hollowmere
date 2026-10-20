@@ -12,7 +12,7 @@ namespace Hollowmere.Player
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(PlayerNoiseEmitter))]
-    public class PlayerController : MonoBehaviour, IPlayerState
+    public class PlayerController : MonoBehaviour, IPlayerState, Hollowmere.AI.Biscuit.IAmmoReceiver
     {
         // ─────────────────────────────────────────────────────────────────────────
         // CONFIGURATION & REFERENCES
@@ -66,13 +66,28 @@ namespace Hollowmere.Player
         public Vector3 LookDirection => headTransform != null ? headTransform.forward : transform.forward;
 
         /// <summary>Player normalized health (0.0 = dead, 1.0 = full).</summary>
-        public float Health01 { get; set; } = 1.0f;
+        public float Health01
+        {
+            get => playerHealth != null ? playerHealth.Health01 : _health01;
+            set => _health01 = value;
+        }
+        private float _health01 = 1.0f;
 
         /// <summary>Player normalized ammo (0.0 = empty, 1.0 = full).</summary>
-        public float Ammo01 { get; set; } = 1.0f;
+        public float Ammo01
+        {
+            get => weaponSystem != null ? weaponSystem.Ammo01 : _ammo01;
+            set => _ammo01 = value;
+        }
+        private float _ammo01 = 1.0f;
 
         /// <summary>Currently equipped weapon.</summary>
-        public WeaponKind HeldWeapon { get; set; } = WeaponKind.None;
+        public WeaponKind HeldWeapon
+        {
+            get => weaponSystem != null ? weaponSystem.CurrentWeapon : _heldWeapon;
+            set => _heldWeapon = value;
+        }
+        private WeaponKind _heldWeapon = WeaponKind.None;
 
         /// <summary>True when flashlight is toggled on.</summary>
         public bool FlashlightOn => flashlight != null && flashlight.enabled;
@@ -103,13 +118,32 @@ namespace Hollowmere.Player
 
         private CharacterController characterController;
         private PlayerNoiseEmitter noiseEmitter;
+        private PlayerHealth playerHealth;
+        private WeaponSystem weaponSystem;
         private float verticalVelocity;
         private float pitch;
+
+        /// <summary>
+        /// Replenishes ammunition when handed over by Biscuit or ammo pickups.
+        /// </summary>
+        public void ReceiveAmmo(float amount)
+        {
+            if (weaponSystem != null)
+            {
+                weaponSystem.AddAmmo(amount);
+            }
+            else
+            {
+                Ammo01 = Mathf.Clamp01(Ammo01 + amount);
+            }
+        }
 
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
             noiseEmitter = GetComponent<PlayerNoiseEmitter>();
+            playerHealth = GetComponent<PlayerHealth>();
+            weaponSystem = GetComponent<WeaponSystem>();
 
             characterController.height = standingHeight;
             characterController.radius = 0.35f;

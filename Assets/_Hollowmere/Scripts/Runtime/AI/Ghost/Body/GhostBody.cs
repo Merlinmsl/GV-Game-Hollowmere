@@ -164,9 +164,20 @@ namespace Hollowmere.AI.Ghost
             brain.WarmUp(transform.position);
             WarmSightSensor();
             brain.ModeChanged += OnModeChanged;
-            brain.Struck += at => Struck?.Invoke(at);
+            brain.Struck += HandleStrike;
             brain.Freed += () => Freed?.Invoke();
             return true;
+        }
+
+        void HandleStrike(Vector3 at)
+        {
+            Struck?.Invoke(at);
+            IPlayerState player = PlayerRegistry.Current;
+            if (player is MonoBehaviour mb)
+            {
+                var damageable = mb.GetComponent<Hollowmere.Combat.IDamageable>();
+                damageable?.TakeDamage(35f, at, (player.Position - transform.position).normalized, gameObject);
+            }
         }
 
         static bool sightSensorWarmed;
