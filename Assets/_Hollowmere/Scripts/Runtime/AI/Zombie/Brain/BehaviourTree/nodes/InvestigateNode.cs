@@ -88,21 +88,23 @@ namespace Hollowmere.AI.Zombie.BehaviourTree
                 }
             }
 
-            // If agent is not on NavMesh or path is completely invalid, fail
+            // Edge case: partial NavMesh path — go to reachable endpoint.
+            // Check agent.pathStatus == PathPartial, allow movement to partial destination.
+            // Only fail if path is completely invalid or agent is off NavMesh.
             if (!agent.isOnNavMesh || agent.pathStatus == NavMeshPathStatus.PathInvalid)
             {
                 LastStatus = BtStatus.Failure;
                 return BtStatus.Failure;
             }
 
-            // Check if navigation has reached arrival destination
+            // Check if navigation has reached arrival destination (complete or partial endpoint)
             if (!agent.pathPending)
             {
                 float stoppingThreshold = Mathf.Max(agent.stoppingDistance, arrivalDistance);
 
                 if (agent.remainingDistance <= stoppingThreshold)
                 {
-                    // Target position reached successfully
+                    // Target position or partial reachable endpoint reached successfully
                     currentTargetPosition = Vector3.positiveInfinity;
                     LastStatus = BtStatus.Success;
                     return BtStatus.Success;
