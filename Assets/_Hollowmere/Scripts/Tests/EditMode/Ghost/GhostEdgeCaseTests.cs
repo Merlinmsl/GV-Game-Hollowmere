@@ -205,6 +205,78 @@ namespace Hollowmere.Tests.Ghost
         }
 
         [Test]
+        public void HeardTheIceGun_HidesInOneWall_WithoutFlickering()
+        {
+            GhostGrid grid = Room();
+            GhostBrain brain = NewBrain(grid);
+            for (int i = 0; i < grid.Count; i++)
+                if (grid.Is(i, CellFlags.Walkable)) brain.Map.SetBakedLight(i, 1f);    // a lit room; walls stay dark
+            int modeChanges = 0;
+            brain.ModeChanged += (a, b) => modeChanges++;
+            brain.Hear(Player, NoiseKind.IceGun, now: 1f);                             // heard, never seen
+
+            brain.Think(Feet(13, 7), now: 1f);
+            Assert.AreEqual(GhostMode.Flee, brain.Mode, "wary of a gun it heard, standing in the light");
+            int refuge = brain.TargetCell;
+            Assert.IsTrue(grid.Is(refuge, CellFlags.Solid));
+
+            // It reaches the refuge and waits there: the wall cell is dark, but the floor it would step onto is not.
+            Vector3 inWall = grid.CellCentre(refuge) - Vector3.up * GhostGrid.BodyHeight;
+            for (float now = 1.2f; now <= 3.01f; now += 0.2f)
+            {
+                brain.Think(inWall, now);
+                Assert.AreEqual(GhostMode.Flee, brain.Mode, "t " + now);
+                Assert.AreEqual(refuge, brain.TargetCell, "the danger cone is fixed, so its refuge stays safe");
+            }
+            Assert.AreEqual(1, modeChanges, "Idle -> Flee once, no Ambush/Flee flicker");
+        }
+
+        [Test]
+        public void ReachedTheBelievedSpot_AndNobodyIsThere_GivesUp()
+        {
+            GhostGrid grid = Room();
+            GhostBrain brain = NewBrain(grid);
+            brain.See(Player, Vector3.left, WeaponKind.Pistol, false, now: 0f);
+            Vector3 onTheSpot = Feet(10, 8);
+
+            brain.Think(onTheSpot, now: 1.5f);                                       // last saw them 1.5 s ago
+            Assert.IsTrue(brain.Memory.HasBelief(1.5f), "gives the eyes notHereSeconds to recognise anyone");
+
+            brain.Think(onTheSpot, now: 1.5f + ModeTuning.Servant.notHereSeconds + 0.05f);
+            Assert.AreEqual(1, brain.BeliefsDisproved);
+            Assert.IsFalse(brain.Memory.HasBelief(2.6f));
+            Assert.AreEqual(GhostMode.Idle, brain.Mode, "nobody here: back to haunting");
+        }
+
+        [Test]
+        public void SomeoneStillInView_IsNotRuledOut()
+        {
+            GhostGrid grid = Room();
+            GhostBrain brain = NewBrain(grid);
+            brain.See(Player, Vector3.left, WeaponKind.Pistol, false, now: 0f);
+            brain.PlayerInView = true;                                              // the sight meter is still filling
+
+            brain.Think(Feet(10, 8), now: 1.5f);
+            brain.Think(Feet(10, 8), now: 3f);
+
+            Assert.AreEqual(0, brain.BeliefsDisproved);
+            Assert.IsTrue(brain.Memory.HasBelief(3f));
+        }
+
+        [Test]
+        public void FromInsideAWall_ItCannotRuleThePlayerOut()
+        {
+            GhostGrid grid = Room();
+            GhostBrain brain = NewBrain(grid);
+            brain.See(Feet(1, 7), Vector3.right, WeaponKind.Pistol, false, now: 0f);
+
+            brain.Think(Feet(0, 7), now: 1.5f);                                      // a metre away, inside the wall
+            brain.Think(Feet(0, 7), now: 3f);
+
+            Assert.AreEqual(0, brain.BeliefsDisproved, "it cannot see out of the wall, so it proves nothing");
+        }
+
+        [Test]
         public void TwoGhosts_NeverClaimTheSameCell()
         {
             GhostGrid grid = Room();
