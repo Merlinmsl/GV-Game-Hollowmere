@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using Hollowmere.AI.Senses;
+using Hollowmere.AI.Director;
 
 namespace Hollowmere.AI.Zombie
 {
@@ -13,13 +14,19 @@ namespace Hollowmere.AI.Zombie
     /// - Manages sensory NoiseSystem registration in OnEnable / OnDisable.
     /// - Emits state change and attack events for visual and animation listeners.
     /// - Emits zombie groan acoustic alert on entering Chase state.
+    /// - Implements IDirectable for GameDirector AI waking and coordination.
+    /// - Triggers Animator parameters: Attack, Hit, and Dead.
     /// </summary>
     [RequireComponent(typeof(NavMeshAgent))]
-    public class ZombieBody : MonoBehaviour
+    public class ZombieBody : MonoBehaviour, IDirectable
     {
         [Header("Configuration")]
         [Tooltip("Zombie tuning ScriptableObject asset.")]
         [SerializeField] private ZombieConfig config;
+
+        [Header("Animation")]
+        [Tooltip("Optional Animator reference. If null, auto-discovered in children.")]
+        [SerializeField] private Animator animator;
 
         private NavMeshAgent agent;
         private ZombieBrain brain;
@@ -61,19 +68,91 @@ namespace Hollowmere.AI.Zombie
         /// <summary>Fired when an attack swing is initiated.</summary>
         public event Action OnAttack;
 
+        // ─────────────────────────────────────────────────────────────────────────
+        // IDirectable IMPLEMENTATION
+        // ─────────────────────────────────────────────────────────────────────────
+
+        /// <summary>Current world position of the zombie for the Director.</summary>
+        public Vector3 Position => transform.position;
+
+        /// <summary>True if the zombie is currently active (not in the Dormant state).</summary>
+        public bool IsAwake => CurrentStateName != "Dormant";
+
+        /// <summary>
+        /// Wake up and direct toward this point, remembered as a 'Told' belief.
+        /// </summary>
+        public void WakeToward(Vector3 point)
+        {
+            float toldConf = (config != null && config.confidenceTold > 0f) ? config.confidenceTold : 0.4f;
+            brain?.Memory?.UpdateBelief(point, toldConf, BeliefSource.Told);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // ANIMATION TRIGGERS
+        // ─────────────────────────────────────────────────────────────────────────
+
+        private void HandleAttack()
+        {
+            if (animator != null)
+            {
+                animator.SetTrigger("Attack");
+            }
+            OnAttack?.Invoke();
+        }
+
+        /// <summary>Triggers the Hit reaction animation.</summary>
+        public void TriggerHit()
+        {
+            if (animator != null)
+            {
+                animator.SetTrigger("Hit");
+            }
+        }
+
+        /// <summary>Sets the Dead state parameter on the Animator and stops agent navigation & AI loop.</summary>
+        public void SetDead(bool dead = true)
+        {
+            if (animator != null)
+            {
+                animator.SetBool("Dead", dead);
+            }
+
+            if (dead)
+            {
+                if (agent != null && agent.isOnNavMesh && agent.hasPath)
+                {
+                    agent.ResetPath();
+                }
+
+                if (brainTickCoroutine != null)
+                {
+                    StopCoroutine(brainTickCoroutine);
+                    brainTickCoroutine = null;
+                }
+            }
+        }
+
         private void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
+
+            if (animator == null)
+            {
+                animator = GetComponentInChildren<Animator>();
+            }
 
             // Instantiate decoupled pure C# brain
             brain = new ZombieBrain(config, agent, transform);
 
             brain.OnStateChanged += HandleStateChanged;
-            brain.OnAttack += () => OnAttack?.Invoke();
+            brain.OnAttack += HandleAttack;
         }
 
         private void OnEnable()
         {
+            // Register with the GameDirector registry
+            DirectableRegistry.Register(this);
+
             // Register mental memory as an acoustic listener with the global NoiseSystem
             brain?.Memory?.OnEnable();
 
@@ -86,6 +165,9 @@ namespace Hollowmere.AI.Zombie
 
         private void OnDisable()
         {
+            // Unregister from GameDirector registry
+            DirectableRegistry.Unregister(this);
+
             // Unregister acoustic listener to prevent dangling callbacks
             brain?.Memory?.OnDisable();
 
