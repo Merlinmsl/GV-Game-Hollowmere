@@ -173,10 +173,21 @@ namespace Hollowmere.AI.Ghost
             brain.Struck += at =>
             {
                 strikeTakenUntil = Time.time + StrikeGapSeconds;     // before the next ghost thinks
-                Struck?.Invoke(at);
+                HandleStrike(at);
             };
             brain.Freed += () => Freed?.Invoke();
             return true;
+        }
+
+        void HandleStrike(Vector3 at)
+        {
+            Struck?.Invoke(at);
+            IPlayerState player = PlayerRegistry.Current;
+            if (player is MonoBehaviour mb)
+            {
+                var damageable = mb.GetComponent<Hollowmere.Combat.IDamageable>();
+                damageable?.TakeDamage(35f, at, (player.Position - transform.position).normalized, gameObject);
+            }
         }
 
         static bool sightSensorWarmed;
