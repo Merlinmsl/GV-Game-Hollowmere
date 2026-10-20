@@ -20,6 +20,9 @@ namespace Hollowmere.AI.Senses
         {
             if (Current == player) Current = null;
         }
+
+        public static void Register(IPlayerState player) => Set(player);
+        public static void Unregister(IPlayerState player) => Clear(player);
     }
 }
 
