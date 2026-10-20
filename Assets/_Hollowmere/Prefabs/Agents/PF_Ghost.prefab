@@ -103,6 +103,7 @@ MonoBehaviour:
   hearingAcuity: 1
   thinkInterval: 0.2
   routeBudgetPerFrame: 120
+  profile: {fileID: 11400000, guid: f7fe6f2186ef27c439adbaa0373ee168, type: 2}
   hauntAnchor: {fileID: 0}
   leash: 6
   tuning:
@@ -143,6 +144,44 @@ MonoBehaviour:
     crowdRadius: 3
     replanInterval: 1
     maxRouteNodes: 4000
+  modes:
+    stalkBase: 0.5
+    ambushWeight: 0.8
+    strikeWeight: 1
+    fleeWeight: 1.2
+    aggression: 0.4
+    switchMargin: 0.1
+    ambushWeights:
+      behind: 0
+      dark: 1.4
+      unseen: 1.5
+      cover: 1.2
+      range: 1.5
+      home: 0.5
+      threat: 3
+      crowd: 1
+    ambushRange:
+      min: 1.5
+      max: 3.5
+      softness: 2
+    strikeDistance: 1.6
+    strikeReach: 8
+    strikeCooldown: 6
+    patienceSeconds: 15
+    fleeMinSeconds: 1.5
+    fleeAfterStrike: 1.5
+    fleeAfterFreeze: 2
+    fleeDepth: 10
+    aimFreshness: 1
+    carefulRange:
+      min: 6
+      max: 10
+      softness: 4
+    carefulCoverScale: 1.5
+    carefulUnseenScale: 1.3
+    carefulStrikeScale: 0.4
+    boldStrikeScale: 1.2
+    iceGunMemory: 20
   showLabel: 1
 --- !u!1001 &8045439389159904303
 PrefabInstance:

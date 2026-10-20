@@ -399,8 +399,15 @@ namespace Hollowmere.AI.Ghost
                     ? brain.LastSighting.Age(now).ToString("F1") + " s ago, " + brain.LastSighting.Weapon +
                       (brain.LastSighting.Flashlight ? ", flashlight" : "") + (brain.SightingStillApplies(now) ? "" : " (stale)")
                     : "never";
-                field += "\nGHOST " + ghost.name + ": " + brain.Mode + "   belief " + belief + "\nlast sighting " + sighting +
-                         "   think " + ghost.LastThinkMs.ToString("F3") + " ms, route slice " + ghost.LastRouteSliceMs.ToString("F3") + " ms";
+                ModeInputs i = brain.LastInputs;
+                field += "\nGHOST " + ghost.name + (ghost.Profile != null ? " (" + ghost.Profile.name + ")" : "") + ": " + brain.Mode +
+                         "   belief " + belief + "\nlast sighting " + sighting +
+                         "   think " + ghost.LastThinkMs.ToString("F3") + " ms, route slice " + ghost.LastRouteSliceMs.ToString("F3") + " ms" +
+                         "\nutility  stalk " + brain.Utility(GhostMode.Stalk).ToString("F2") + "  ambush " + brain.Utility(GhostMode.Ambush).ToString("F2") +
+                         "  strike " + brain.Utility(GhostMode.Strike).ToString("F2") + "  flee " + brain.Utility(GhostMode.Flee).ToString("F2") +
+                         "\ninputs  dist " + i.Distance.ToString("F1") + "  fresh " + i.Freshness.ToString("F2") + "  away " + i.FacingAway.ToString("F2") +
+                         "  hunt " + i.HuntSeconds.ToString("F0") + " s" + (i.IceGunHeld ? "  ICE GUN KNOWN" : "") + (i.Aimed ? "  AIMED AT ME" : "") +
+                         (i.StrikeReady ? "" : "  strike cooling");
             }
             if ((view == View.WalkDistance || view == View.Score) && walkField != null)
                 field += "\nwalk field (BFS): " + walkField.CellsVisited + " cells" +

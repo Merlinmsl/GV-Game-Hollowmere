@@ -18,9 +18,10 @@ namespace Hollowmere.AI.Ghost
     ///  - Runs only a budgeted slice of the route search each frame, so planning never spikes a frame.
     ///  - Looks at a point placed on its BELIEF, never at the player: a wrong belief means looking the wrong way.
     ///  - The Director can point it somewhere (IDirectable); it then believes, weakly, that the player is there.
+    ///  - The ice gun freezes it (IIceable). Who it is (Mara or a servant) comes from its GhostProfile.
     /// </summary>
     [RequireComponent(typeof(GhostMovement), typeof(GhostRouteFollower))]
-    public sealed class GhostBody : MonoBehaviour, INoiseListener, IAiThinker, IDirectable
+    public sealed class GhostBody : MonoBehaviour, INoiseListener, IAiThinker, IDirectable, IIceable
     {
         static readonly List<GhostBody> active = new List<GhostBody>();
 
@@ -34,13 +35,18 @@ namespace Hollowmere.AI.Ghost
         [Tooltip("Route-search cells per frame: the planning time slice.")]
         [SerializeField] int routeBudgetPerFrame = 120;
 
-        [Header("Haunt")]
+        [Header("Who it is")]
+        [Tooltip("Mara or a servant. Empty: the tuning and modes below.")]
+        [SerializeField] GhostProfile profile;
         [Tooltip("Where this ghost belongs. It drifts back here when it has lost the player. Empty: where it starts.")]
         [SerializeField] Transform hauntAnchor;
+
+        [Header("Used only without a profile")]
         [Tooltip("Metres from the anchor it is happy to stray while stalking.")]
         [SerializeField] float leash = 6f;
-
         [SerializeField] GhostTuning tuning = GhostTuning.Default;
+        [SerializeField] ModeTuning modes = ModeTuning.Servant;
+
         [SerializeField] bool showLabel = true;
 
         readonly Stopwatch watch = new Stopwatch();
@@ -68,6 +74,17 @@ namespace Hollowmere.AI.Ghost
         public event Action Spotted;
         /// <summary>The player has just gone out of the ghost's sight.</summary>
         public event Action LostSight;
+        /// <summary>The ghost struck at the player, whom it saw at this position. Damage is the player side's job.</summary>
+        public event Action<Vector3> Struck;
+        /// <summary>The ice gun has frozen the ghost.</summary>
+        public event Action Frozen;
+        /// <summary>The ice has worn off; the ghost flees.</summary>
+        public event Action Freed;
+
+        public GhostProfile Profile => profile;
+        GhostTuning CurrentTuning => profile != null ? profile.Tuning : tuning;
+        ModeTuning CurrentModes => profile != null ? profile.Modes : modes;
+        float CurrentLeash => profile != null ? profile.Leash : leash;
 
         // INoiseListener / IAiThinker / IDirectable
         public Vector3 EarPosition => transform.position;
@@ -124,10 +141,29 @@ namespace Hollowmere.AI.Ghost
                 warned = true;
                 return false;
             }
-            brain = new GhostBrain(house.Runtime, tuning, GetInstanceID());
+            brain = new GhostBrain(house.Runtime, CurrentTuning, CurrentModes, GetInstanceID());
             brain.WarmUp(transform.position);
-            brain.ModeChanged += (from, to) => ModeChanged?.Invoke(from, to);
+            brain.ModeChanged += OnModeChanged;
+            brain.Struck += at => Struck?.Invoke(at);
+            brain.Freed += () => Freed?.Invoke();
             return true;
+        }
+
+        void OnModeChanged(GhostMode from, GhostMode to)
+        {
+            if (to == GhostMode.Frozen)
+            {
+                follower.Clear();
+                movement.Stop();
+                movement.SetLookTarget(null);
+                Frozen?.Invoke();
+            }
+            ModeChanged?.Invoke(from, to);
+        }
+
+        public void ReceiveIce(float seconds)
+        {
+            if (EnsureBrain()) brain.Freeze(seconds, Time.time);
         }
 
         public void Think(float deltaTime)
@@ -136,10 +172,11 @@ namespace Hollowmere.AI.Ghost
             watch.Restart();
             float now = Time.time;
 
-            brain.Tuning = tuning;
+            brain.Tuning = CurrentTuning;
+            brain.Modes = CurrentModes;
             brain.HasAnchor = true;
             brain.Anchor = hauntAnchor != null ? hauntAnchor.position : startPosition;
-            brain.Leash = leash;
+            brain.Leash = CurrentLeash;
 
             // Sight: the only way the ghost learns which way the player looks and what they carry.
             IPlayerState player = PlayerRegistry.Current;
@@ -175,9 +212,11 @@ namespace Hollowmere.AI.Ghost
         }
 
         // Face the believed player (at chest height), or the way it is going when it believes nothing.
+        // Frozen, it does not turn at all.
         void Look(float now)
         {
-            if (brain.Memory.HasBelief(now))
+            if (brain.Mode == GhostMode.Frozen) movement.SetLookTarget(null);
+            else if (brain.Memory.HasBelief(now))
             {
                 lookPoint.position = brain.Memory.Current.Position + Vector3.up * 1.2f;
                 movement.SetLookTarget(lookPoint);
@@ -204,6 +243,11 @@ namespace Hollowmere.AI.Ghost
                 ? brain.Memory.Current.Source + " " + brain.Memory.ConfidenceAt(now).ToString("F2")
                 : "-";
             DebugLabel.Above(transform, 2.3f, name + "  " + brain.Mode + "\nsight " + sight.Meter.ToString("F2") + "  belief " + belief);
+            // Utilities only while hunting: the panel would be noise otherwise.
+            if (brain.Mode != GhostMode.Idle && brain.Mode != GhostMode.Frozen)
+                DebugLabel.Above(transform, 3.1f,
+                    "S " + brain.Utility(GhostMode.Stalk).ToString("F2") + "  A " + brain.Utility(GhostMode.Ambush).ToString("F2") +
+                    "  K " + brain.Utility(GhostMode.Strike).ToString("F2") + "  F " + brain.Utility(GhostMode.Flee).ToString("F2"));
         }
 
         void OnDrawGizmosSelected()

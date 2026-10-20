@@ -66,6 +66,13 @@ namespace Hollowmere.Agents
         /// <summary>Called by the brain: face this target, normally the player. Null faces the direction of travel.</summary>
         public void SetLookTarget(Transform target) => lookTarget = target;
 
+        /// <summary>Called by the brain: stop dead where it is, with no easing out (frozen by the ice gun).</summary>
+        public void Stop()
+        {
+            destination = transform.position;
+            velocity = Vector3.zero;
+        }
+
         void Awake()
         {
             destination = transform.position;
