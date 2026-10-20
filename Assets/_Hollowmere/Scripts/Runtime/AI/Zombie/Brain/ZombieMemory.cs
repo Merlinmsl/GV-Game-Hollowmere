@@ -221,6 +221,7 @@ namespace Hollowmere.AI.Zombie
                 case NoiseKind.Footstep:
                     return 0.55f;
                 case NoiseKind.Door:
+                case NoiseKind.Interaction:
                     return 0.50f;
                 case NoiseKind.Wading:
                     return 0.50f;

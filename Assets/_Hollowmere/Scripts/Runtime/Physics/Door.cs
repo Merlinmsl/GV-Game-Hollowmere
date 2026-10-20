@@ -38,6 +38,10 @@ namespace Hollowmere.Interactables
         [Tooltip("Sound clip played when closing the door (slam).")]
         [SerializeField] private AudioClip closeClip;
 
+        [Header("Noise Settings")]
+        [Tooltip("Loudness of noise emitted when door is operated (default 10 m).")]
+        [SerializeField] private float noiseLoudness = Loudness.Door;
+
         [Header("Interaction Settings")]
         [Tooltip("Maximum interaction distance from player if not using trigger collider.")]
         [SerializeField] private float interactDistance = 2.5f;
@@ -149,6 +153,9 @@ namespace Hollowmere.Interactables
                     audioSource.PlayOneShot(clipToPlay);
                 }
             }
+
+            // Emit noise event so nearby zombies hear the door opening/closing (NoiseKind.Interaction / Door)
+            NoiseSystem.Emit(transform.position, noiseLoudness, NoiseKind.Interaction, gameObject);
         }
 
         private void OnTriggerEnter(Collider other)

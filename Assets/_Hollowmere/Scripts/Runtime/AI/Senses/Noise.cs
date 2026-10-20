@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Hollowmere.AI.Senses
 {
-    public enum NoiseKind { Footstep, Wading, Gunshot, IceGun, Door, Bark, Groan, Staged }
+    public enum NoiseKind { Footstep, Wading, Gunshot, IceGun, Door, Bark, Groan, Staged, Interaction }
 
     /// <summary>How far each kind of noise carries, in metres of walking distance.</summary>
     public static class Loudness
@@ -11,6 +11,7 @@ namespace Hollowmere.AI.Senses
         public const float Walk = 5f;  /// f means float literal, 5f is a float value of 5
         public const float Wade = 9f;
         public const float Door = 10f;
+        public const float Interaction = 10f;
         public const float Run = 12f;
         public const float IceGun = 15f;
         public const float Groan = 20f;
