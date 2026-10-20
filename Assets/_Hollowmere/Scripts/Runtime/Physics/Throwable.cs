@@ -34,6 +34,25 @@ namespace Hollowmere.Interactables
         [Tooltip("Offset position relative to camera when held.")]
         [SerializeField] private Vector3 holdOffset = new Vector3(0.3f, -0.25f, 0.7f);
 
+        [Header("Landing Impact Noise Settings")]
+        [Tooltip("Minimum collision velocity required to emit impact noise.")]
+        [SerializeField] private float impactVelocityThreshold = 1.5f;
+
+        [Tooltip("Loudness when bottle impacts/breaks (metres). Bottles are louder than cans.")]
+        [SerializeField] private float bottleLoudness = 18.0f;
+
+        [Tooltip("Loudness when can impacts/clatters (metres).")]
+        [SerializeField] private float canLoudness = 10.0f;
+
+        [Tooltip("Loudness when rock impacts (metres).")]
+        [SerializeField] private float rockLoudness = 12.0f;
+
+        [Tooltip("Optional impact audio clip.")]
+        [SerializeField] private AudioClip impactAudioClip;
+
+        [Tooltip("Optional AudioSource component.")]
+        [SerializeField] private AudioSource audioSource;
+
         private Rigidbody rb;
         private Collider col;
         private bool isHeld = false;
@@ -49,6 +68,10 @@ namespace Hollowmere.Interactables
         {
             rb = GetComponent<Rigidbody>();
             col = GetComponent<Collider>();
+            if (audioSource == null)
+            {
+                audioSource = GetComponent<AudioSource>();
+            }
         }
 
         private void Update()
@@ -146,6 +169,31 @@ namespace Hollowmere.Interactables
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Random.insideUnitSphere * 5f;
             rb.AddForce(throwDirection * throwForce, ForceMode.Impulse);
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (isHeld) return;
+
+            float impactVelocity = collision.relativeVelocity.magnitude;
+            if (impactVelocity >= impactVelocityThreshold)
+            {
+                float loudness = itemType switch
+                {
+                    ThrowableType.Bottle => bottleLoudness,
+                    ThrowableType.Can => canLoudness,
+                    ThrowableType.Rock => rockLoudness,
+                    _ => 12.0f
+                };
+
+                if (audioSource != null && impactAudioClip != null)
+                {
+                    audioSource.PlayOneShot(impactAudioClip);
+                }
+
+                // Impact creates acoustic noise event; attracts nearby zombies to landing position
+                NoiseSystem.Emit(transform.position, loudness, NoiseKind.Interaction, gameObject);
+            }
         }
     }
 }
