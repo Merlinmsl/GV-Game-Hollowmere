@@ -54,6 +54,12 @@ namespace Hollowmere.AI.Ghost
         float searchScore;
         float nextFullSearch;
         bool warming;
+
+        // Flee from an aim it has not seen: the danger cone is fixed when the flight starts (from the
+        // believed player towards where the ghost was), so the ghost's own movement cannot swing it.
+        Vector3 fleeFrom, fleeDirection;
+        // Since when the ghost has stood on its believed player position without seeing anyone (-1: not).
+        float onTheSpotSince = -1f;
         float forcedFleeUntil = float.NegativeInfinity;
         float frozenUntil;
         float lastStrike = float.NegativeInfinity;
@@ -110,6 +116,13 @@ namespace Hollowmere.AI.Ghost
         /// heavy step on its next thought, so one frame never pays for two.
         /// </summary>
         public bool MayRunFullSearch = true;
+        /// <summary>
+        /// Set by the body: the player is inside the ghost's view cone with nothing between, even if not yet
+        /// recognised. While true the ghost never concludes the player is not there.
+        /// </summary>
+        public bool PlayerInView;
+        /// <summary>How many times the ghost went to where it believed the player was and found nobody.</summary>
+        public int BeliefsDisproved { get; private set; }
         /// <summary>Did the last Think do a heavy step (walk-field rebuild or full position search)?</summary>
         public bool LastThinkHeavy { get; private set; }
         public int FullSearches { get; private set; }
@@ -189,6 +202,7 @@ namespace Hollowmere.AI.Ghost
             Mode = GhostMode.Idle;
             forcedFleeUntil = lastStrike = float.NegativeInfinity;
             huntingSince = nextReplan = nextWander = 0f;
+            onTheSpotSince = -1f;
             Lurking = false;
             LastRouteStatus = RouteStatus.Idle;
             SpeedScale = 1f;
@@ -229,18 +243,36 @@ namespace Hollowmere.AI.Ghost
 
         static bool sightWarmed;
 
-        // The first sighting in a session compiles the map's cone code (about 1.4 ms once). Run it on a small
-        // throwaway map instead of the shared one, so warming never writes what the ghosts know.
+        // The first sighting in a session compiles everything a sighting touches (the map's cone code, stalking
+        // with a known look, striking, fleeing a seen aim): 1-2.5 ms once, in the middle of play. A throwaway
+        // brain on a small walled scratch map runs those paths at load instead, so the shared map is untouched.
         static void WarmSight()
         {
             if (sightWarmed) return;
             sightWarmed = true;
-            var grid = new GhostGrid(Vector3.zero, 1f, 9, 9, new[] { 0f });
-            for (int i = 0; i < grid.Count; i++) grid.Flags[i] = CellFlags.Inside | CellFlags.Walkable;
+            const int size = 11;
+            var grid = new GhostGrid(Vector3.zero, 1f, size, size, new[] { 0f });
+            for (int z = 0; z < size; z++)
+            for (int x = 0; x < size; x++)
+            {
+                bool wall = x == 0 || z == 0 || x == size - 1 || z == size - 1;
+                grid.Flags[grid.Index(x, 0, z)] = CellFlags.Inside | (wall ? CellFlags.Solid : CellFlags.Walkable);
+            }
             var scratch = new InfluenceMap(grid);
-            MarkSight(scratch, new Vector3(4.5f, 0f, 4.5f), Vector3.forward, true, 0f);
-            scratch.Watched(0, 0f);
-            scratch.Light(0);
+            var brain = new GhostBrain(scratch, GhostTuning.Default, ModeTuning.Servant, 1) { warming = true };
+            Vector3 player = new Vector3(5.5f, 0f, 5.5f);
+
+            brain.See(player, Vector3.forward, WeaponKind.Pistol, true, 0f);           // stalk, knowing the look
+            brain.Think(new Vector3(5.5f, 0f, 1.5f), 0f);
+            brain.StepRoute(int.MaxValue, 0f);
+            brain.See(player, Vector3.forward, WeaponKind.Pistol, false, 0.2f);        // close behind them: strike
+            brain.Think(new Vector3(5.5f, 0f, 4.5f), 0.2f);
+            Vector3 ghost = new Vector3(5.5f, 0f, 8.5f);                                // aimed at: flee a seen aim
+            brain.See(player, ghost + Vector3.up * GhostGrid.BodyHeight - (player + Vector3.up * PositionQuery.EyeHeight),
+                      WeaponKind.IceGun, false, 10f);
+            brain.Think(ghost, 10f);
+            brain.Freeze(1f, 10.1f);                                                    // and the ice
+            brain.Think(ghost, 11.5f);
         }
 
         /// <summary>A noise reached the ghost. Other creatures' calls say nothing about the player.</summary>
@@ -297,6 +329,12 @@ namespace Hollowmere.AI.Ghost
 
             LastThinkHeavy = false;
             bool believes = Memory.HasBelief(now);
+            if (believes && NotHere(ghostPosition, now))
+            {
+                Memory.Forget();                                  // it looked, and nobody is there
+                believes = false;
+                BeliefsDisproved++;
+            }
             if (!believes && Mode != GhostMode.Idle && !warming) map.SetFlashlight(false, Vector3.zero, Vector3.forward);
             Locate(believes);
 
@@ -390,7 +428,7 @@ namespace Hollowmere.AI.Ghost
             i.StrikeReady = now - lastStrike >= Modes.strikeCooldown;
             i.HuntSeconds = IsHunting(Mode) ? now - huntingSince : 0f;
             i.PlayerOutside = PlayerOutside;
-            i.Exposure = Exposure(GhostCell(ghostPosition), now);
+            i.Exposure = OpenExposure(GhostCell(ghostPosition), now);
 
             Vector3 chest = ghostPosition + Vector3.up * GhostGrid.BodyHeight;
             if (sighting)
@@ -454,10 +492,20 @@ namespace Hollowmere.AI.Ghost
         // Into the nearest wall cell out of the aim. The BFS route is taken at once: no waiting on A*.
         bool Flee(int here, Vector3 ghostPosition, bool sameMode, float now)
         {
-            AimCone danger = SightingStillApplies(now) && LastSighting.Weapon == WeaponKind.IceGun
-                ? SeenAim()
-                : new AimCone(Memory.Current.Position + Vector3.up * PositionQuery.EyeHeight,
-                              ghostPosition - Memory.Current.Position, 30f, Tuning.iceGunRange);   // away from the player
+            // A seen aim is used as it is now. Otherwise the cone from the player towards the ghost is fixed
+            // when the flight starts (or the belief moves), so the ghost moving cannot swing it onto its refuge.
+            AimCone danger;
+            if (SightingStillApplies(now) && LastSighting.Weapon == WeaponKind.IceGun) danger = SeenAim();
+            else
+            {
+                Vector3 from = Memory.Current.Position + Vector3.up * PositionQuery.EyeHeight;
+                if (!sameMode || (from - fleeFrom).sqrMagnitude > 4f)
+                {
+                    fleeFrom = from;
+                    fleeDirection = ghostPosition - Memory.Current.Position;
+                }
+                danger = new AimCone(fleeFrom, fleeDirection, 30f, Tuning.iceGunRange);
+            }
             var goal = new SafeWallGoal(grid, danger);
 
             // Hysteresis: a refuge still out of the aim is kept, however the aim swings elsewhere.
@@ -648,6 +696,46 @@ namespace Hollowmere.AI.Ghost
         }
 
         float Exposure(int cell, float now) => Mathf.Max(map.Light(cell), map.Watched(cell, now));
+
+        // How exposed the ghost is, as far as staying hidden goes. Inside a wall that is the floor cell it would
+        // step out onto: a wall cell itself is always dark, which would coax a wary ghost out, then send it
+        // straight back once exposed (Ambush/Flee flicker).
+        float OpenExposure(int cell, float now)
+        {
+            if (!grid.Is(cell, CellFlags.Solid)) return Exposure(cell, now);
+            int floor = grid.NearestWalkable(cell);
+            return floor >= 0 ? Exposure(floor, now) : Exposure(cell, now);
+        }
+
+        // Negative evidence. Standing on the believed player position, with a clear view of it, no one in view
+        // and no sighting for a while: the player is not here. Waits notHereSeconds so a slow recognition
+        // (the sight meter filling in the dark) is not mistaken for an empty room.
+        bool NotHere(Vector3 ghostPosition, float now)
+        {
+            Vector3 believed = Memory.Current.Position;
+            float dx = believed.x - ghostPosition.x, dz = believed.z - ghostPosition.z;
+            int here = GhostCell(ghostPosition), there = grid.ClampedCellAt(believed + Vector3.up * 0.1f);
+            bool onTheSpot = dx * dx + dz * dz <= Modes.notHereRadius * Modes.notHereRadius &&
+                             Mathf.Abs(believed.y - ghostPosition.y) <= 1.5f;
+            bool canLook = onTheSpot && !grid.Is(here, CellFlags.Solid) && ClearLine(here, there);
+            bool seenLately = LastSighting.Valid && LastSighting.Age(now) <= Modes.notHereSeconds;
+            if (!canLook || seenLately || PlayerInView)
+            {
+                onTheSpotSince = -1f;
+                return false;
+            }
+            if (onTheSpotSince < 0f) onTheSpotSince = now;
+            if (now - onTheSpotSince < Modes.notHereSeconds) return false;
+            onTheSpotSince = -1f;
+            return true;
+        }
+
+        bool ClearLine(int from, int to)
+        {
+            grid.Coords(from, out int fx, out int fl, out int fz);
+            grid.Coords(to, out int tx, out int tl, out int tz);
+            return fl == tl && (fx == tx && fz == tz || grid.LineOfSight(fx, fz, tx, tz, fl));
+        }
 
         // The best hidden place near the player; if even that is lit or watched, the nearest wall cell
         // (out of any seen aim) to wait in instead. Entering and leaving differ by 0.1, so it does not flicker.

@@ -187,6 +187,8 @@ MonoBehaviour:
     corneredOpenCells: 3
     thresholdSearch: 6
     partialReplan: 0.4
+    notHereRadius: 1.5
+    notHereSeconds: 1
     wanderRadius: 4
     wanderPause: 6
     wanderSpeed: 0.35

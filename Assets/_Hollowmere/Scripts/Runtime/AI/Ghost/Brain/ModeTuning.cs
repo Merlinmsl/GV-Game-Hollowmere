@@ -61,6 +61,10 @@ namespace Hollowmere.AI.Ghost
         public int thresholdSearch;
         [Tooltip("A route search cut short by its node cap is re-planned this soon, from closer.")]
         public float partialReplan;
+        [Tooltip("Not here: within this many metres of where it believes the player is, with a clear view of the spot...")]
+        public float notHereRadius;
+        [Tooltip("...and nobody in view for this many seconds, the ghost drops the belief.")]
+        public float notHereSeconds;
 
         [Header("Lost the player: home, then wander")]
         [Tooltip("Metres around the haunt anchor the ghost wanders (never beyond its leash).")]
@@ -105,6 +109,8 @@ namespace Hollowmere.AI.Ghost
             corneredOpenCells = 3,
             thresholdSearch = 6,
             partialReplan = 0.4f,
+            notHereRadius = 1.5f,
+            notHereSeconds = 1f,
             wanderRadius = 4f,
             wanderPause = 6f,
             wanderSpeed = 0.35f,

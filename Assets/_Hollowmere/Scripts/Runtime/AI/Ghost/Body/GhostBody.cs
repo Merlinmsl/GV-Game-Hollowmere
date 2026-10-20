@@ -112,6 +112,7 @@ namespace Hollowmere.AI.Ghost
             active.Clear();
             budgetFrame = -1;
             searchFrame = -1;
+            sightSensorWarmed = false;
         }
 
         void Awake()
@@ -161,10 +162,37 @@ namespace Hollowmere.AI.Ghost
             }
             brain = new GhostBrain(house.Runtime, CurrentTuning, CurrentModes, GetInstanceID());
             brain.WarmUp(transform.position);
+            WarmSightSensor();
             brain.ModeChanged += OnModeChanged;
             brain.Struck += at => Struck?.Invoke(at);
             brain.Freed += () => Freed?.Invoke();
             return true;
+        }
+
+        static bool sightSensorWarmed;
+
+        // The first time any sight sensor actually sees the player its code is compiled (about 2.4 ms once,
+        // in the middle of play). A throwaway sensor looking at a dummy target half a metre ahead takes that
+        // cost now, while the scene loads. The ghost's own sensor and the shared senses are left untouched.
+        void WarmSightSensor()
+        {
+            if (sightSensorWarmed) return;
+            sightSensorWarmed = true;
+            var probe = new SightSensor();
+            var target = new WarmUpTarget(transform.position + transform.forward * 0.5f);
+            for (int i = 0; i < 3; i++) probe.Tick(transform, target, 0.5f);
+        }
+
+        sealed class WarmUpTarget : IPlayerState
+        {
+            public WarmUpTarget(Vector3 position) => Position = position;
+            public Vector3 Position { get; }
+            public Vector3 LookDirection => Vector3.forward;
+            public float Health01 => 1f;
+            public float Ammo01 => 1f;
+            public WeaponKind HeldWeapon => WeaponKind.None;
+            public bool FlashlightOn => false;
+            public bool IsCrouching => false;
         }
 
         void OnModeChanged(GhostMode from, GhostMode to)
@@ -206,6 +234,7 @@ namespace Hollowmere.AI.Ghost
                 seesNow = sight.Tick(transform, player, deltaTime);
                 if (seesNow) brain.See(player.Position, player.LookDirection, player.HeldWeapon, player.FlashlightOn, now);
             }
+            brain.PlayerInView = sight.InView;        // someone there, even if not yet recognised
             if (seesNow != seeing)
             {
                 seeing = seesNow;
