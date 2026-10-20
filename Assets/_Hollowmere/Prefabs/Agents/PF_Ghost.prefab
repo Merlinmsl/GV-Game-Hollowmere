@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7961245566493180918}
   - component: {fileID: 6615640393790747743}
+  - component: {fileID: 6959281967050530376}
+  - component: {fileID: 8677307705701718790}
   m_Layer: 0
   m_Name: PF_Ghost
   m_TagString: Untagged
@@ -61,6 +63,87 @@ MonoBehaviour:
   wallCheckRadius: 0.3
   visibilityInWall: 0.1
   fadeSpeed: 3
+--- !u!114 &6959281967050530376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3768656742426657865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9004636b536297f41b855b9f7e8f62c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.AI.Ghost::Hollowmere.AI.Ghost.GhostRouteFollower
+  lookAhead: 2.5
+  arriveRadius: 0.35
+  rootAboveFloor: 0
+--- !u!114 &8677307705701718790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3768656742426657865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19b1c97f1b6609c47bacef165e7d6909, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.AI.Ghost::Hollowmere.AI.Ghost.GhostBody
+  house: {fileID: 0}
+  sight:
+    viewRange: 20
+    viewAngle: 110
+    detectRate: 2
+    forgetRate: 0.5
+    eyeHeight: 1.7
+    blockers:
+      serializedVersion: 2
+      m_Bits: 4294967295
+  hearingAcuity: 1
+  thinkInterval: 0.2
+  routeBudgetPerFrame: 120
+  hauntAnchor: {fileID: 0}
+  leash: 6
+  tuning:
+    weights:
+      behind: 1
+      dark: 1
+      unseen: 1.2
+      cover: 0.4
+      range: 1.5
+      home: 0.5
+      threat: 3
+      crowd: 1
+    range:
+      min: 4
+      max: 8
+      softness: 4
+    climb:
+      rings: 3
+      seedsPerRing: 8
+      innerRadius: 3
+      outerRadius: 12
+      randomRestarts: 2
+      restartRadius: 12
+      maxSteps: 24
+      wallSkip: 2
+      switchMargin: 0.15
+      useAnnealing: 0
+      annealSteps: 40
+      startTemperature: 0.6
+      cooling: 0.9
+    costs:
+      kWatched: 3
+      kLight: 2
+      solidFactor: 0.7
+    lookMemory: 4
+    iceGunHalfAngle: 12
+    iceGunRange: 15
+    crowdRadius: 3
+    replanInterval: 1
+    maxRouteNodes: 4000
+  showLabel: 1
 --- !u!1001 &8045439389159904303
 PrefabInstance:
   m_ObjectHideFlags: 0

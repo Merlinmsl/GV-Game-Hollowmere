@@ -11,10 +11,11 @@ namespace Hollowmere.AI.Ghost
     /// F3 cycles what it shows. One mesh with a quad per cell, recoloured only while visible, so it
     /// costs nothing when hidden.
     ///
-    /// "Feed from player" is a SANDBOX stand-in until GhostBody feeds the map from its own senses
-    /// (Phase 6): it marks the player's real view and flashlight so the map can be seen working.
-    /// The Score view runs the position search as if a ghost believed the player were exactly where
-    /// they are, and paints the score, the hill-climb seeds, trails and peaks, and the chosen cell.
+    /// With a ghost in the scene, the WalkDistance and Score views show that ghost's own thinking: its
+    /// walking field from where it BELIEVES the player is, its scores, hill-climb seeds, trails, peaks and
+    /// chosen cell. The ghosts feed the map from their senses.
+    /// With no ghost (sandbox only), "feed from player" marks the player's real view and flashlight and the
+    /// Score view searches as if a ghost knew exactly where the player is.
     /// </summary>
     public sealed class GhostMapDebugView : MonoBehaviour
     {
@@ -28,8 +29,10 @@ namespace Hollowmere.AI.Ghost
         [Tooltip("Show the heatmap from the start. F2 toggles it.")]
         [SerializeField] bool visible;
         [SerializeField] View view = View.Exposure;
-        [Tooltip("SANDBOX ONLY: mark the debug player's view and flashlight directly, until the ghosts feed the map from their senses.")]
-        [SerializeField] bool feedFromPlayer = true;
+        [Tooltip("The ghost whose thinking the WalkDistance and Score views show. Empty: the first active ghost.")]
+        [SerializeField] GhostBody focus;
+        [Tooltip("SANDBOX ONLY, and only while no ghost is active: mark the player's real view and flashlight on the map.")]
+        [SerializeField] bool feedFromPlayer;
         [SerializeField] float feedInterval = 0.2f;
         [SerializeField, Range(0.05f, 1f)] float opacity = 0.5f;
 
@@ -54,10 +57,14 @@ namespace Hollowmere.AI.Ghost
         int meshLayer = -1;
         float nextFeed;
         float lastFeedMs;
-        BfsField walkField;
+        BfsField walkField;                 // the field shown: a ghost's, or ownWalkField
+        BfsField ownWalkField;
         float lastFieldMs;
-        PositionScorer scorer;
+        PositionScorer scorer;              // the sandbox search's own, when there is no ghost
         HillClimber climber;
+        PositionScorer shownScorer;         // what the Score view is showing: a ghost's or the sandbox's
+        HillClimber shownClimber;
+        GhostBody shownGhost;
         HillClimber.Result lastSearch;
         ScoreBreakdown bestBreakdown;
         readonly int[] bestCell = new int[1];
@@ -88,9 +95,10 @@ namespace Hollowmere.AI.Ghost
             if (house == null || !house.IsBaked) return;
             map = house.Runtime;
 
-            if (feedFromPlayer) Feed();
+            if (feedFromPlayer && GhostBody.Active.Count == 0) Feed();
 
             GhostGrid grid = map.Grid;
+            shownGhost = Focus();
             bool searching = KeepSearching || (visible && view == View.Score);
             if (searching || (visible && view == View.WalkDistance)) UpdateWalkField(grid);
             if (searching) UpdateSearch(grid, ShownLayer(grid));
@@ -164,12 +172,30 @@ namespace Hollowmere.AI.Ghost
             }
         }
 
-        // Rebuilds the walking-distance field from the player's cell, only when it moved more than one cell.
+        // The ghost being shown, if any has a brain yet.
+        GhostBody Focus()
+        {
+            if (focus != null && focus.isActiveAndEnabled) return focus.Brain != null ? focus : null;
+            for (int i = 0; i < GhostBody.Active.Count; i++)
+                if (GhostBody.Active[i].Brain != null) return GhostBody.Active[i];
+            return null;
+        }
+
+        // A ghost's own field (from its belief), or, with no ghost, one rebuilt from the player's real cell
+        // when they move more than one cell.
         void UpdateWalkField(GhostGrid grid)
         {
+            GhostBody ghost = Focus();
+            if (ghost != null)
+            {
+                walkField = ghost.Brain.WalkField;
+                return;
+            }
+
             IPlayerState player = PlayerRegistry.Current;
             if (player == null) return;
-            if (walkField == null || walkField.Grid != grid) walkField = new BfsField(grid);
+            if (ownWalkField == null || ownWalkField.Grid != grid) ownWalkField = new BfsField(grid);
+            walkField = ownWalkField;
 
             int cell = grid.CellAt(player.Position + Vector3.up * 0.1f);
             if (!walkField.NeedsRebuild(grid.NearestWalkable(cell))) return;
@@ -194,22 +220,44 @@ namespace Hollowmere.AI.Ghost
             return Color32.Lerp(new Color32(30, 20, 90, alpha), new Color32(60, 230, 90, alpha), t);
         }
 
-        // Runs the ghost position search from the player's real cell (sandbox stand-in for a belief),
-        // then scores the shown storey for the colour ramp. Throttled: a few searches a second.
+        // Shows a ghost's last position decision, or (no ghost) runs the search from the player's real cell.
+        // Then scores the shown storey for the colour ramp. Throttled: a few times a second.
         void UpdateSearch(GhostGrid grid, int layer)
         {
-            IPlayerState player = PlayerRegistry.Current;
-            if (player == null || walkField == null || Time.time < nextSearch) return;
+            if (Time.time < nextSearch) return;
             nextSearch = Time.time + searchInterval;
+            if (layerScore == null || layerScore.Length != grid.LayerSize)
+            {
+                layerScore = new float[grid.LayerSize];
+                marks = new byte[grid.LayerSize];
+            }
 
+            shownGhost = Focus();
+            if (shownGhost != null)
+            {
+                GhostBrain brain = shownGhost.Brain;
+                brain.Climber.RecordTrace = true;
+                shownScorer = brain.Scorer;
+                shownClimber = brain.Climber;
+                bool stalking = brain.Mode != GhostMode.Idle;
+                lastSearch = stalking ? brain.LastDecision : new HillClimber.Result { Cell = -1 };
+                lastSearchMs = shownGhost.LastThinkMs;
+                if (stalking && lastSearch.Cell >= 0) bestBreakdown = shownScorer.Explain(lastSearch.Cell);
+                if (stalking) PaintScores(grid, layer);
+                else ClearMarks(grid);
+                return;
+            }
+
+            IPlayerState player = PlayerRegistry.Current;
+            if (player == null || walkField == null) return;
             if (scorer == null || scorer.Map != map)
             {
                 scorer = new PositionScorer(map);
                 climber = new HillClimber(scorer) { RecordTrace = true };
                 lastSearch = new HillClimber.Result { Cell = -1 };
-                layerScore = new float[grid.LayerSize];
-                marks = new byte[grid.LayerSize];
             }
+            shownScorer = scorer;
+            shownClimber = climber;
 
             Vector3 eye = player.Position + Vector3.up * PositionQuery.EyeHeight;
             scorer.WalkField = walkField;
@@ -231,8 +279,13 @@ namespace Hollowmere.AI.Ghost
             watch.Stop();
             lastSearchMs = (float)watch.Elapsed.TotalMilliseconds;
             if (lastSearch.Cell >= 0) bestBreakdown = scorer.Explain(lastSearch.Cell);
+            PaintScores(grid, layer);
+        }
 
-            // Colour ramp over the shown storey (debug only: the ghosts never score every cell).
+        // Colour ramp over the shown storey (debug only: the ghosts never score every cell), plus the
+        // hill climb's seeds, trails, peaks and chosen cell.
+        void PaintScores(GhostGrid grid, int layer)
+        {
             int offset = layer * grid.LayerSize;
             scoreMin = float.PositiveInfinity;
             scoreMax = float.NegativeInfinity;
@@ -240,18 +293,27 @@ namespace Hollowmere.AI.Ghost
             for (int c = 0; c < grid.LayerSize; c++)
             {
                 marks[c] = 0;
-                if (!scorer.IsCandidate(offset + c)) { layerScore[c] = float.NegativeInfinity; continue; }
-                float s = scorer.Score(offset + c);
+                if (!shownScorer.IsCandidate(offset + c)) { layerScore[c] = float.NegativeInfinity; continue; }
+                float s = shownScorer.Score(offset + c);
                 layerScore[c] = s;
                 scoreMin = Mathf.Min(scoreMin, s);
                 scoreMax = Mathf.Max(scoreMax, s);
                 candidates++;
             }
-            Mark(climber.TraceTrail, climber.TraceTrailCount, MarkTrail, offset);
-            Mark(climber.TraceSeeds, climber.TraceSeedCount, MarkSeed, offset);
-            Mark(climber.TracePeaks, climber.TracePeakCount, MarkPeak, offset);
+            Mark(shownClimber.TraceTrail, shownClimber.TraceTrailCount, MarkTrail, offset);
+            Mark(shownClimber.TraceSeeds, shownClimber.TraceSeedCount, MarkSeed, offset);
+            Mark(shownClimber.TracePeaks, shownClimber.TracePeakCount, MarkPeak, offset);
             bestCell[0] = lastSearch.Cell;
             Mark(bestCell, 1, MarkBest, offset);
+        }
+
+        void ClearMarks(GhostGrid grid)
+        {
+            for (int c = 0; c < grid.LayerSize; c++)
+            {
+                marks[c] = 0;
+                layerScore[c] = float.NegativeInfinity;
+            }
         }
 
         void Mark(int[] cells, int count, byte mark, int offset)
@@ -322,21 +384,39 @@ namespace Hollowmere.AI.Ghost
                     under = "light " + map.Light(cell).ToString("F2") + "  watched " + map.Watched(cell, Time.time).ToString("F2")
                             + "  " + grid.Flags[cell];
             }
-            string field = (view == View.WalkDistance || view == View.Score) && walkField != null
-                ? "\nwalk field (BFS): " + walkField.CellsVisited + " cells in " + lastFieldMs.ToString("F3") + " ms, rebuilt when you move > 1 cell"
-                : "";
-            if (view == View.Score && climber != null)
+            GhostBody ghost = shownGhost;
+            bool fromGhost = ghost != null && ghost.Brain != null;
+            string field = "";
+            if (fromGhost)
+            {
+                GhostBrain brain = ghost.Brain;
+                float now = Time.time;
+                string belief = brain.Memory.HasBelief(now)
+                    ? brain.Memory.Current.Source + " " + brain.Memory.ConfidenceAt(now).ToString("F2") + ", " +
+                      (now - brain.Memory.Current.Time).ToString("F1") + " s ago"
+                    : "none";
+                string sighting = brain.LastSighting.Valid
+                    ? brain.LastSighting.Age(now).ToString("F1") + " s ago, " + brain.LastSighting.Weapon +
+                      (brain.LastSighting.Flashlight ? ", flashlight" : "") + (brain.SightingStillApplies(now) ? "" : " (stale)")
+                    : "never";
+                field += "\nGHOST " + ghost.name + ": " + brain.Mode + "   belief " + belief + "\nlast sighting " + sighting +
+                         "   think " + ghost.LastThinkMs.ToString("F3") + " ms, route slice " + ghost.LastRouteSliceMs.ToString("F3") + " ms";
+            }
+            if ((view == View.WalkDistance || view == View.Score) && walkField != null)
+                field += "\nwalk field (BFS): " + walkField.CellsVisited + " cells" +
+                         (fromGhost ? " from the ghost's belief" : " in " + lastFieldMs.ToString("F3") + " ms, rebuilt when you move > 1 cell");
+            if (view == View.Score && shownScorer != null && lastSearch.Cell >= 0)
                 field += "\nhill climb: " + lastSearch.Climbs + " climbs, " + lastSearch.Evaluations + " cells scored (" + candidates +
-                         " on this storey) in " + lastSearchMs.ToString("F3") + " ms" + (climb.useAnnealing ? "  [annealing]" : "") +
-                         (lastSearch.KeptCurrent ? "  kept current" : "") +
+                         " on this storey)" + (fromGhost ? "" : " in " + lastSearchMs.ToString("F3") + " ms") +
+                         (shownClimber.Config.useAnnealing ? "  [annealing]" : "") + (lastSearch.KeptCurrent ? "  kept current" : "") +
                          "\ncyan seed, white trail, yellow peak, magenta best" +
-                         (scorer.Query.ThreatActive ? "   ICE GUN AIMED" : "") +
-                         "\nbest: " + (lastSearch.Cell >= 0 ? bestBreakdown.ToString() : "no candidate");
+                         (shownScorer.Query.ThreatActive ? "   ICE GUN AIMED" : "") +
+                         "\nbest: " + bestBreakdown;
 
             string text = "GHOST MAP   F2 hide | F3 view: " + view + "   storey " + meshLayer + "\n" +
                           house.BakeInfo + "\n" +
-                          "view update: " + map.LastViewCellsWritten + " cells in " + lastFeedMs.ToString("F3") + " ms" +
-                          (feedFromPlayer ? "  (sandbox feed)" : "") + "\n" +
+                          "view update: " + map.LastViewCellsWritten + " cells" +
+                          (fromGhost ? " (from the ghost's sightings)" : " in " + lastFeedMs.ToString("F3") + " ms (sandbox feed)") + "\n" +
                           "under player: " + under + field;
             int lines = 1;
             for (int i = 0; i < text.Length; i++) if (text[i] == '\n') lines++;
