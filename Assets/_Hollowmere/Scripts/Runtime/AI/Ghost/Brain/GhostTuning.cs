@@ -26,6 +26,9 @@ namespace Hollowmere.AI.Ghost
         public float replanInterval;
         [Tooltip("Cells one route search may expand before settling for a partial route.")]
         public int maxRouteNodes;
+        [Tooltip("A full position search runs when what the ghost knows changes, and at least this often; " +
+                 "in between it only re-scores its current target.")]
+        public float fullSearchInterval;
 
         public static GhostTuning Default => new GhostTuning
         {
@@ -39,6 +42,7 @@ namespace Hollowmere.AI.Ghost
             crowdRadius = 3f,
             replanInterval = 1f,
             maxRouteNodes = 4000,
+            fullSearchInterval = 1f,
         };
     }
 }

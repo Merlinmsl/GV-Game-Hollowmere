@@ -46,6 +46,14 @@ namespace Hollowmere.AI.Ghost
         float nextWander;
         int focusCell = -1;
         Vector3 focusFeet;
+
+        // What the last full position search was based on (change-driven re-search).
+        int searchFocus = -1;
+        Vector3 searchLook;
+        bool searchHasLook, searchThreat, searchCareful, searchCornered;
+        float searchScore;
+        float nextFullSearch;
+        bool warming;
         float forcedFleeUntil = float.NegativeInfinity;
         float frozenUntil;
         float lastStrike = float.NegativeInfinity;
@@ -96,6 +104,17 @@ namespace Hollowmere.AI.Ghost
         /// <summary>Share of full speed the body should move at in the current mode.</summary>
         public float SpeedScale { get; private set; } = 1f;
 
+        /// <summary>
+        /// Set by the body: false when another ghost in the house already did a heavy step this frame (a
+        /// walk-field rebuild or a full position search). A ghost with a target then keeps it and does its
+        /// heavy step on its next thought, so one frame never pays for two.
+        /// </summary>
+        public bool MayRunFullSearch = true;
+        /// <summary>Did the last Think do a heavy step (walk-field rebuild or full position search)?</summary>
+        public bool LastThinkHeavy { get; private set; }
+        public int FullSearches { get; private set; }
+        public int SearchesSkipped { get; private set; }
+
         public Vector3[] Waypoints => waypoints;
         public int WaypointCount { get; private set; }
         /// <summary>Goes up each time a new route is ready, so the body knows to pick it up.</summary>
@@ -126,30 +145,65 @@ namespace Hollowmere.AI.Ghost
             : this(map, tuning, ModeTuning.Servant, randomSeed) { }
 
         /// <summary>
-        /// Runs one throwaway decision and route around 'at', then wipes every trace of it. The first call
-        /// of the search code pays a one-off compile cost (several ms in the editor); doing it while the
-        /// scene loads keeps that spike out of play. Raises no events and leaves the map untouched.
+        /// Runs the real thinking paths once around 'at' (lying in wait for a noise, fleeing an aimed ice gun,
+        /// drifting home), then wipes every trace of them. Under Mono the first call of each method pays a
+        /// one-off compile cost (about 3 ms for the first thought); doing it while the scene loads keeps that
+        /// spike out of play. Raises no events and never writes the shared map (no See).
         /// </summary>
         public void WarmUp(Vector3 at)
         {
+            warming = true;
+            WarmSight();
+            bool hadAnchor = HasAnchor;
+            Vector3 anchor = Anchor;
+
+            // A noise at the ghost: mode choice, hill climbing, the A* search run to the end.
             Memory.Remember(at, AgentMemory.HeardConfidence, BeliefSource.Heard, 0f);
-            Locate(true);
-            ChoosePosition(0f, -1, Tuning.weights, Tuning.range);
-            int here = grid.ClampedCellAt(at + Vector3.up * 0.1f);
-            if (LastDecision.Cell >= 0)
-            {
-                astar.Begin(here, LastDecision.Cell, Tuning.costs, 0f, Tuning.maxRouteNodes);
-                astar.Step(int.MaxValue);
-                smoother.Smooth(route, astar.CopyRoute(route), Tuning.costs, 0f, waypoints);
-            }
-            var refuge = new SafeWallGoal(grid, new AimCone(at, Vector3.forward, 20f, 15f));
-            fleeField.FindNearest(here, Modes.fleeDepth, ref refuge);
+            Think(at, 0f);
+            StepRoute(int.MaxValue, 0f);
+
+            // Seen two metres away aiming the ice gun at its chest: the flee path (BFS, trace, smoothing).
+            Vector3 player = at + Vector3.forward * 2f;
+            Vector3 aim = at + Vector3.up * GhostGrid.BodyHeight - (player + Vector3.up * PositionQuery.EyeHeight);
+            LastSighting = new PlayerSighting(player, aim, WeaponKind.IceGun, false, 0.01f);
+            KnownWeapon = WeaponKind.IceGun;
+            KnownWeaponTime = 0.01f;
+            Memory.Remember(player, AgentMemory.SeenConfidence, BeliefSource.Seen, 0.01f);
+            Think(at, 0.01f);
+
+            // Nothing known: home and wander.
+            Memory.Forget();
+            HasAnchor = true;
+            Anchor = at;
+            Think(at, 0.02f);
+            StepRoute(int.MaxValue, 0.02f);
+
+            // Wipe it all.
+            HasAnchor = hadAnchor;
+            Anchor = anchor;
             astar.Cancel();
             Memory.Forget();
+            LastSighting = default;
+            KnownWeapon = WeaponKind.None;
+            KnownWeaponTime = float.NegativeInfinity;
+            Mode = GhostMode.Idle;
+            forcedFleeUntil = lastStrike = float.NegativeInfinity;
+            huntingSince = nextReplan = nextWander = 0f;
+            Lurking = false;
+            LastRouteStatus = RouteStatus.Idle;
+            SpeedScale = 1f;
             Locate(false);
+            searchFocus = -1;
+            nextFullSearch = 0f;
+            FullSearches = SearchesSkipped = 0;
+            LastThinkHeavy = false;
             LastDecision = default;
+            LastInputs = default;
+            for (int i = 0; i < utility.Length; i++) utility[i] = 0f;
             TargetCell = -1;
             WaypointCount = 0;
+            RouteVersion = 0;
+            warming = false;
         }
 
         // ---------------------------------------------------------------- perceptions
@@ -162,10 +216,31 @@ namespace Hollowmere.AI.Ghost
             KnownWeapon = weapon;
             KnownWeaponTime = now;
 
-            // What the ghost saw the player looking at, and where their beam fell, goes on the house's map.
+            MarkSight(map, playerPosition, look, flashlight, now);
+        }
+
+        // What the ghost saw the player looking at, and where their beam fell, goes on the house's map.
+        static void MarkSight(InfluenceMap onMap, Vector3 playerPosition, Vector3 look, bool flashlight, float now)
+        {
             Vector3 eye = playerPosition + Vector3.up * PositionQuery.EyeHeight;
-            map.MarkWatched(eye, look, now);
-            map.SetFlashlight(flashlight, eye, look);
+            onMap.MarkWatched(eye, look, now);
+            onMap.SetFlashlight(flashlight, eye, look);
+        }
+
+        static bool sightWarmed;
+
+        // The first sighting in a session compiles the map's cone code (about 1.4 ms once). Run it on a small
+        // throwaway map instead of the shared one, so warming never writes what the ghosts know.
+        static void WarmSight()
+        {
+            if (sightWarmed) return;
+            sightWarmed = true;
+            var grid = new GhostGrid(Vector3.zero, 1f, 9, 9, new[] { 0f });
+            for (int i = 0; i < grid.Count; i++) grid.Flags[i] = CellFlags.Inside | CellFlags.Walkable;
+            var scratch = new InfluenceMap(grid);
+            MarkSight(scratch, new Vector3(4.5f, 0f, 4.5f), Vector3.forward, true, 0f);
+            scratch.Watched(0, 0f);
+            scratch.Light(0);
         }
 
         /// <summary>A noise reached the ghost. Other creatures' calls say nothing about the player.</summary>
@@ -220,8 +295,9 @@ namespace Hollowmere.AI.Ghost
                 Freed?.Invoke();
             }
 
+            LastThinkHeavy = false;
             bool believes = Memory.HasBelief(now);
-            if (!believes && Mode != GhostMode.Idle) map.SetFlashlight(false, Vector3.zero, Vector3.forward);
+            if (!believes && Mode != GhostMode.Idle && !warming) map.SetFlashlight(false, Vector3.zero, Vector3.forward);
             Locate(believes);
 
             ModeInputs inputs = Gather(ghostPosition, now, believes);
@@ -268,6 +344,7 @@ namespace Hollowmere.AI.Ghost
         public bool StepRoute(int nodeBudget, float now)
         {
             if (astar.Status != RouteStatus.Searching) return false;
+            using var _ = GhostProfiling.Route.Auto();
             RouteStatus status = astar.Step(nodeBudget);
             if (status != RouteStatus.Found && status != RouteStatus.Partial) return false;
             LastRouteStatus = status;
@@ -386,7 +463,8 @@ namespace Hollowmere.AI.Ghost
             // Hysteresis: a refuge still out of the aim is kept, however the aim swings elsewhere.
             if (sameMode && TargetCell >= 0 && WaypointCount > 0 && goal.IsGoal(TargetCell)) return false;
 
-            int refuge = fleeField.FindNearest(here, Modes.fleeDepth, ref goal);
+            int refuge;
+            using (GhostProfiling.WallSearch.Auto()) refuge = fleeField.FindNearest(here, Modes.fleeDepth, ref goal);
 
             if (refuge < 0)
             {
@@ -430,12 +508,25 @@ namespace Hollowmere.AI.Ghost
                 return -1;
             }
 
-            // The walking-distance field only reaches as far as the range term can still score.
-            if (walkField.NeedsRebuild(grid.NearestWalkable(beliefCell)))
+            // Another ghost already did this frame's heavy step: with a target in hand, keep it one more thought.
+            bool needsRebuild = walkField.NeedsRebuild(grid.NearestWalkable(beliefCell));
+            if (needsRebuild && !MayRunFullSearch && current >= 0)
             {
+                LastDecision = new HillClimber.Result { Cell = current, KeptCurrent = true };
+                SearchesSkipped++;
+                return current;
+            }
+
+            // The walking-distance field only reaches as far as the range term can still score.
+            bool rebuilt = false;
+            if (needsRebuild)
+            {
+                rebuilt = true;
+                LastThinkHeavy = true;
                 float reach = Mathf.Max(Mathf.Max(Tuning.range.max + Tuning.range.softness, Modes.carefulRange.max + Modes.carefulRange.softness),
                                         range.max + range.softness);
-                walkField.BuildWalkingField(beliefCell, Mathf.CeilToInt(reach / grid.CellSize) + 2);
+                using (GhostProfiling.WalkField.Auto())
+                    walkField.BuildWalkingField(beliefCell, Mathf.CeilToInt(reach / grid.CellSize) + 2);
             }
 
             bool hasLook = SightingStillApplies(now);
@@ -461,8 +552,45 @@ namespace Hollowmere.AI.Ghost
             };
             climber.Config = Tuning.climb;
 
-            LastDecision = climber.Search(current);
+            // Change-driven: a full search only when what the ghost knows has changed (or the interval is
+            // up), or when its target no longer holds. Otherwise one cell is re-scored instead of hundreds.
+            bool threat = scorer.Query.ThreatActive, careful = KnowsIceGun(now);
+            bool changed = now >= nextFullSearch || focusCell != searchFocus || hasLook != searchHasLook ||
+                           threat != searchThreat || careful != searchCareful || PlayerCornered != searchCornered ||
+                           (hasLook && FlatDot(look, searchLook) < 0.94f);                      // turned > 20 degrees
+            // One heavy step per thought: after rebuilding the walk field, a target that still holds is
+            // kept and the search waits for the next thought (the change is still pending, so it runs then).
+            if (current >= 0 && scorer.IsCandidate(current) && (!changed || !MayRunFullSearch || rebuilt))
+            {
+                float score = scorer.Score(current);
+                if (score >= searchScore - Tuning.climb.switchMargin)
+                {
+                    LastDecision = new HillClimber.Result { Cell = current, Score = score, Evaluations = 1, KeptCurrent = true };
+                    SearchesSkipped++;
+                    return current;
+                }
+            }
+
+            using (GhostProfiling.Position.Auto()) LastDecision = climber.Search(current);
+            searchFocus = focusCell;
+            searchLook = look;
+            searchHasLook = hasLook;
+            searchThreat = threat;
+            searchCareful = careful;
+            searchCornered = PlayerCornered;
+            searchScore = LastDecision.Score;
+            nextFullSearch = now + Tuning.fullSearchInterval;
+            LastThinkHeavy = true;
+            FullSearches++;
             return LastDecision.Cell;
+        }
+
+        // Cosine of the horizontal angle between two directions (1 when they agree).
+        static float FlatDot(Vector3 a, Vector3 b)
+        {
+            float la = Mathf.Sqrt(a.x * a.x + a.z * a.z), lb = Mathf.Sqrt(b.x * b.x + b.z * b.z);
+            if (la < 1e-4f || lb < 1e-4f) return 1f;
+            return (a.x * b.x + a.z * b.z) / (la * lb);
         }
 
         // With nothing to go on, the ghost drifts back to its haunt. An anchor inside a wall (a ghost
@@ -534,7 +662,8 @@ namespace Hollowmere.AI.Ghost
                 ? SeenAim()
                 : new AimCone(Vector3.zero, Vector3.forward, 0f, 0f);                // nothing to avoid
             var goal = new SafeWallGoal(grid, threat);
-            int wall = fleeField.FindNearest(here, Modes.fleeDepth, ref goal);
+            int wall;
+            using (GhostProfiling.WallSearch.Auto()) wall = fleeField.FindNearest(here, Modes.fleeDepth, ref goal);
             if (wall >= 0) return wall;
             Lurking = false;                                                          // no wall in reach either
             return best;
@@ -606,7 +735,7 @@ namespace Hollowmere.AI.Ghost
             if (mode == Mode) return;
             GhostMode previous = Mode;
             Mode = mode;
-            ModeChanged?.Invoke(previous, mode);
+            if (!warming) ModeChanged?.Invoke(previous, mode);
         }
     }
 }

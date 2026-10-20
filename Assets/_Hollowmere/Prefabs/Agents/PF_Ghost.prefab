@@ -144,6 +144,7 @@ MonoBehaviour:
     crowdRadius: 3
     replanInterval: 1
     maxRouteNodes: 4000
+    fullSearchInterval: 1
   modes:
     stalkBase: 0.5
     ambushWeight: 0.8

@@ -25,6 +25,16 @@ namespace Hollowmere.AI.Ghost
     {
         static readonly List<GhostBody> active = new List<GhostBody>();
 
+        /// <summary>
+        /// Route-search cells ALL ghosts together may expand in one frame. Shared, so the planning cost of a
+        /// frame stays the same however many ghosts there are; a ghost that finds the pool empty waits a frame.
+        /// </summary>
+        public static int SharedRouteNodesPerFrame = 240;
+        static int budgetFrame = -1;
+        static int nodesLeft;
+        // The frame in which some ghost last ran a full position search: at most one per frame.
+        static int searchFrame = -1;
+
         [Tooltip("The house this ghost haunts. Empty: the GhostHouseVolume it starts inside.")]
         [SerializeField] GhostHouseMap house;
         [SerializeField] SightSensor sight = new SightSensor();
@@ -32,7 +42,7 @@ namespace Hollowmere.AI.Ghost
         [SerializeField] float hearingAcuity = 1f;
         [Tooltip("Seconds between thoughts (0.2 = five times a second).")]
         [SerializeField] float thinkInterval = 0.2f;
-        [Tooltip("Route-search cells per frame: the planning time slice.")]
+        [Tooltip("Most route-search cells this ghost may take from the shared per-frame pool: its planning time slice.")]
         [SerializeField] int routeBudgetPerFrame = 120;
 
         [Header("Who it is")]
@@ -97,7 +107,12 @@ namespace Hollowmere.AI.Ghost
         public bool IsAwake => Mode != GhostMode.Idle;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        static void ResetOnPlay() => active.Clear();
+        static void ResetOnPlay()
+        {
+            active.Clear();
+            budgetFrame = -1;
+            searchFrame = -1;
+        }
 
         void Awake()
         {
@@ -172,6 +187,7 @@ namespace Hollowmere.AI.Ghost
         public void Think(float deltaTime)
         {
             if (!EnsureBrain()) return;
+            using var _ = GhostProfiling.Think.Auto();
             watch.Restart();
             float now = Time.time;
 
@@ -184,8 +200,12 @@ namespace Hollowmere.AI.Ghost
 
             // Sight: the only way the ghost learns which way the player looks and what they carry.
             IPlayerState player = PlayerRegistry.Current;
-            bool seesNow = sight.Tick(transform, player, deltaTime);
-            if (seesNow) brain.See(player.Position, player.LookDirection, player.HeldWeapon, player.FlashlightOn, now);
+            bool seesNow;
+            using (GhostProfiling.Sense.Auto())
+            {
+                seesNow = sight.Tick(transform, player, deltaTime);
+                if (seesNow) brain.See(player.Position, player.LookDirection, player.HeldWeapon, player.FlashlightOn, now);
+            }
             if (seesNow != seeing)
             {
                 seeing = seesNow;
@@ -193,7 +213,10 @@ namespace Hollowmere.AI.Ghost
                 else LostSight?.Invoke();
             }
 
+            // One full position search per frame across all ghosts; the token is only used up if taken.
+            brain.MayRunFullSearch = searchFrame != Time.frameCount;
             brain.Think(transform.position, now);
+            if (brain.LastThinkHeavy) searchFrame = Time.frameCount;
             movement.SetSpeedScale(brain.SpeedScale);
             Look(now);
 
@@ -216,13 +239,27 @@ namespace Hollowmere.AI.Ghost
             brain.ReservedCount = count;
         }
 
-        void Update()
+        // LateUpdate, after the scheduler's thoughts, so a frame that already paid for a position search
+        // (the heaviest step) spends nothing on route search: those slices simply move to the next frame.
+        void LateUpdate()
         {
             if (brain == null) return;
-            watch.Restart();
-            brain.StepRoute(routeBudgetPerFrame, Time.time);
-            watch.Stop();
-            LastRouteSliceMs = (float)watch.Elapsed.TotalMilliseconds;
+            if (Time.frameCount != budgetFrame)
+            {
+                budgetFrame = Time.frameCount;
+                nodesLeft = searchFrame == Time.frameCount ? 0 : SharedRouteNodesPerFrame;
+            }
+            LastRouteSliceMs = 0f;
+            int budget = Mathf.Min(routeBudgetPerFrame, nodesLeft);
+            if (budget > 0 && brain.Router.Status == RouteStatus.Searching)
+            {
+                watch.Restart();
+                int before = brain.Router.NodesExpanded;
+                brain.StepRoute(budget, Time.time);
+                nodesLeft -= Mathf.Max(1, brain.Router.NodesExpanded - before);
+                watch.Stop();
+                LastRouteSliceMs = (float)watch.Elapsed.TotalMilliseconds;
+            }
 
             if (brain.RouteVersion != routeVersion)
             {
