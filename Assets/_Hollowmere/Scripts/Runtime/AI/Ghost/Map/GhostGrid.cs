@@ -115,10 +115,13 @@ namespace Hollowmere.AI.Ghost
         /// The walkable cell nearest to a cell, searching outward ring by ring on the same storey up to
         /// 'radius' cells. -1 when there is none. Used when a belief lands somewhere the player cannot stand.
         /// </summary>
-        public int NearestWalkable(int cell, int radius = 3)
+        public int NearestWalkable(int cell, int radius = 3) => NearestWith(cell, CellFlags.Walkable, radius);
+
+        /// <summary>The nearest cell carrying 'flag', ring by ring on the same storey up to 'radius'; -1 when none.</summary>
+        public int NearestWith(int cell, CellFlags flag, int radius)
         {
             if (cell < 0) return -1;
-            if (Is(cell, CellFlags.Walkable)) return cell;
+            if (Is(cell, flag)) return cell;
             Coords(cell, out int cx, out int layer, out int cz);
             for (int r = 1; r <= radius; r++)
             for (int dz = -r; dz <= r; dz++)
@@ -128,9 +131,34 @@ namespace Hollowmere.AI.Ghost
                 int x = cx + dx, z = cz + dz;
                 if (!InBounds(x, layer, z)) continue;
                 int candidate = Index(x, layer, z);
-                if (Is(candidate, CellFlags.Walkable)) return candidate;
+                if (Is(candidate, flag)) return candidate;
             }
             return -1;
+        }
+
+        /// <summary>Walkable cells among the 8 around a cell on its storey: 8 in the open, 3 in a corner.</summary>
+        public int OpenNeighbours(int cell)
+        {
+            Coords(cell, out int cx, out int layer, out int cz);
+            int open = 0;
+            for (int dz = -1; dz <= 1; dz++)
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                if ((dx != 0 || dz != 0) && InBounds(cx + dx, layer, cz + dz) && Is(Index(cx + dx, layer, cz + dz), CellFlags.Walkable))
+                    open++;
+            }
+            return open;
+        }
+
+        /// <summary>Is this a wall cell's surface: solid, with walkable floor on one of its four sides?</summary>
+        public bool IsWallSkin(int cell)
+        {
+            if (!Is(cell, CellFlags.Solid)) return false;
+            Coords(cell, out int cx, out int layer, out int cz);
+            return (InBounds(cx + 1, layer, cz) && Is(Index(cx + 1, layer, cz), CellFlags.Walkable))
+                || (InBounds(cx - 1, layer, cz) && Is(Index(cx - 1, layer, cz), CellFlags.Walkable))
+                || (InBounds(cx, layer, cz + 1) && Is(Index(cx, layer, cz + 1), CellFlags.Walkable))
+                || (InBounds(cx, layer, cz - 1) && Is(Index(cx, layer, cz - 1), CellFlags.Walkable));
         }
 
         /// <summary>Like CellAt, but a point outside the grid snaps to the nearest edge cell.</summary>

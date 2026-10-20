@@ -90,4 +90,14 @@ MonoBehaviour:
     carefulStrikeScale: 0.6
     boldStrikeScale: 1.2
     iceGunMemory: 20
+    lurkExposure: 0.7
+    corneredOpenCells: 3
+    thresholdSearch: 6
+    partialReplan: 0.4
+    wanderRadius: 8
+    wanderPause: 6
+    wanderSpeed: 0.5
+    huntSpeed: 1
+    strikeSpeed: 1.7
+    fleeSpeed: 1.5
   leash: 40

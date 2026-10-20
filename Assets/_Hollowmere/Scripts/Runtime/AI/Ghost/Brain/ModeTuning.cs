@@ -52,6 +52,28 @@ namespace Hollowmere.AI.Ghost
         [Tooltip("Seconds the ghost remembers the player has the ice gun.")]
         public float iceGunMemory;
 
+        [Header("Edge cases")]
+        [Tooltip("If even the best place found is this lit or watched (0..1), hide in the nearest wall instead.")]
+        public float lurkExposure;
+        [Tooltip("The player counts as cornered with this many open cells or fewer around them (8 in the open, 3 in a corner).")]
+        public int corneredOpenCells;
+        [Tooltip("Player outside the house: search this many cells for the inside cell nearest to them (the threshold).")]
+        public int thresholdSearch;
+        [Tooltip("A route search cut short by its node cap is re-planned this soon, from closer.")]
+        public float partialReplan;
+
+        [Header("Lost the player: home, then wander")]
+        [Tooltip("Metres around the haunt anchor the ghost wanders (never beyond its leash).")]
+        public float wanderRadius;
+        [Tooltip("Seconds between wander moves (randomised by +-40%).")]
+        public float wanderPause;
+
+        [Header("Speed (share of GhostMovement's max speed)")]
+        public float wanderSpeed;
+        public float huntSpeed;
+        public float strikeSpeed;
+        public float fleeSpeed;
+
         /// <summary>A servant: patient, wary of the ice gun, keeps its distance.</summary>
         public static ModeTuning Servant => new ModeTuning
         {
@@ -79,6 +101,16 @@ namespace Hollowmere.AI.Ghost
             carefulStrikeScale = 0.4f,
             boldStrikeScale = 1.2f,
             iceGunMemory = 20f,
+            lurkExposure = 0.7f,
+            corneredOpenCells = 3,
+            thresholdSearch = 6,
+            partialReplan = 0.4f,
+            wanderRadius = 4f,
+            wanderPause = 6f,
+            wanderSpeed = 0.35f,
+            huntSpeed = 1f,
+            strikeSpeed = 1.4f,
+            fleeSpeed = 1.5f,
         };
 
         /// <summary>Mara: the same brain, bolder and less patient.</summary>
@@ -94,6 +126,9 @@ namespace Hollowmere.AI.Ghost
                 t.fleeWeight = 1.1f;
                 t.carefulStrikeScale = 0.6f;
                 t.carefulRange = new RangeBand(4f, 8f, 4f);
+                t.wanderRadius = 8f;
+                t.wanderSpeed = 0.5f;
+                t.strikeSpeed = 1.7f;
                 return t;
             }
         }

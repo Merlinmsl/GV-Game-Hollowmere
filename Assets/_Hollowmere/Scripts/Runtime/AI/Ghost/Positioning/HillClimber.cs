@@ -251,9 +251,9 @@ namespace Hollowmere.AI.Ghost
                     if (!grid.InBounds(x, layer, z)) break;
                     int n = grid.Index(x, layer, z);
                     if (!grid.Is(n, CellFlags.Inside)) break;           // the edge of the house
+                    if (scorer.IsCandidate(n)) { buffer[count++] = n; break; }
                     if (grid.Is(n, CellFlags.Solid)) continue;          // inside a wall: look beyond
-                    buffer[count++] = n;
-                    break;
+                    break;                                              // claimed by another ghost
                 }
             }
             for (int dl = -1; dl <= 1; dl += 2)

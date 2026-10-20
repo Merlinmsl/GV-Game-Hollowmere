@@ -35,6 +35,12 @@ namespace Hollowmere.AI.Ghost
         public int[] Reserved;
         public int ReservedCount;
         public float CrowdRadius;
+
+        /// <summary>
+        /// The player is cornered: the only cells behind them are inside the walls, so a wall's surface cell
+        /// (solid, floor beside it) may be chosen too. A ghost can wait there; the player cannot get round it.
+        /// </summary>
+        public bool AllowWallSkin;
     }
 
     /// <summary>Each term of a cell's score (all 0..1) and the weighted total, for the overlay and the viva.</summary>
@@ -85,9 +91,25 @@ namespace Hollowmere.AI.Ghost
             set => walkField = value;
         }
 
-        /// <summary>A cell a ghost may pick as a position: inside the house and not inside a wall.</summary>
-        public bool IsCandidate(int cell) =>
-            cell >= 0 && grid.Is(cell, CellFlags.Inside) && !grid.Is(cell, CellFlags.Solid);
+        /// <summary>
+        /// A cell a ghost may pick as a position: inside the house, not inside a wall (except a wall's surface
+        /// when the player is cornered), and not the cell another ghost is already heading for.
+        /// </summary>
+        public bool IsCandidate(int cell)
+        {
+            if (cell < 0 || !grid.Is(cell, CellFlags.Inside)) return false;
+            if (grid.Is(cell, CellFlags.Solid) && !(Query.AllowWallSkin && grid.IsWallSkin(cell))) return false;
+            return !IsReserved(cell);
+        }
+
+        /// <summary>Is another ghost already heading for exactly this cell? (A hard claim; nearby cells only crowd.)</summary>
+        public bool IsReserved(int cell)
+        {
+            if (Query.Reserved == null) return false;
+            for (int i = 0; i < Query.ReservedCount; i++)
+                if (Query.Reserved[i] == cell) return true;
+            return false;
+        }
 
         public float Score(int cell) => Explain(cell).Total;
 
@@ -97,10 +119,12 @@ namespace Hollowmere.AI.Ghost
             ScoreWeights w = Query.Weights;
             Vector3 centre = grid.CellCentre(cell);
 
+            // Inside a wall (a candidate only when the player is cornered) the ghost is hidden outright.
+            bool inWall = grid.Is(cell, CellFlags.Solid);
             b.Behind = Behind(centre);
-            b.Dark = 1f - map.Light(cell);
-            b.Unseen = 1f - map.Watched(cell, Query.Now);
-            b.Cover = BesideWall(cell);
+            b.Dark = inWall ? 1f : 1f - map.Light(cell);
+            b.Unseen = inWall ? 1f : 1f - map.Watched(cell, Query.Now);
+            b.Cover = inWall ? 1f : BesideWall(cell);
             b.WalkingDistance = WalkingDistance(cell);
             b.Range = Query.Range.Fit(b.WalkingDistance);
             b.Home = NearAnchor(centre);

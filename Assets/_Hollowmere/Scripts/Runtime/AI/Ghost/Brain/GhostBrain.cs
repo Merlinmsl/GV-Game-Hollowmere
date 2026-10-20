@@ -15,6 +15,14 @@ namespace Hollowmere.AI.Ghost
     ///       Flee    BFS to the nearest wall cell out of the aim, route taken at once (no A* wait)
     ///       Frozen  hit by the ice gun: nothing until it thaws, then flees
     ///   StepRoute (every frame, budgeted)  ->  A* slices, then smoothed waypoints for the body
+    /// Edge cases, each a fallback inside the same loop rather than a scripted state:
+    ///   no dark cell near      -> lurk in the nearest wall cell (BFS) until a hidden place opens up
+    ///   player cornered        -> wall-surface cells become candidates: wait in the wall behind them
+    ///   player outside         -> focus on the inside cell nearest them (the threshold); no strike
+    ///   belief lost            -> home to the anchor, then wander slowly around it at random
+    ///   A* node cap reached    -> take the partial route, re-plan sooner; no route at all -> drift straight
+    ///   spawned in a wall/out  -> plan from the nearest inside cell; home snaps to the nearest floor
+    ///   aim flicking           -> each aim renews the flee dwell; a refuge is kept while still out of the aim
     /// It never reads the player's true state: only what See, Hear and Told hand it.
     /// Allocation-free after construction.
     /// </summary>
@@ -33,7 +41,11 @@ namespace Hollowmere.AI.Ghost
         readonly int[] route = new int[512];
         readonly Vector3[] waypoints = new Vector3[MaxWaypoints];
         readonly float[] utility = new float[ModeSelector.Count];
+        readonly System.Random random;
         float nextReplan;
+        float nextWander;
+        int focusCell = -1;
+        Vector3 focusFeet;
         float forcedFleeUntil = float.NegativeInfinity;
         float frozenUntil;
         float lastStrike = float.NegativeInfinity;
@@ -73,6 +85,17 @@ namespace Hollowmere.AI.Ghost
         public int[] Reserved;
         public int ReservedCount;
 
+        /// <summary>The player is believed outside the house: the ghost waits at the threshold instead.</summary>
+        public bool PlayerOutside { get; private set; }
+        /// <summary>The believed player cell has few open cells round it (a corner or a dead end).</summary>
+        public bool PlayerCornered { get; private set; }
+        /// <summary>Even the best place near the player was lit or watched, so the ghost is waiting in a wall.</summary>
+        public bool Lurking { get; private set; }
+        /// <summary>How the last route search ended (Partial when its node cap cut it short).</summary>
+        public RouteStatus LastRouteStatus { get; private set; } = RouteStatus.Idle;
+        /// <summary>Share of full speed the body should move at in the current mode.</summary>
+        public float SpeedScale { get; private set; } = 1f;
+
         public Vector3[] Waypoints => waypoints;
         public int WaypointCount { get; private set; }
         /// <summary>Goes up each time a new route is ready, so the body knows to pick it up.</summary>
@@ -96,6 +119,7 @@ namespace Hollowmere.AI.Ghost
             climber = new HillClimber(scorer, randomSeed);
             astar = new AStarSearch(map);
             smoother = new PathSmoother(map);
+            random = new System.Random(randomSeed);
         }
 
         public GhostBrain(InfluenceMap map, GhostTuning tuning, int randomSeed = 1234)
@@ -109,6 +133,7 @@ namespace Hollowmere.AI.Ghost
         public void WarmUp(Vector3 at)
         {
             Memory.Remember(at, AgentMemory.HeardConfidence, BeliefSource.Heard, 0f);
+            Locate(true);
             ChoosePosition(0f, -1, Tuning.weights, Tuning.range);
             int here = grid.ClampedCellAt(at + Vector3.up * 0.1f);
             if (LastDecision.Cell >= 0)
@@ -121,6 +146,7 @@ namespace Hollowmere.AI.Ghost
             fleeField.FindNearest(here, Modes.fleeDepth, ref refuge);
             astar.Cancel();
             Memory.Forget();
+            Locate(false);
             LastDecision = default;
             TargetCell = -1;
             WaypointCount = 0;
@@ -196,35 +222,42 @@ namespace Hollowmere.AI.Ghost
 
             bool believes = Memory.HasBelief(now);
             if (!believes && Mode != GhostMode.Idle) map.SetFlashlight(false, Vector3.zero, Vector3.forward);
+            Locate(believes);
 
             ModeInputs inputs = Gather(ghostPosition, now, believes);
             LastInputs = inputs;
             GhostMode previous = Mode;
             GhostMode next = ModeSelector.Choose(inputs, Modes, previous, utility);
+            // Dwell: once fleeing, keep at it. Every fresh sight of the aim renews the dwell, so an aim
+            // flicking on and off the ghost cannot make it flicker between Flee and Stalk.
+            if ((next == GhostMode.Flee && previous != GhostMode.Flee) || inputs.Aimed)
+                forcedFleeUntil = Mathf.Max(forcedFleeUntil, now + Modes.fleeMinSeconds);
             if (believes && now < forcedFleeUntil) next = GhostMode.Flee;
-            if (next == GhostMode.Flee && previous != GhostMode.Flee)
-                forcedFleeUntil = Mathf.Max(forcedFleeUntil, now + Modes.fleeMinSeconds);   // dwell: no flicker
             if (!IsHunting(previous) && IsHunting(next)) huntingSince = now;
             SetMode(next);
+            SpeedScale = SpeedFor(next);
+            if (next != GhostMode.Stalk && next != GhostMode.Ambush) Lurking = false;
 
-            int here = grid.ClampedCellAt(ghostPosition + Vector3.up * 0.1f);
+            int here = GhostCell(ghostPosition);
+            bool sameMode = previous == next;
             switch (next)
             {
                 case GhostMode.Flee:
-                    return Flee(here, ghostPosition, now);
+                    return Flee(here, ghostPosition, sameMode, now);
 
                 case GhostMode.Strike:
                     if (TryStrike(ghostPosition, now)) return false;
-                    return RouteTo(StrikeCell(), here, previous == next, now);
+                    return RouteTo(focusCell >= 0 ? StrikeCell() : HomeCell(), here, sameMode, now);
 
                 case GhostMode.Stalk:
                 case GhostMode.Ambush:
+                    if (focusCell < 0) return RouteTo(HomeCell(), here, sameMode, now);   // nowhere inside near them
                     Tactics(next, now, out ScoreWeights weights, out RangeBand range);
-                    int keep = previous == next ? TargetCell : -1;
-                    return RouteTo(ChoosePosition(now, keep, weights, range), here, previous == next, now);
+                    int keep = sameMode ? TargetCell : -1;
+                    return RouteTo(HideOrLurk(here, now, keep, weights, range), here, sameMode, now);
 
                 default:
-                    return RouteTo(HomeCell(), here, previous == next, now);
+                    return Wander(here, !sameMode, now);
             }
         }
 
@@ -237,10 +270,26 @@ namespace Hollowmere.AI.Ghost
             if (astar.Status != RouteStatus.Searching) return false;
             RouteStatus status = astar.Step(nodeBudget);
             if (status != RouteStatus.Found && status != RouteStatus.Partial) return false;
+            LastRouteStatus = status;
+
+            // Node cap reached: walk the best part found, and look again soon from closer in.
+            if (status == RouteStatus.Partial) nextReplan = Mathf.Min(nextReplan, now + Modes.partialReplan);
 
             int length = astar.CopyRoute(route);
+            if (length == 0) return DirectRoute(astar.Goal);
             WaypointCount = smoother.Smooth(route, length, Tuning.costs, now, waypoints);
             RouteVersion++;
+            return true;
+        }
+
+        // No usable route: a ghost passes through walls, so it can always drift straight to the cell.
+        bool DirectRoute(int goal)
+        {
+            if (goal < 0) return false;
+            waypoints[0] = grid.CellCentre(goal);
+            WaypointCount = 1;
+            RouteVersion++;
+            LastRouteStatus = RouteStatus.Failed;
             return true;
         }
 
@@ -263,9 +312,8 @@ namespace Hollowmere.AI.Ghost
             i.IceGunHeld = KnowsIceGun(now);
             i.StrikeReady = now - lastStrike >= Modes.strikeCooldown;
             i.HuntSeconds = IsHunting(Mode) ? now - huntingSince : 0f;
-
-            int here = grid.ClampedCellAt(ghostPosition + Vector3.up * 0.1f);
-            i.Exposure = Mathf.Max(map.Light(here), map.Watched(here, now));
+            i.PlayerOutside = PlayerOutside;
+            i.Exposure = Exposure(GhostCell(ghostPosition), now);
 
             Vector3 chest = ghostPosition + Vector3.up * GhostGrid.BodyHeight;
             if (sighting)
@@ -323,21 +371,21 @@ namespace Hollowmere.AI.Ghost
             return true;
         }
 
-        // Close in on where the player is believed to stand.
-        int StrikeCell()
-        {
-            int cell = grid.ClampedCellAt(Memory.Current.Position + Vector3.up * 0.1f);
-            return grid.Is(cell, CellFlags.Inside) ? cell : -1;
-        }
+        // Close in on where the player is believed to stand (never outside the house).
+        int StrikeCell() => PlayerOutside ? -1 : focusCell;
 
         // Into the nearest wall cell out of the aim. The BFS route is taken at once: no waiting on A*.
-        bool Flee(int here, Vector3 ghostPosition, float now)
+        bool Flee(int here, Vector3 ghostPosition, bool sameMode, float now)
         {
             AimCone danger = SightingStillApplies(now) && LastSighting.Weapon == WeaponKind.IceGun
                 ? SeenAim()
                 : new AimCone(Memory.Current.Position + Vector3.up * PositionQuery.EyeHeight,
                               ghostPosition - Memory.Current.Position, 30f, Tuning.iceGunRange);   // away from the player
             var goal = new SafeWallGoal(grid, danger);
+
+            // Hysteresis: a refuge still out of the aim is kept, however the aim swings elsewhere.
+            if (sameMode && TargetCell >= 0 && WaypointCount > 0 && goal.IsGoal(TargetCell)) return false;
+
             int refuge = fleeField.FindNearest(here, Modes.fleeDepth, ref goal);
 
             if (refuge < 0)
@@ -367,6 +415,7 @@ namespace Hollowmere.AI.Ghost
 
             astar.Begin(here, goal, Tuning.costs, now, Tuning.maxRouteNodes);
             nextReplan = now + Tuning.replanInterval;
+            if (astar.Status == RouteStatus.Failed) DirectRoute(goal);
             return true;
         }
 
@@ -374,8 +423,12 @@ namespace Hollowmere.AI.Ghost
         // 'current' is the target being kept (hysteresis), or -1.
         int ChoosePosition(float now, int current, ScoreWeights weights, RangeBand range)
         {
-            Belief belief = Memory.Current;
-            int beliefCell = grid.ClampedCellAt(belief.Position + Vector3.up * 0.1f);
+            int beliefCell = focusCell;
+            if (beliefCell < 0)
+            {
+                LastDecision = new HillClimber.Result { Cell = -1 };
+                return -1;
+            }
 
             // The walking-distance field only reaches as far as the range term can still score.
             if (walkField.NeedsRebuild(grid.NearestWalkable(beliefCell)))
@@ -386,7 +439,7 @@ namespace Hollowmere.AI.Ghost
             }
 
             bool hasLook = SightingStillApplies(now);
-            Vector3 eye = belief.Position + Vector3.up * PositionQuery.EyeHeight;
+            Vector3 eye = focusFeet + Vector3.up * PositionQuery.EyeHeight;
             Vector3 look = LastSighting.Look;
             scorer.Query = new PositionQuery
             {
@@ -404,6 +457,7 @@ namespace Hollowmere.AI.Ghost
                 Reserved = Reserved,
                 ReservedCount = ReservedCount,
                 CrowdRadius = Tuning.crowdRadius,
+                AllowWallSkin = PlayerCornered,
             };
             climber.Config = Tuning.climb;
 
@@ -411,12 +465,140 @@ namespace Hollowmere.AI.Ghost
             return LastDecision.Cell;
         }
 
-        // With nothing to go on, the ghost drifts back to its haunt.
+        // With nothing to go on, the ghost drifts back to its haunt. An anchor inside a wall (a ghost
+        // placed in one) snaps to the nearest floor, so it does not haunt from inside the wall for ever.
         int HomeCell()
         {
             if (!HasAnchor) return -1;
             int cell = grid.ClampedCellAt(Anchor + Vector3.up * 0.1f);
-            return grid.Is(cell, CellFlags.Inside) ? cell : -1;
+            if (!grid.Is(cell, CellFlags.Inside)) cell = grid.NearestWith(cell, CellFlags.Inside, Modes.thresholdSearch);
+            if (cell < 0) return -1;
+            int floor = grid.NearestWalkable(cell);
+            return floor >= 0 ? floor : cell;
+        }
+
+        // ---------------------------------------------------------------- edge cases
+
+        // Where the ghost reasons from. Spawned outside the house (or pushed out), it plans from the
+        // nearest inside cell; inside a wall is fine, ghosts pass through walls.
+        int GhostCell(Vector3 ghostPosition)
+        {
+            int cell = grid.ClampedCellAt(ghostPosition + Vector3.up * 0.1f);
+            if (grid.Is(cell, CellFlags.Inside)) return cell;
+            int inside = grid.NearestWith(cell, CellFlags.Inside, Modes.thresholdSearch);
+            return inside >= 0 ? inside : cell;
+        }
+
+        // Where the believed player is, as the searches use it. Outside the house the ghost will not
+        // follow: it takes the inside floor cell nearest the belief (a door or window) instead.
+        void Locate(bool believes)
+        {
+            focusCell = -1;
+            PlayerOutside = false;
+            PlayerCornered = false;
+            if (!believes) return;
+
+            Vector3 position = Memory.Current.Position;
+            int cell = grid.CellAt(position + Vector3.up * 0.1f);
+            if (cell >= 0 && grid.Is(cell, CellFlags.Inside))
+            {
+                focusCell = cell;
+                focusFeet = position;
+            }
+            else
+            {
+                PlayerOutside = true;
+                int threshold = grid.NearestWalkable(grid.ClampedCellAt(position + Vector3.up * 0.1f), Modes.thresholdSearch);
+                if (threshold < 0) return;
+                focusCell = threshold;
+                Vector3 centre = grid.CellCentre(threshold);
+                focusFeet = new Vector3(centre.x, grid.WalkY[threshold], centre.z);
+            }
+
+            int stand = grid.NearestWalkable(focusCell);
+            PlayerCornered = !PlayerOutside && stand >= 0 && grid.OpenNeighbours(stand) <= Modes.corneredOpenCells;
+        }
+
+        float Exposure(int cell, float now) => Mathf.Max(map.Light(cell), map.Watched(cell, now));
+
+        // The best hidden place near the player; if even that is lit or watched, the nearest wall cell
+        // (out of any seen aim) to wait in instead. Entering and leaving differ by 0.1, so it does not flicker.
+        int HideOrLurk(int here, float now, int keep, ScoreWeights weights, RangeBand range)
+        {
+            int best = ChoosePosition(now, keep, weights, range);
+            float limit = Lurking ? Modes.lurkExposure - 0.1f : Modes.lurkExposure;
+            Lurking = best < 0 || (!grid.Is(best, CellFlags.Solid) && Exposure(best, now) >= limit);
+            if (!Lurking) return best;
+
+            AimCone threat = SightingStillApplies(now) && LastSighting.Weapon == WeaponKind.IceGun
+                ? SeenAim()
+                : new AimCone(Vector3.zero, Vector3.forward, 0f, 0f);                // nothing to avoid
+            var goal = new SafeWallGoal(grid, threat);
+            int wall = fleeField.FindNearest(here, Modes.fleeDepth, ref goal);
+            if (wall >= 0) return wall;
+            Lurking = false;                                                          // no wall in reach either
+            return best;
+        }
+
+        // No belief: home first, then short slow wanders to random floor cells around the anchor.
+        bool Wander(int here, bool entered, float now)
+        {
+            int home = HomeCell();
+            if (home < 0)
+            {
+                TargetCell = -1;
+                return false;
+            }
+            if (entered)
+            {
+                nextWander = now + Modes.wanderPause;
+                return RouteTo(home, here, false, now);
+            }
+            if (now >= nextWander)
+            {
+                nextWander = now + Modes.wanderPause * (0.6f + 0.8f * (float)random.NextDouble());
+                return RouteTo(WanderCell(home), here, false, now);
+            }
+            return RouteTo(TargetCell >= 0 ? TargetCell : home, here, true, now);
+        }
+
+        // A random floor cell within the wander radius (and the leash) of home, not claimed by another ghost.
+        int WanderCell(int home)
+        {
+            Vector3 centre = grid.CellCentre(home);
+            grid.Coords(home, out _, out int layer, out _);
+            float radius = Mathf.Min(Modes.wanderRadius, Mathf.Max(Leash, 1f));
+            for (int tries = 0; tries < 8; tries++)
+            {
+                float angle = (float)random.NextDouble() * Mathf.PI * 2f;
+                float distance = Mathf.Sqrt((float)random.NextDouble()) * radius;   // uniform over the disc
+                int x = Mathf.FloorToInt((centre.x + Mathf.Cos(angle) * distance - grid.Origin.x) / grid.CellSize);
+                int z = Mathf.FloorToInt((centre.z + Mathf.Sin(angle) * distance - grid.Origin.z) / grid.CellSize);
+                if (!grid.InBounds(x, layer, z)) continue;
+                int cell = grid.Index(x, layer, z);
+                if (grid.Is(cell, CellFlags.Walkable) && cell != TargetCell && !Claimed(cell)) return cell;
+            }
+            return home;
+        }
+
+        bool Claimed(int cell)
+        {
+            if (Reserved == null) return false;
+            for (int i = 0; i < ReservedCount; i++)
+                if (Reserved[i] == cell) return true;
+            return false;
+        }
+
+        float SpeedFor(GhostMode mode)
+        {
+            switch (mode)
+            {
+                case GhostMode.Idle: return Modes.wanderSpeed;
+                case GhostMode.Strike: return Modes.strikeSpeed;
+                case GhostMode.Flee: return Modes.fleeSpeed;
+                case GhostMode.Frozen: return 0f;
+                default: return Modes.huntSpeed;
+            }
         }
 
         void SetMode(GhostMode mode)

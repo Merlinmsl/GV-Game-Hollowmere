@@ -24,6 +24,8 @@ namespace Hollowmere.AI.Ghost
         public bool IceGunHeld;
         /// <summary>The strike cooldown is over.</summary>
         public bool StrikeReady;
+        /// <summary>The ghost believes the player is outside the house, where it never follows.</summary>
+        public bool PlayerOutside;
     }
 
     /// <summary>
@@ -32,10 +34,11 @@ namespace Hollowmere.AI.Ghost
     ///
     ///   Stalk  = stalkBase * C
     ///   Ambush = ambushWeight * C * (1 - F) * (0.5 + 0.5 G)
-    ///   Strike = strikeWeight * C * Ready * Near(D) * (0.25 + 0.75 B) * (1 - Aimed) * Tactic * Patience
+    ///   Strike = strikeWeight * C * Ready * Inside * Near(D) * (0.25 + 0.75 B) * (1 - Aimed) * Tactic * Patience
     ///   Flee   = fleeWeight * max(Aimed, IceGun * E * 0.6 * (1 - G))
     ///
     ///   C confidence, F sighting freshness, D distance, B facing away, E exposure, G aggression,
+    ///   Inside   = 0 when the player is believed outside the house (ghosts never leave it), else 1
     ///   Near(D)  = 1 - t^2, t = (D - strikeDistance) / (strikeReach - strikeDistance), clamped
     ///   Tactic   = carefulStrikeScale with the ice gun about, boldStrikeScale otherwise
     ///   Patience = 0.5 rising to 1 over patienceSeconds of hunting
@@ -55,7 +58,8 @@ namespace Hollowmere.AI.Ghost
             float aimed = i.Aimed ? 1f : 0f;
             utility[(int)GhostMode.Stalk] = t.stalkBase * i.Confidence;
             utility[(int)GhostMode.Ambush] = t.ambushWeight * i.Confidence * (1f - i.Freshness) * (0.5f + 0.5f * t.aggression);
-            utility[(int)GhostMode.Strike] = t.strikeWeight * i.Confidence * (i.StrikeReady ? 1f : 0f) * Near(i.Distance, t)
+            utility[(int)GhostMode.Strike] = t.strikeWeight * i.Confidence * (i.StrikeReady ? 1f : 0f) * (i.PlayerOutside ? 0f : 1f)
+                                             * Near(i.Distance, t)
                                              * (0.25f + 0.75f * i.FacingAway) * (1f - aimed)
                                              * (i.IceGunHeld ? t.carefulStrikeScale : t.boldStrikeScale) * Patience(i.HuntSeconds, t);
             utility[(int)GhostMode.Flee] = t.fleeWeight * Mathf.Max(aimed, (i.IceGunHeld ? 1f : 0f) * i.Exposure * 0.6f * (1f - t.aggression));
