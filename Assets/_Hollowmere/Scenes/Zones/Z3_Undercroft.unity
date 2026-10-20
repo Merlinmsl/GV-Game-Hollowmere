@@ -1833,7 +1833,7 @@ MonoBehaviour:
   m_VoxelSize: 0.13333334
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: bd050e2d0b479d944ac180c9e95d3e68, type: 2}
-  m_BuildHeightMesh: 0
+  m_BuildHeightMesh: 1
 --- !u!1 &154333597
 GameObject:
   m_ObjectHideFlags: 0
@@ -2888,6 +2888,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 263034773}
+  - component: {fileID: 263034774}
   m_Layer: 0
   m_Name: Pickup_Magazine_02
   m_TagString: Untagged
@@ -2910,6 +2911,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1241891444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &263034774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 263034772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 1
+  label: Magazine
 --- !u!1001 &272234024
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4349,6 +4364,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 485658496}
+  - component: {fileID: 485658497}
   m_Layer: 0
   m_Name: Evidence_AnimalTrialLog
   m_TagString: Untagged
@@ -4371,6 +4387,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1241891444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &485658497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 485658495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 3
+  label: Animal trial log
 --- !u!1001 &493239851
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5912,6 +5942,108 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: b93fbb2e189612641be84b2521736734, type: 3}
   m_PrefabInstance: {fileID: 659769631}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &660189564
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 797483191}
+    m_Modifications:
+    - target: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -80.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 8.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 244
+      objectReference: {fileID: 0}
+    - target: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4822683579953384894, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_Name
+      value: Creature
+      objectReference: {fileID: 0}
+    - target: {fileID: 6549317618256476595, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_Speed
+      value: 4.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6549317618256476595, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_Acceleration
+      value: 24
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4822683579953384894, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 660189567}
+  m_SourcePrefab: {fileID: 100100000, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+--- !u!4 &660189565 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+  m_PrefabInstance: {fileID: 660189564}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &660189566 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4822683579953384894, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+  m_PrefabInstance: {fileID: 660189564}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &660189567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 660189566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c830f9120c4edf4a923a302487787b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Zombie.ZombieBody
+  config: {fileID: 11400000, guid: 23e875f7e45f8ea44a4277d9623ccdba, type: 2}
+  sight:
+    viewRange: 4
+    viewAngle: 360
+    detectRate: 2
+    forgetRate: 0.5
+    eyeHeight: 1.7
+    blockers:
+      serializedVersion: 2
+      m_Bits: 4294967295
+  animator: {fileID: 0}
+  maxHealth: 300
 --- !u!1001 &664459789
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7279,6 +7411,38 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 4940b4037a83a2b4f8dcadb786f1833d, type: 3}
   m_PrefabInstance: {fileID: 794864352}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &797483190
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 797483191}
+  m_Layer: 0
+  m_Name: Creature
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &797483191
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 797483190}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 660189565}
+  m_Father: {fileID: 2142440572}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &799497558
 GameObject:
   m_ObjectHideFlags: 0
@@ -8085,6 +8249,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 905204071}
+  - component: {fileID: 905204072}
   m_Layer: 0
   m_Name: Key_TunnelExit
   m_TagString: Untagged
@@ -8107,6 +8272,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1241891444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &905204072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 905204070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 2
+  label: Tunnel exit
 --- !u!1001 &913728062
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8503,6 +8682,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 953107529}
+  - component: {fileID: 953107530}
   m_Layer: 0
   m_Name: ZoneExit_Waterworks
   m_TagString: Untagged
@@ -8525,6 +8705,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 238830925}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &953107530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 953107528}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 7
+  label: Waterworks
 --- !u!1 &978924048
 GameObject:
   m_ObjectHideFlags: 0
@@ -9832,6 +10026,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1129810721}
+  - component: {fileID: 1129810722}
   m_Layer: 0
   m_Name: Evidence_NotesOnRaisingTheDead
   m_TagString: Untagged
@@ -9854,6 +10049,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1241891444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1129810722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1129810720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 3
+  label: Notes on raising the dead
 --- !u!1001 &1130235619
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11819,6 +12028,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1333578342}
+  - component: {fileID: 1333578343}
   m_Layer: 0
   m_Name: Pickup_Magazine_01
   m_TagString: Untagged
@@ -11841,6 +12051,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1241891444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1333578343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1333578341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 1
+  label: Magazine
 --- !u!1001 &1338966295
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13946,6 +14170,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1746570809}
+  - component: {fileID: 1746570810}
   m_Layer: 0
   m_Name: Pickup_IceCanister_01
   m_TagString: Untagged
@@ -13968,6 +14193,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1241891444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1746570810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1746570808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 4
+  label: Ice canister
 --- !u!1001 &1746669090
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14941,7 +15180,7 @@ MonoBehaviour:
   m_VoxelSize: 0.083333336
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: 883d4ce20ea32dd4296f5bd1268cf7b4, type: 2}
-  m_BuildHeightMesh: 0
+  m_BuildHeightMesh: 1
 --- !u!1001 &1878340243
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17041,6 +17280,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2130748989}
+  - component: {fileID: 2130748990}
   m_Layer: 0
   m_Name: Evidence_SluiceOrder
   m_TagString: Untagged
@@ -17063,6 +17303,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1241891444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2130748990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130748988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 3
+  label: Sluice order
 --- !u!1 &2142440571
 GameObject:
   m_ObjectHideFlags: 0
@@ -17096,6 +17350,7 @@ Transform:
   - {fileID: 1241891444}
   - {fileID: 1713198934}
   - {fileID: 943658458}
+  - {fileID: 797483191}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2145752358

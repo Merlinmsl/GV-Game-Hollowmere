@@ -487,7 +487,7 @@ MonoBehaviour:
   m_VoxelSize: 0.083333336
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: 3d3a954eea71f7542a16688815df2acd, type: 2}
-  m_BuildHeightMesh: 0
+  m_BuildHeightMesh: 1
 --- !u!1001 &49663542
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2480,6 +2480,72 @@ Transform:
   - {fileID: 1073791585}
   m_Father: {fileID: 1727983742}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &215830014
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 372089261}
+    m_Modifications:
+    - target: {fileID: 3768656742426657865, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_Name
+      value: Ghost_Mara
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 22.40813
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 32.010002
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 254.92683
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.41810027
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.9084009
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8677307705701718790, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: profile
+      value: 
+      objectReference: {fileID: 11400000, guid: 12cb8ef42ebd520499692ea7197c0bc4, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+--- !u!4 &215830015 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+  m_PrefabInstance: {fileID: 215830014}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &219159740
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3278,6 +3344,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 289105874}
+  - component: {fileID: 289105875}
   m_Layer: 0
   m_Name: Evidence_MaraMedicalFile
   m_TagString: Untagged
@@ -3300,6 +3367,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1320587003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &289105875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 289105873}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 3
+  label: Mara medical file
 --- !u!1001 &289247886
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3698,6 +3779,62 @@ Transform:
   - {fileID: 1063397893}
   m_Father: {fileID: 708434469}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &334106196
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 334106197}
+  - component: {fileID: 334106198}
+  m_Layer: 0
+  m_Name: GhostHouse_MarrowHouse
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &334106197
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 334106196}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2, y: 25.5, z: 249}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 372089261}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &334106198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 334106196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c6cf63f62614dc45a2eb4e78bfdec3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.AI.Ghost::Hollowmere.AI.Ghost.GhostHouseVolume
+  target: {fileID: 11400000, guid: c97306edf7fd293468f39202a0ea2f46, type: 2}
+  size: {x: 48, y: 13.5, z: 44}
+  cellSize: 1
+  storeyFloors:
+  - 0.5
+  - 6.5
+  solidMask:
+    serializedVersion: 2
+    m_Bits: 1
+  lightBlockers:
+    serializedVersion: 2
+    m_Bits: 1
 --- !u!1001 &339820033
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3850,6 +3987,42 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 458986, guid: 67b0685a76617c84b94a58742fdf5e77, type: 3}
   m_PrefabInstance: {fileID: 356607451}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &372089260
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 372089261}
+  m_Layer: 0
+  m_Name: Ghosts
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &372089261
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 372089260}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -22, z: -197}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 334106197}
+  - {fileID: 1975394209}
+  - {fileID: 949062743}
+  - {fileID: 1815953387}
+  - {fileID: 215830015}
+  m_Father: {fileID: 1541133187}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &393051301
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6557,6 +6730,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 606622305}
+  - component: {fileID: 606622306}
   m_Layer: 0
   m_Name: Pickup_Battery_First
   m_TagString: Untagged
@@ -6579,6 +6753,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1320587003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &606622306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 606622304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 5
+  label: Battery (first)
 --- !u!1001 &609542553
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7332,6 +7520,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 686518998}
+  - component: {fileID: 686518999}
   m_Layer: 0
   m_Name: Clue_TunnelMap
   m_TagString: Untagged
@@ -7354,6 +7543,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1320587003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &686518999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 686518997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 3
+  label: Tunnel map
 --- !u!1001 &696494596
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8210,6 +8413,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 749165057}
+  - component: {fileID: 749165058}
   m_Layer: 0
   m_Name: Pickup_IceCanister_01
   m_TagString: Untagged
@@ -8232,6 +8436,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1320587003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &749165058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 749165056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 4
+  label: Ice canister
 --- !u!1 &759023767
 GameObject:
   m_ObjectHideFlags: 0
@@ -8790,6 +9008,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 843672512}
+  - component: {fileID: 843672513}
   m_Layer: 0
   m_Name: Evidence_DiaryNightMaraDied
   m_TagString: Untagged
@@ -8812,6 +9031,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1320587003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &843672513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 843672511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 3
+  label: Diary night mara died
 --- !u!1001 &857453363
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8911,6 +9144,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 875159392}
+  - component: {fileID: 875159393}
   m_Layer: 0
   m_Name: Key_Tunnel
   m_TagString: Untagged
@@ -8933,6 +9167,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1320587003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &875159393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 875159391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 2
+  label: Tunnel
 --- !u!1001 &883104574
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9533,6 +9781,68 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 437890, guid: de989d50c4fd676479d25b597fc65314, type: 3}
   m_PrefabInstance: {fileID: 944569800}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &949062742
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 372089261}
+    m_Modifications:
+    - target: {fileID: 3768656742426657865, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_Name
+      value: Ghost_Servant_02
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 26.099998
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 266
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.34462062
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.9387421
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+--- !u!4 &949062743 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+  m_PrefabInstance: {fileID: 949062742}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &960871734
 PrefabInstance:
@@ -12138,6 +12448,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1239489149}
+  - component: {fileID: 1239489150}
   m_Layer: 0
   m_Name: Pickup_IceCanister_02
   m_TagString: Untagged
@@ -12160,6 +12471,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1320587003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1239489150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1239489148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 4
+  label: Ice canister
 --- !u!1 &1241268977
 GameObject:
   m_ObjectHideFlags: 0
@@ -13957,6 +14282,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1425418939}
+  - component: {fileID: 1425418940}
   m_Layer: 0
   m_Name: Evidence_ServantsTrialNotes
   m_TagString: Untagged
@@ -13979,6 +14305,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1320587003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1425418940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425418938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 3
+  label: Servants trial notes
 --- !u!1 &1428693029
 GameObject:
   m_ObjectHideFlags: 0
@@ -14211,6 +14551,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1452190701}
+  - component: {fileID: 1452190702}
   m_Layer: 0
   m_Name: Pickup_Magazine_01
   m_TagString: Untagged
@@ -14233,6 +14574,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1320587003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1452190702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1452190700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 1
+  label: Magazine
 --- !u!1001 &1458609145
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15136,6 +15491,7 @@ Transform:
   - {fileID: 1320587003}
   - {fileID: 1667817673}
   - {fileID: 1862720417}
+  - {fileID: 372089261}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1541133188
@@ -17394,6 +17750,68 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 454322, guid: 74e94f0416ca474418749ee6c97439b2, type: 3}
   m_PrefabInstance: {fileID: 1815758272}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1815953386
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 372089261}
+    m_Modifications:
+    - target: {fileID: 3768656742426657865, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_Name
+      value: Ghost_Servant_03
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 32.010002
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 267
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9374859
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.34802336
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+--- !u!4 &1815953387 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+  m_PrefabInstance: {fileID: 1815953386}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1834795831
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17649,6 +18067,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1839974818}
+  - component: {fileID: 1839974819}
   m_Layer: 0
   m_Name: Pickup_Bottle_01
   m_TagString: Untagged
@@ -17671,6 +18090,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1320587003}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1839974819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1839974817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 6
+  label: Bottle
 --- !u!1001 &1840587500
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17816,7 +18249,7 @@ MonoBehaviour:
   m_VoxelSize: 0.13333334
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: 062199a4f47a9864fbbc9165146147e0, type: 2}
-  m_BuildHeightMesh: 0
+  m_BuildHeightMesh: 1
 --- !u!1 &1862720416
 GameObject:
   m_ObjectHideFlags: 0
@@ -19784,6 +20217,68 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 469502, guid: 04c36f15bbecd854cab50deedb5c594f, type: 3}
   m_PrefabInstance: {fileID: 1974423963}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1975394208
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 372089261}
+    m_Modifications:
+    - target: {fileID: 3768656742426657865, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_Name
+      value: Ghost_Servant_01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -16
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 26.099998
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 257
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.41488817
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.9098724
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+--- !u!4 &1975394209 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+  m_PrefabInstance: {fileID: 1975394208}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1977187447
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20807,6 +21302,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2094002945}
   - component: {fileID: 2094002946}
+  - component: {fileID: 2094002947}
   m_Layer: 0
   m_Name: ZoneExit_Undercroft
   m_TagString: Untagged
@@ -20850,6 +21346,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3, y: 2.6, z: 1.6}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2094002947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2094002944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 7
+  label: Undercroft
 --- !u!1 &2106916053
 GameObject:
   m_ObjectHideFlags: 0

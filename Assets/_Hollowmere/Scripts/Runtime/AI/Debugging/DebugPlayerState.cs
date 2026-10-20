@@ -6,7 +6,7 @@ namespace Hollowmere.AI.Debugging
 {
     /// <summary>
     /// TEMPORARY player state for the debug walker. Test keys:
-    /// F flashlight, C crouch, Q switch weapon, K lose health, L heal, N use ammo, M refill ammo.
+    /// F flashlight, C crouch, Q switch weapon, K lose health, L heal, N use ammo, B refill ammo (M opens the map).
     /// </summary>
     public sealed class DebugPlayerState : MonoBehaviour, IPlayerState
     {
@@ -45,13 +45,13 @@ namespace Hollowmere.AI.Debugging
             if (keyboard.kKey.wasPressedThisFrame) health = Mathf.Clamp01(health - 0.2f);
             if (keyboard.lKey.wasPressedThisFrame) health = Mathf.Clamp01(health + 0.2f);
             if (keyboard.nKey.wasPressedThisFrame) ammo = Mathf.Clamp01(ammo - 0.2f);
-            if (keyboard.mKey.wasPressedThisFrame) ammo = 1f;
+            if (keyboard.bKey.wasPressedThisFrame) ammo = 1f;
         }
 
         void OnGUI()
         {
             GUI.Label(new Rect(12, 100, 900, 40),
-                "PLAYER STATE   F light | C crouch | Q weapon | K/L health | N/M ammo\n" +
+                "PLAYER STATE   F light | C crouch | Q weapon | K/L health | N/B ammo\n" +
                 "Health " + health.ToString("F1") + "  Ammo " + ammo.ToString("F1") + "  Weapon " + weapon +
                 "  Flashlight " + (flashlight ? "on" : "off") + "  " + (crouching ? "Crouching" : "Standing"));
         }

@@ -16,6 +16,8 @@ namespace Hollowmere.AI.Senses
         [SerializeField] float walkStepInterval = 0.5f;
         [Tooltip("Seconds between steps when running.")]
         [SerializeField] float runStepInterval = 0.33f;
+        [Tooltip("Multiplier applied to walking loudness when crouching (0.4x).")]
+        [SerializeField] float crouchNoiseFactor = 0.4f;
 
         CharacterController controller;
         IPlayerState state;
@@ -43,7 +45,7 @@ namespace Hollowmere.AI.Senses
             nextStepTime = Time.time + (running ? runStepInterval : walkStepInterval);
 
             bool crouching = state != null && state.IsCrouching;
-            float loudness = running ? Loudness.Run : crouching ? Loudness.CrouchStep : Loudness.Walk;
+            float loudness = running ? Loudness.Run : crouching ? (Loudness.Walk * crouchNoiseFactor) : Loudness.Walk;
             NoiseKind kind = NoiseKind.Footstep;
 
             // Water splashes whatever the posture: crouching does not make wading quiet.

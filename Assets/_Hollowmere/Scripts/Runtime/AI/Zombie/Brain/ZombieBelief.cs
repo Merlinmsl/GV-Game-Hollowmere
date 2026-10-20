@@ -33,6 +33,9 @@ namespace Hollowmere.AI.Zombie
         /// <summary>Current confidence level ranging from 0.0 (forgotten/unknown) to 1.0 (certain).</summary>
         public readonly float Confidence;
 
+        /// <summary>Initial un-decayed confidence c0 when this belief was established.</summary>
+        public readonly float InitialConfidence;
+
         /// <summary>Timestamp (in seconds) when this belief was created or last refreshed.</summary>
         public readonly float Timestamp;
 
@@ -43,19 +46,20 @@ namespace Hollowmere.AI.Zombie
         public bool IsValid => Confidence > 0f && Source != BeliefSource.None;
 
         /// <summary>Empty default belief representing an unaware zombie.</summary>
-        public static ZombieBelief Empty => new ZombieBelief(Vector3.zero, 0f, 0f, BeliefSource.None);
+        public static ZombieBelief Empty => new ZombieBelief(Vector3.zero, 0f, 0f, BeliefSource.None, 0f);
 
-        public ZombieBelief(Vector3 position, float confidence, float timestamp, BeliefSource source)
+        public ZombieBelief(Vector3 position, float confidence, float timestamp, BeliefSource source, float initialConfidence = -1f)
         {
             Position = position;
             Confidence = Mathf.Clamp01(confidence);
+            InitialConfidence = initialConfidence >= 0f ? Mathf.Clamp01(initialConfidence) : Confidence;
             Timestamp = timestamp;
             Source = source;
         }
 
         public override string ToString()
         {
-            return $"ZombieBelief(Pos: {Position}, Conf: {Confidence:F2}, Src: {Source}, Time: {Timestamp:F1}s)";
+            return $"ZombieBelief(Pos: {Position}, Conf: {Confidence:F2} (c0: {InitialConfidence:F2}), Src: {Source}, Time: {Timestamp:F1}s)";
         }
     }
 }

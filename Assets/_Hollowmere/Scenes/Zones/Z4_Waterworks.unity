@@ -1298,6 +1298,68 @@ Transform:
   - {fileID: 938869909}
   m_Father: {fileID: 656093588}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &167938173
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1109740499}
+    m_Modifications:
+    - target: {fileID: 6951646177960575196, guid: 7f9a5aebe8e7331458913e55fa82325f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -156.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6951646177960575196, guid: 7f9a5aebe8e7331458913e55fa82325f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 8.820001
+      objectReference: {fileID: 0}
+    - target: {fileID: 6951646177960575196, guid: 7f9a5aebe8e7331458913e55fa82325f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 241.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6951646177960575196, guid: 7f9a5aebe8e7331458913e55fa82325f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.78491586
+      objectReference: {fileID: 0}
+    - target: {fileID: 6951646177960575196, guid: 7f9a5aebe8e7331458913e55fa82325f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6951646177960575196, guid: 7f9a5aebe8e7331458913e55fa82325f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.6196023
+      objectReference: {fileID: 0}
+    - target: {fileID: 6951646177960575196, guid: 7f9a5aebe8e7331458913e55fa82325f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6951646177960575196, guid: 7f9a5aebe8e7331458913e55fa82325f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6951646177960575196, guid: 7f9a5aebe8e7331458913e55fa82325f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6951646177960575196, guid: 7f9a5aebe8e7331458913e55fa82325f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7724489140774541926, guid: 7f9a5aebe8e7331458913e55fa82325f, type: 3}
+      propertyPath: m_Name
+      value: Marrow
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7f9a5aebe8e7331458913e55fa82325f, type: 3}
+--- !u!4 &167938174 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6951646177960575196, guid: 7f9a5aebe8e7331458913e55fa82325f, type: 3}
+  m_PrefabInstance: {fileID: 167938173}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &184092825
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3875,6 +3937,7 @@ Transform:
   - {fileID: 1935807886}
   - {fileID: 1865965843}
   - {fileID: 649327053}
+  - {fileID: 1109740499}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &744020218
@@ -5357,6 +5420,38 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!1 &1109740498
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1109740499}
+  m_Layer: 0
+  m_Name: Marrow
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1109740499
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1109740498}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 167938174}
+  m_Father: {fileID: 732030640}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1145878794
 GameObject:
   m_ObjectHideFlags: 0
@@ -5719,7 +5814,7 @@ MonoBehaviour:
   m_VoxelSize: 0.13333334
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: 4eb36a2ebabb58e4493092f83a6022f7, type: 2}
-  m_BuildHeightMesh: 0
+  m_BuildHeightMesh: 1
 --- !u!1001 &1259520880
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7573,6 +7668,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1602150274}
+  - component: {fileID: 1602150275}
   m_Layer: 0
   m_Name: Pickup_Magazine_01
   m_TagString: Untagged
@@ -7595,6 +7691,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1935807886}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1602150275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602150273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 1
+  label: Magazine
 --- !u!1001 &1606171779
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8442,6 +8552,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1946122700}
+  - component: {fileID: 1946122701}
   m_Layer: 0
   m_Name: Pickup_Magazine_02
   m_TagString: Untagged
@@ -8464,6 +8575,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1935807886}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1946122701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1946122699}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 1
+  label: Magazine
 --- !u!1001 &1970579125
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8777,7 +8902,7 @@ MonoBehaviour:
   m_VoxelSize: 0.083333336
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: 00f453e864e6d1f498e648e1717f52c3, type: 2}
-  m_BuildHeightMesh: 0
+  m_BuildHeightMesh: 1
 --- !u!1001 &2017232538
 PrefabInstance:
   m_ObjectHideFlags: 0

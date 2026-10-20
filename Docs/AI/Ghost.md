@@ -262,10 +262,12 @@ the editor's Mono, so running the real code paths at load replaced it.
 - **8-neighbour BFS counts a diagonal as one step,** so walking distances can be up to 29% short.
   Accepted: the range band has 4 m soft edges.
 - **For the team (shared code, not edited):** a player damage API (for example
-  `IDamageable.Drain`) for `Struck`; an ice-gun raycast on a "Ghost" layer calling `IIceable`
-  (move `IIceable` into shared combat code); `NoiseSystem` path distance is infinite for a listener
-  off the NavMesh (a ghost inside a wall hears nothing), so a straight-line fallback for listeners
-  that pass walls.
+  `IDamageable.Drain`) for `Struck`; an ice-gun raycast calling `IIceable` (move `IIceable` into
+  shared combat code). PF_Ghost has a trigger capsule and a kinematic Rigidbody, so the ice-gun ray
+  must use `QueryTriggerInteraction.Collide`; pistol rays should ignore triggers (bullets pass
+  through ghosts).
+- A ghost inside a wall still hears: for a listener off the NavMesh, `NoiseSystem.PathDistance`
+  falls back to the straight-line distance x 1.5 (`AI/Senses/NoiseSystem.cs:85`).
 - Combat is stubbed in `Debugging/GhostCombatStub.cs` until the weapons exist.
 
 ## 12. Testing it in the game
