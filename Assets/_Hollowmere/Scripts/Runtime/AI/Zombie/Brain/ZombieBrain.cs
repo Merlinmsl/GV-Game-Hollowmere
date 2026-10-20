@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.AI;
 using Hollowmere.AI.Zombie.BehaviourTree;
+using Hollowmere.AI.Senses;
 
 namespace Hollowmere.AI.Zombie
 {
@@ -102,6 +103,13 @@ namespace Hollowmere.AI.Zombie
         /// </summary>
         public BtStatus Tick()
         {
+            // Edge case: player leaves zone — reset to Dormant when PlayerRegistry null
+            if (PlayerRegistry.Instance == null)
+            {
+                memory?.ClearBelief();
+                memory?.ClearGroanBelief();
+            }
+
             memory?.Tick();
             BtStatus status = rootNode.Tick();
 

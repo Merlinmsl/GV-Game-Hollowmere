@@ -8,6 +8,9 @@ namespace Hollowmere.AI.Senses
         /// <summary>The player, or null when there is none (menus, loading).</summary>
         public static IPlayerState Current { get; private set; }
 
+        /// <summary>Alias for Current matching standard registry access patterns.</summary>
+        public static IPlayerState Instance => Current;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetOnPlay() => Current = null;
 
