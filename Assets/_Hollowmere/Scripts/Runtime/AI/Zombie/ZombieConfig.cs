@@ -16,6 +16,7 @@ namespace Hollowmere.AI.Zombie
 
         [Header("Sight")]
 
+        // 14 m: village alleys feel claustrophobic without being unfair
         [Tooltip("Maximum distance in metres at which a zombie can see the player. " +
                  "14 m chosen so the flooded village alleys feel claustrophobic without being unfair.")]
         public float viewRange = 14f;
