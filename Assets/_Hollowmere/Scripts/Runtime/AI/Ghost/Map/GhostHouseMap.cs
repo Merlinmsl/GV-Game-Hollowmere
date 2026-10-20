@@ -18,6 +18,7 @@ namespace Hollowmere.AI.Ghost
         [SerializeField] float[] floorY = Array.Empty<float>();
         [SerializeField, HideInInspector] byte[] flags = Array.Empty<byte>();
         [SerializeField, HideInInspector] float[] light = Array.Empty<float>();
+        [SerializeField, HideInInspector] float[] walkY = Array.Empty<float>();
         [Tooltip("Where the bake came from and when.")]
         [SerializeField] string bakeInfo;
 
@@ -52,7 +53,8 @@ namespace Hollowmere.AI.Ghost
             if (!IsBaked) return null;
             var cellFlags = new CellFlags[flags.Length];
             for (int i = 0; i < flags.Length; i++) cellFlags[i] = (CellFlags)flags[i];
-            var grid = new GhostGrid(origin, cellSize, sizeX, sizeZ, (float[])floorY.Clone(), cellFlags);
+            float[] heights = walkY != null && walkY.Length == flags.Length ? (float[])walkY.Clone() : null;
+            var grid = new GhostGrid(origin, cellSize, sizeX, sizeZ, (float[])floorY.Clone(), cellFlags, heights);
             return new InfluenceMap(grid, (float[])light.Clone());
         }
 
@@ -66,6 +68,7 @@ namespace Hollowmere.AI.Ghost
             floorY = (float[])grid.FloorY.Clone();
             flags = new byte[grid.Count];
             light = new float[grid.Count];
+            walkY = (float[])grid.WalkY.Clone();
             for (int i = 0; i < grid.Count; i++)
             {
                 flags[i] = (byte)grid.Flags[i];

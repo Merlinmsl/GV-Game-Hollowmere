@@ -16,7 +16,11 @@ namespace Hollowmere.AI.Ghost
     /// </summary>
     public sealed class GhostMapDebugView : MonoBehaviour
     {
-        public enum View { Exposure, Light, Watched, Cells }
+        public enum View { Exposure, Light, Watched, Cells, WalkDistance }
+
+        const int ViewCount = 5;
+        // Walking distance shown as a colour ramp up to this many metres.
+        const float DistanceScale = 25f;
 
         [SerializeField] GhostHouseMap house;
         [Tooltip("Show the heatmap from the start. F2 toggles it.")]
@@ -37,6 +41,8 @@ namespace Hollowmere.AI.Ghost
         int meshLayer = -1;
         float nextFeed;
         float lastFeedMs;
+        BfsField walkField;
+        float lastFieldMs;
 
         public bool Visible => visible;
 
@@ -46,7 +52,7 @@ namespace Hollowmere.AI.Ghost
             if (keyboard != null)
             {
                 if (keyboard.f2Key.wasPressedThisFrame) visible = !visible;
-                if (visible && keyboard.f3Key.wasPressedThisFrame) view = (View)(((int)view + 1) % 4);
+                if (visible && keyboard.f3Key.wasPressedThisFrame) view = (View)(((int)view + 1) % ViewCount);
             }
 
             if (house == null || !house.IsBaked) return;
@@ -76,6 +82,7 @@ namespace Hollowmere.AI.Ghost
             GhostGrid grid = map.Grid;
             int layer = ShownLayer(grid);
             if (mesh == null || layer != meshLayer) BuildMesh(grid, layer);
+            if (view == View.WalkDistance) UpdateWalkField(grid);
 
             float now = Time.time;
             int offset = layer * grid.LayerSize;
@@ -106,11 +113,34 @@ namespace Hollowmere.AI.Ghost
                     if (grid.Is(cell, CellFlags.Solid)) return new Color32(90, 90, 90, alpha);
                     if (grid.Is(cell, CellFlags.Walkable)) return new Color32(60, 200, 90, alpha);
                     return new Color32(70, 120, 255, alpha);          // ghost-only space
+                case View.WalkDistance:
+                    // BFS walking distance from the player: white nearby, through orange, to purple far away.
+                    float metres = walkField != null ? walkField.WalkingDistance(cell) : float.PositiveInfinity;
+                    if (float.IsPositiveInfinity(metres)) return new Color32(25, 25, 25, alpha);
+                    float t = Mathf.Clamp01(metres / DistanceScale);
+                    return t < 0.5f
+                        ? Color32.Lerp(new Color32(255, 255, 255, alpha), new Color32(255, 140, 30, alpha), t * 2f)
+                        : Color32.Lerp(new Color32(255, 140, 30, alpha), new Color32(90, 30, 160, alpha), (t - 0.5f) * 2f);
                 default:
                     // What a ghost avoids: lit or watched. Green is a good hiding place, red is exposed.
                     float exposure = Mathf.Max(map.Light(cell), map.Watched(cell, now));
                     return Color32.Lerp(new Color32(40, 200, 80, alpha), new Color32(255, 50, 40, alpha), exposure);
             }
+        }
+
+        // Rebuilds the walking-distance field from the player's cell, only when it moved more than one cell.
+        void UpdateWalkField(GhostGrid grid)
+        {
+            IPlayerState player = PlayerRegistry.Current;
+            if (player == null) return;
+            if (walkField == null || walkField.Grid != grid) walkField = new BfsField(grid);
+
+            int cell = grid.CellAt(player.Position + Vector3.up * 0.1f);
+            if (!walkField.NeedsRebuild(grid.NearestWalkable(cell))) return;
+            watch.Restart();
+            walkField.BuildWalkingField(cell);
+            watch.Stop();
+            lastFieldMs = (float)watch.Elapsed.TotalMilliseconds;
         }
 
         int ShownLayer(GhostGrid grid)
@@ -172,14 +202,17 @@ namespace Hollowmere.AI.Ghost
                     under = "light " + map.Light(cell).ToString("F2") + "  watched " + map.Watched(cell, Time.time).ToString("F2")
                             + "  " + grid.Flags[cell];
             }
+            string field = view == View.WalkDistance && walkField != null
+                ? "\nwalk field (BFS): " + walkField.CellsVisited + " cells in " + lastFieldMs.ToString("F3") + " ms, rebuilt when you move > 1 cell"
+                : "";
 
-            GUI.Box(new Rect(Screen.width - 430f, 10f, 420f, 92f), GUIContent.none);
-            GUI.Label(new Rect(Screen.width - 420f, 14f, 410f, 88f),
+            GUI.Box(new Rect(Screen.width - 430f, 10f, 420f, 110f), GUIContent.none);
+            GUI.Label(new Rect(Screen.width - 420f, 14f, 410f, 106f),
                 "GHOST MAP   F2 hide | F3 view: " + view + "   storey " + meshLayer + "\n" +
                 house.BakeInfo + "\n" +
                 "view update: " + map.LastViewCellsWritten + " cells in " + lastFeedMs.ToString("F3") + " ms" +
                 (feedFromPlayer ? "  (sandbox feed)" : "") + "\n" +
-                "under player: " + under);
+                "under player: " + under + field);
         }
 
         void OnDestroy()

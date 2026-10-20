@@ -22,8 +22,13 @@ namespace Hollowmere.AI.Ghost
         // A wall counts when it overlaps most of a cell; a box the full cell size would also catch walls
         // that only graze it and close one-cell doorways.
         const float SolidBoxShare = 0.45f;
-        // How close to a cell's floor the NavMesh must be for the player to stand there.
-        const float WalkableTolerance = 0.6f;
+        // NavMesh samples are taken down through each storey this far apart, each searching this far.
+        const float WalkSampleStep = 0.5f;
+        const float WalkSampleRadius = 0.35f;
+        // How far below a floor a storey begins, so a floor slab's top surface belongs to its own storey.
+        const float StoreyOverlap = 0.3f;
+        // Headroom of the top storey, which has no floor above it.
+        const float TopStoreyHeight = 3.5f;
         // Lamp shades and bulbs have colliders of their own: the light ray starts outside them.
         const float LampSkin = 0.4f;
 
@@ -74,10 +79,11 @@ namespace Hollowmere.AI.Ghost
                 if (OverlapsStructure(centre, halfBox, s.SolidMask))
                     flags |= CellFlags.Solid;
 
-                var floorPoint = new Vector3(centre.x, grid.FloorY[layer], centre.z);
-                if (NavMesh.SamplePosition(floorPoint, out NavMeshHit hit, WalkableTolerance, humanoid)
-                    && Mathf.Abs(hit.position.x - centre.x) <= half && Mathf.Abs(hit.position.z - centre.z) <= half)
+                if (HighestWalkSurface(grid, layer, centre, half, humanoid, out float walkY))
+                {
                     flags |= CellFlags.Walkable;
+                    grid.WalkY[i] = walkY;
+                }
 
                 // Part of the house when there is a wall here, the player can stand here, or a floor is
                 // just below: open air outside the walls or over a stairwell is not.
@@ -87,6 +93,30 @@ namespace Hollowmere.AI.Ghost
                 grid.Flags[i] = flags;
             }
             return grid;
+        }
+
+        // The highest place the player can stand in this cell within the storey: a floor, or a stair or
+        // ramp above it. Sampled top-down so the first hit is the highest. A ramp then shows up in the
+        // storey it climbs through, and its top cells sit within a step of the floor above, which is
+        // what links the two storeys for the walking-distance search.
+        static bool HighestWalkSurface(GhostGrid grid, int layer, Vector3 centre, float half,
+                                       NavMeshQueryFilter filter, out float walkY)
+        {
+            float bottom = grid.FloorY[layer] - StoreyOverlap;
+            float top = layer + 1 < grid.Layers ? grid.FloorY[layer + 1] - StoreyOverlap : grid.FloorY[layer] + TopStoreyHeight;
+
+            for (float y = top - WalkSampleRadius; y >= bottom; y -= WalkSampleStep)
+            {
+                if (!NavMesh.SamplePosition(new Vector3(centre.x, y, centre.z), out NavMeshHit hit, WalkSampleRadius, filter))
+                    continue;
+                Vector3 p = hit.position;
+                if (Mathf.Abs(p.x - centre.x) > half || Mathf.Abs(p.z - centre.z) > half) continue;
+                if (p.y < bottom || p.y >= top) continue;
+                walkY = p.y;
+                return true;
+            }
+            walkY = 0f;
+            return false;
         }
 
         /// <summary>

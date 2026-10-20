@@ -27,11 +27,17 @@ namespace Hollowmere.AI.Ghost
         public readonly int SizeX, SizeZ, Layers;
         public readonly float[] FloorY;      // height of each storey's floor
         public readonly CellFlags[] Flags;
+        /// <summary>Height the player walks at in each walkable cell (a stair step can be above the floor).</summary>
+        public readonly float[] WalkY;
+
+        /// <summary>Highest step up or down between neighbouring walkable cells: a stair, not a ledge.</summary>
+        public const float MaxStep = 0.75f;
 
         public int Count => Flags.Length;
         public int LayerSize => SizeX * SizeZ;
 
-        public GhostGrid(Vector3 origin, float cellSize, int sizeX, int sizeZ, float[] floorY, CellFlags[] flags = null)
+        public GhostGrid(Vector3 origin, float cellSize, int sizeX, int sizeZ, float[] floorY,
+                         CellFlags[] flags = null, float[] walkY = null)
         {
             if (sizeX <= 0 || sizeZ <= 0 || floorY == null || floorY.Length == 0)
                 throw new ArgumentException("A grid needs at least one cell and one storey.");
@@ -45,7 +51,20 @@ namespace Hollowmere.AI.Ghost
             Flags = flags ?? new CellFlags[sizeX * sizeZ * Layers];
             if (Flags.Length != sizeX * sizeZ * Layers)
                 throw new ArgumentException("Flags do not match the grid size.");
+
+            WalkY = walkY ?? new float[Flags.Length];
+            if (walkY == null)
+                for (int i = 0; i < WalkY.Length; i++) WalkY[i] = floorY[i / LayerSize];
+            if (WalkY.Length != Flags.Length)
+                throw new ArgumentException("Walk heights do not match the grid size.");
         }
+
+        /// <summary>
+        /// Can the player step from one walkable cell to a neighbouring one? Both must be walkable and
+        /// within a stair step of each other in height, which is also how stairs link two storeys.
+        /// </summary>
+        public bool CanStep(int from, int to) =>
+            Is(to, CellFlags.Walkable) && Math.Abs(WalkY[to] - WalkY[from]) <= MaxStep;
 
         // ---------------------------------------------------------------- indexing
 
@@ -90,6 +109,28 @@ namespace Hollowmere.AI.Ghost
             int z = Mathf.FloorToInt((point.z - Origin.z) / CellSize);
             int layer = LayerAt(point.y);
             return InBounds(x, layer, z) ? Index(x, layer, z) : -1;
+        }
+
+        /// <summary>
+        /// The walkable cell nearest to a cell, searching outward ring by ring on the same storey up to
+        /// 'radius' cells. -1 when there is none. Used when a belief lands somewhere the player cannot stand.
+        /// </summary>
+        public int NearestWalkable(int cell, int radius = 3)
+        {
+            if (cell < 0) return -1;
+            if (Is(cell, CellFlags.Walkable)) return cell;
+            Coords(cell, out int cx, out int layer, out int cz);
+            for (int r = 1; r <= radius; r++)
+            for (int dz = -r; dz <= r; dz++)
+            for (int dx = -r; dx <= r; dx++)
+            {
+                if (Math.Max(Math.Abs(dx), Math.Abs(dz)) != r) continue;   // only the ring itself
+                int x = cx + dx, z = cz + dz;
+                if (!InBounds(x, layer, z)) continue;
+                int candidate = Index(x, layer, z);
+                if (Is(candidate, CellFlags.Walkable)) return candidate;
+            }
+            return -1;
         }
 
         /// <summary>Like CellAt, but a point outside the grid snaps to the nearest edge cell.</summary>
