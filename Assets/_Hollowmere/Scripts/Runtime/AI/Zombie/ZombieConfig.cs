@@ -16,6 +16,7 @@ namespace Hollowmere.AI.Zombie
 
         [Header("Sight")]
 
+        // 14 m: village alleys feel claustrophobic without being unfair
         [Tooltip("Maximum distance in metres at which a zombie can see the player. " +
                  "14 m chosen so the flooded village alleys feel claustrophobic without being unfair.")]
         public float viewRange = 14f;
@@ -53,6 +54,7 @@ namespace Hollowmere.AI.Zombie
 
         [Header("Memory")]
 
+        // At tau=12, c=0.37 after 12 s, c<0.1 after 28 s — zombie searches ~24 s then gives up
         [Tooltip("Exponential decay time constant τ (tau) in seconds. " +
                  "confidence = c₀ × exp(−t / tau). " +
                  "At tau = 12 s:  after 12 s → 37 %,  after 24 s → 14 %,  after 28 s < 10 %. " +
@@ -95,6 +97,7 @@ namespace Hollowmere.AI.Zombie
 
         [Header("Behaviour Tree — Thresholds")]
 
+        // 0.8 requires recent strong sighting — below 0.7 = chases weak sounds; above 0.9 = never chases heard noises
         [Tooltip("Minimum belief confidence required to enter the Chase node. " +
                  "0.8 means the zombie must have seen the player recently (c₀ = 1.0 decays " +
                  "to 0.8 after about 2.7 s at tau = 12). " +
