@@ -317,7 +317,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 1.62, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 369002227}
   m_Father: {fileID: 1837528444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &369002223
@@ -423,6 +424,119 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!1 &369002226
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 369002227}
+  - component: {fileID: 369002228}
+  - component: {fileID: 369002229}
+  m_Layer: 0
+  m_Name: Flashlight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &369002227
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369002226}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 369002222}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!108 &369002228
+Light:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369002226}
+  m_Enabled: 0
+  serializedVersion: 12
+  m_Type: 0
+  m_Color: {r: 1, g: 0.95, b: 0.85, a: 1}
+  m_Intensity: 25
+  m_Range: 20
+  m_SpotAngle: 50
+  m_InnerSpotAngle: 35
+  m_CookieSize2D: {x: 0.5, y: 0.5}
+  m_Shadows:
+    m_Type: 2
+    m_Resolution: -1
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.4
+    m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_Flare: {fileID: 0}
+  m_RenderMode: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingLayerMask: 1
+  m_Lightmapping: 1
+  m_LightShadowCasterMode: 0
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
+  m_ForceVisible: 0
+  m_ShadowRadius: 0
+  m_ShadowAngle: 0
+  m_LightUnit: 1
+  m_LuxAtDistance: 1
+  m_EnableSpotReflector: 1
+--- !u!114 &369002229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369002226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
 --- !u!1 &548911912
 GameObject:
   m_ObjectHideFlags: 0
@@ -819,12 +933,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1837528444}
   - component: {fileID: 1837528443}
-  - component: {fileID: 1837528442}
-  - component: {fileID: 1837528445}
-  - component: {fileID: 1837528447}
   - component: {fileID: 1837528446}
+  - component: {fileID: 1837528442}
   m_Layer: 0
-  m_Name: DebugPlayer (temporary)
+  m_Name: PF_Player
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -839,23 +951,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 1837528441}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e494773413420704aa626fb632cf1edc, type: 3}
+  m_Script: {fileID: 11500000, guid: f7e7c0a4b9610f742b5f0d933681be2a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.Debugging.DebugWalker
-  head: {fileID: 369002222}
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.Player.PlayerController
+  headTransform: {fileID: 369002222}
+  flashlight: {fileID: 369002228}
+  mouseSensitivity: 0.12
+  verticalClampAngle: 80
   walkSpeed: 3.5
-  runSpeed: 7
-  lookSensitivity: 0.12
+  sprintMultiplier: 1.6
+  crouchSpeed: 1.8
+  jumpHeight: 1.2
   gravity: -18
-  testPoints:
-  - {x: 0, y: 2.3, z: -31}
-  - {x: 3, y: 3, z: 80}
-  - {x: 11, y: 18, z: 150}
-  - {x: 0, y: 24, z: 215}
-  - {x: 0, y: 26.3, z: 241}
-  - {x: -16.4, y: 14.7, z: 239.5}
-  - {x: -106.5, y: 8.9, z: 245.3}
-  showHelp: 1
+  standingHeight: 1.8
+  crouchHeight: 1.1
+  standingHeadY: 1.6
+  crouchHeadY: 0.9
 --- !u!143 &1837528443
 CharacterController:
   m_ObjectHideFlags: 0
@@ -897,18 +1008,6 @@ Transform:
   - {fileID: 369002222}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1837528445
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1837528441}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5c617512d23e4044a6b7e1b7f3b7a62, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Debugging.DebugNoiseKeys
 --- !u!114 &1837528446
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -924,18 +1023,7 @@ MonoBehaviour:
   runSpeed: 5
   walkStepInterval: 0.5
   runStepInterval: 0.33
---- !u!114 &1837528447
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1837528441}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f362821692c23b4580c087ada52fcee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Debugging.DebugPlayerState
+  crouchNoiseFactor: 0.4
 --- !u!1 &1966642893
 GameObject:
   m_ObjectHideFlags: 0
