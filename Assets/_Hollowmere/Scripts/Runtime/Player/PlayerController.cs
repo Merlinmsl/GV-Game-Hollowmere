@@ -37,8 +37,8 @@ namespace Hollowmere.Player
         [Tooltip("Walking speed in m/s.")]
         [SerializeField] private float walkSpeed = 3.5f;
 
-        [Tooltip("Running speed in m/s (holding Left Shift).")]
-        [SerializeField] private float runSpeed = 7.0f;
+        [Tooltip("Sprint speed multiplier over walk speed (speed × 1.6).")]
+        [SerializeField] private float sprintMultiplier = 1.6f;
 
         [Tooltip("Crouching speed in m/s (holding Left Ctrl / C).")]
         [SerializeField] private float crouchSpeed = 1.8f;
@@ -242,7 +242,7 @@ namespace Hollowmere.Player
             }
             else if (wantsSprint)
             {
-                targetSpeed = runSpeed;
+                targetSpeed = walkSpeed * sprintMultiplier;
                 IsRunning = true;
             }
             else
