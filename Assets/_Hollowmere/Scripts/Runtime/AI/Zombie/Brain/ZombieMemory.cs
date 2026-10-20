@@ -255,7 +255,9 @@ namespace Hollowmere.AI.Zombie
                 }
             }
 
-            // Update primary belief if higher confidence
+            // Edge case: Two simultaneous noises — keep higher confidence belief.
+            // If incoming confidence is lower than or equal to current confidence, the existing belief is retained
+            // to avoid thrashing or losing high-priority signals (e.g. gunshot > footstep > groan).
             if (incomingConfidence > currentBelief.Confidence)
             {
                 UpdateBelief(noise.Position, incomingConfidence, source);
