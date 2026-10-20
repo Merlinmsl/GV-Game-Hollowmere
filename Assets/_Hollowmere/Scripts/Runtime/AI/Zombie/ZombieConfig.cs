@@ -97,6 +97,7 @@ namespace Hollowmere.AI.Zombie
 
         [Header("Behaviour Tree — Thresholds")]
 
+        // 0.8 requires recent strong sighting — below 0.7 = chases weak sounds; above 0.9 = never chases heard noises
         [Tooltip("Minimum belief confidence required to enter the Chase node. " +
                  "0.8 means the zombie must have seen the player recently (c₀ = 1.0 decays " +
                  "to 0.8 after about 2.7 s at tau = 12). " +
