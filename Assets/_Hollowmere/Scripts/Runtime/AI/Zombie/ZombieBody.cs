@@ -26,6 +26,10 @@ namespace Hollowmere.AI.Zombie
         private Coroutine brainTickCoroutine;
         private bool _groanEmitted = false;
 
+        // Stuck detection (Edge case: zombie stuck > 3s)
+        private Vector3 _lastStuckCheckPosition;
+        private float _stuckTimer = 0f;
+
         /// <summary>Access to the decoupled pure C# brain instance.</summary>
         public ZombieBrain Brain => brain;
 
@@ -65,6 +69,9 @@ namespace Hollowmere.AI.Zombie
         {
             // Register mental memory as an acoustic listener with the global NoiseSystem
             brain?.Memory?.OnEnable();
+
+            _lastStuckCheckPosition = transform.position;
+            _stuckTimer = 0f;
 
             // Start periodic AI decision loop
             brainTickCoroutine = StartCoroutine(BrainTickRoutine());
@@ -124,13 +131,46 @@ namespace Hollowmere.AI.Zombie
             while (true)
             {
                 float tickRate = (config != null && config.brainTickRate > 0f) ? config.brainTickRate : 8.0f;
-                yield return new WaitForSeconds(1.0f / tickRate);
+                float tickInterval = 1.0f / tickRate;
+                yield return new WaitForSeconds(tickInterval);
 
                 if (brain != null && agent != null)
                 {
                     // Guard against ticks before agent is successfully placed on NavMesh
                     if (agent.isOnNavMesh)
                     {
+                        // Edge case: zombie stuck > 3 s — clear belief and return to Dormant
+                        if (brain.Memory != null && (brain.Memory.HasBelief || brain.Memory.HasGroanBelief))
+                        {
+                            float distanceMoved = Vector3.Distance(transform.position, _lastStuckCheckPosition);
+                            if (distanceMoved < 0.1f)
+                            {
+                                _stuckTimer += tickInterval;
+                                float timeout = (config != null && config.stuckTimeout > 0f) ? config.stuckTimeout : 3.0f;
+                                if (_stuckTimer >= timeout)
+                                {
+                                    brain.Memory.ClearBelief();
+                                    brain.Memory.ClearGroanBelief();
+                                    if (agent.hasPath)
+                                    {
+                                        agent.ResetPath();
+                                    }
+                                    _stuckTimer = 0f;
+                                    _lastStuckCheckPosition = transform.position;
+                                }
+                            }
+                            else
+                            {
+                                _stuckTimer = 0f;
+                                _lastStuckCheckPosition = transform.position;
+                            }
+                        }
+                        else
+                        {
+                            _stuckTimer = 0f;
+                            _lastStuckCheckPosition = transform.position;
+                        }
+
                         brain.Tick();
                     }
                 }
