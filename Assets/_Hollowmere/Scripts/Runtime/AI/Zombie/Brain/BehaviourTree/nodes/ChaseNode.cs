@@ -19,6 +19,8 @@ namespace Hollowmere.AI.Zombie.BehaviourTree
         private NavMeshAgent agent;
         private readonly float fallbackChaseThreshold;
 
+        private static readonly NavMeshQueryFilter HumanoidFilter = new NavMeshQueryFilter { agentTypeID = 0, areaMask = NavMesh.AllAreas };
+
         private Vector3 lastDestination = Vector3.positiveInfinity;
 
         /// <summary>
@@ -80,7 +82,7 @@ namespace Hollowmere.AI.Zombie.BehaviourTree
                 lastDestination = belief.Position;
                 Vector3 destination = belief.Position;
 
-                if (NavMesh.SamplePosition(belief.Position, out NavMeshHit hit, 2.0f, NavMesh.AllAreas))
+                if (NavMesh.SamplePosition(belief.Position, out NavMeshHit hit, 2.0f, HumanoidFilter))
                 {
                     destination = hit.position;
                 }
