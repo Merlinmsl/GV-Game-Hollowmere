@@ -71,8 +71,13 @@ namespace Hollowmere.AI.Zombie.BehaviourTree
                 currentTargetPosition = belief.Position;
                 Vector3 destination = belief.Position;
 
-                // Snap to nearest walkable NavMesh position (handles sounds from off-mesh or behind walls)
-                if (NavMesh.SamplePosition(belief.Position, out NavMeshHit hit, 3.0f, NavMesh.AllAreas))
+                // Wrap destination in NavMesh.SamplePosition to sample nearest walkable point before pathing
+                // Handles sounds originating off-mesh, elevated on roofs, or outside boundary walls
+                if (NavMesh.SamplePosition(belief.Position, out NavMeshHit hit, 5.0f, NavMesh.AllAreas))
+                {
+                    destination = hit.position;
+                }
+                else if (NavMesh.SamplePosition(belief.Position, out hit, 15.0f, NavMesh.AllAreas))
                 {
                     destination = hit.position;
                 }
