@@ -56,6 +56,7 @@ namespace Hollowmere.Agents
         Color[] baseColors;
         MaterialPropertyBlock block;
         float visibility = 1f;
+        float speedScale = 1f;
 
         /// <summary>Where the ghost is drifting to.</summary>
         public Vector3 Destination => destination;
@@ -65,6 +66,9 @@ namespace Hollowmere.Agents
 
         /// <summary>Called by the brain: face this target, normally the player. Null faces the direction of travel.</summary>
         public void SetLookTarget(Transform target) => lookTarget = target;
+
+        /// <summary>Called by the brain: move at this share of maxSpeed (slow when wandering, fast when fleeing).</summary>
+        public void SetSpeedScale(float scale) => speedScale = Mathf.Max(0f, scale);
 
         /// <summary>Called by the brain: stop dead where it is, with no easing out (frozen by the ice gun).</summary>
         public void Stop()
@@ -104,7 +108,7 @@ namespace Hollowmere.Agents
             if (destinationMarker != null) destination = destinationMarker.position;
 
             // Eases in and out: fast when far, slowing as it arrives, never faster than maxSpeed.
-            transform.position = Vector3.SmoothDamp(transform.position, destination, ref velocity, smoothTime, maxSpeed);
+            transform.position = Vector3.SmoothDamp(transform.position, destination, ref velocity, smoothTime, maxSpeed * speedScale);
 
             Turn();
             BobAndLean();

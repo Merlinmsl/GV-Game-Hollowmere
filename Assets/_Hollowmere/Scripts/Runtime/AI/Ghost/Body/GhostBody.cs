@@ -49,7 +49,10 @@ namespace Hollowmere.AI.Ghost
 
         [SerializeField] bool showLabel = true;
 
+        const int MaxClaims = 8;
+
         readonly Stopwatch watch = new Stopwatch();
+        readonly int[] claims = new int[MaxClaims];
         GhostBrain brain;
         GhostMovement movement;
         GhostRouteFollower follower;
@@ -177,6 +180,7 @@ namespace Hollowmere.AI.Ghost
             brain.HasAnchor = true;
             brain.Anchor = hauntAnchor != null ? hauntAnchor.position : startPosition;
             brain.Leash = CurrentLeash;
+            ClaimOthersCells();
 
             // Sight: the only way the ghost learns which way the player looks and what they carry.
             IPlayerState player = PlayerRegistry.Current;
@@ -190,10 +194,26 @@ namespace Hollowmere.AI.Ghost
             }
 
             brain.Think(transform.position, now);
+            movement.SetSpeedScale(brain.SpeedScale);
             Look(now);
 
             watch.Stop();
             LastThinkMs = (float)watch.Elapsed.TotalMilliseconds;
+        }
+
+        // Multi-ghost reservation: the cells the other ghosts in this house are heading for. The brain
+        // will not pick those cells and is pushed away from them (crowd term), so ghosts spread out and flank.
+        void ClaimOthersCells()
+        {
+            int count = 0;
+            for (int i = 0; i < active.Count && count < MaxClaims; i++)
+            {
+                GhostBody other = active[i];
+                if (other == this || other.brain == null || other.brain.Map != brain.Map || other.brain.TargetCell < 0) continue;
+                claims[count++] = other.brain.TargetCell;
+            }
+            brain.Reserved = claims;
+            brain.ReservedCount = count;
         }
 
         void Update()
@@ -242,7 +262,9 @@ namespace Hollowmere.AI.Ghost
             string belief = brain.Memory.HasBelief(now)
                 ? brain.Memory.Current.Source + " " + brain.Memory.ConfidenceAt(now).ToString("F2")
                 : "-";
-            DebugLabel.Above(transform, 2.3f, name + "  " + brain.Mode + "\nsight " + sight.Meter.ToString("F2") + "  belief " + belief);
+            string edge = (brain.Lurking ? "  lurking" : "") + (brain.PlayerCornered ? "  cornered" : "") +
+                          (brain.PlayerOutside ? "  outside" : "");
+            DebugLabel.Above(transform, 2.3f, name + "  " + brain.Mode + edge + "\nsight " + sight.Meter.ToString("F2") + "  belief " + belief);
             // Utilities only while hunting: the panel would be noise otherwise.
             if (brain.Mode != GhostMode.Idle && brain.Mode != GhostMode.Frozen)
                 DebugLabel.Above(transform, 3.1f,

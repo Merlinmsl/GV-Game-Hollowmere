@@ -182,6 +182,16 @@ MonoBehaviour:
     carefulStrikeScale: 0.4
     boldStrikeScale: 1.2
     iceGunMemory: 20
+    lurkExposure: 0.7
+    corneredOpenCells: 3
+    thresholdSearch: 6
+    partialReplan: 0.4
+    wanderRadius: 4
+    wanderPause: 6
+    wanderSpeed: 0.35
+    huntSpeed: 1
+    strikeSpeed: 1.4
+    fleeSpeed: 1.5
   showLabel: 1
 --- !u!1001 &8045439389159904303
 PrefabInstance:

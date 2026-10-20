@@ -407,7 +407,10 @@ namespace Hollowmere.AI.Ghost
                          "  strike " + brain.Utility(GhostMode.Strike).ToString("F2") + "  flee " + brain.Utility(GhostMode.Flee).ToString("F2") +
                          "\ninputs  dist " + i.Distance.ToString("F1") + "  fresh " + i.Freshness.ToString("F2") + "  away " + i.FacingAway.ToString("F2") +
                          "  hunt " + i.HuntSeconds.ToString("F0") + " s" + (i.IceGunHeld ? "  ICE GUN KNOWN" : "") + (i.Aimed ? "  AIMED AT ME" : "") +
-                         (i.StrikeReady ? "" : "  strike cooling");
+                         (i.StrikeReady ? "" : "  strike cooling") +
+                         "\nedge cases  route " + brain.LastRouteStatus + "  speed x" + brain.SpeedScale.ToString("F2") +
+                         "  claims " + brain.ReservedCount + (brain.Lurking ? "  LURKING (no dark cell)" : "") +
+                         (brain.PlayerCornered ? "  PLAYER CORNERED" : "") + (brain.PlayerOutside ? "  PLAYER OUTSIDE" : "");
             }
             if ((view == View.WalkDistance || view == View.Score) && walkField != null)
                 field += "\nwalk field (BFS): " + walkField.CellsVisited + " cells" +
