@@ -13,12 +13,14 @@ namespace Hollowmere.AI.Ghost
     ///
     /// "Feed from player" is a SANDBOX stand-in until GhostBody feeds the map from its own senses
     /// (Phase 6): it marks the player's real view and flashlight so the map can be seen working.
+    /// The Score view runs the position search as if a ghost believed the player were exactly where
+    /// they are, and paints the score, the hill-climb seeds, trails and peaks, and the chosen cell.
     /// </summary>
     public sealed class GhostMapDebugView : MonoBehaviour
     {
-        public enum View { Exposure, Light, Watched, Cells, WalkDistance }
+        public enum View { Exposure, Light, Watched, Cells, WalkDistance, Score }
 
-        const int ViewCount = 5;
+        const int ViewCount = 6;
         // Walking distance shown as a colour ramp up to this many metres.
         const float DistanceScale = 25f;
 
@@ -31,7 +33,18 @@ namespace Hollowmere.AI.Ghost
         [SerializeField] float feedInterval = 0.2f;
         [SerializeField, Range(0.05f, 1f)] float opacity = 0.5f;
 
+        [Header("Score view (sandbox tuning until the ghost profiles in Phase 7)")]
+        [SerializeField] ScoreWeights weights = ScoreWeights.Default;
+        [SerializeField] RangeBand range = RangeBand.Stalk;
+        [SerializeField] HillClimber.Settings climb = HillClimber.Settings.Default;
+        [SerializeField] float iceGunHalfAngle = 12f;
+        [SerializeField] float iceGunRange = 15f;
+        [SerializeField] float searchInterval = 0.25f;
+
         const float LiftAboveFloor = 0.06f;
+
+        // Overlay marks for the Score view, per cell of the shown storey.
+        const byte MarkTrail = 1, MarkSeed = 2, MarkPeak = 3, MarkBest = 4;
 
         readonly Stopwatch watch = new Stopwatch();
         InfluenceMap map;
@@ -43,6 +56,17 @@ namespace Hollowmere.AI.Ghost
         float lastFeedMs;
         BfsField walkField;
         float lastFieldMs;
+        PositionScorer scorer;
+        HillClimber climber;
+        HillClimber.Result lastSearch;
+        ScoreBreakdown bestBreakdown;
+        readonly int[] bestCell = new int[1];
+        float lastSearchMs;
+        float nextSearch;
+        float[] layerScore;
+        byte[] marks;
+        float scoreMin, scoreMax;
+        int candidates;
 
         public bool Visible => visible;
 
@@ -82,7 +106,8 @@ namespace Hollowmere.AI.Ghost
             GhostGrid grid = map.Grid;
             int layer = ShownLayer(grid);
             if (mesh == null || layer != meshLayer) BuildMesh(grid, layer);
-            if (view == View.WalkDistance) UpdateWalkField(grid);
+            if (view == View.WalkDistance || view == View.Score) UpdateWalkField(grid);
+            if (view == View.Score) UpdateSearch(grid, layer);
 
             float now = Time.time;
             int offset = layer * grid.LayerSize;
@@ -121,6 +146,8 @@ namespace Hollowmere.AI.Ghost
                     return t < 0.5f
                         ? Color32.Lerp(new Color32(255, 255, 255, alpha), new Color32(255, 140, 30, alpha), t * 2f)
                         : Color32.Lerp(new Color32(255, 140, 30, alpha), new Color32(90, 30, 160, alpha), (t - 0.5f) * 2f);
+                case View.Score:
+                    return ScoreColour(cell - meshLayer * grid.LayerSize, alpha);
                 default:
                     // What a ghost avoids: lit or watched. Green is a good hiding place, red is exposed.
                     float exposure = Mathf.Max(map.Light(cell), map.Watched(cell, now));
@@ -141,6 +168,90 @@ namespace Hollowmere.AI.Ghost
             walkField.BuildWalkingField(cell);
             watch.Stop();
             lastFieldMs = (float)watch.Elapsed.TotalMilliseconds;
+        }
+
+        Color32 ScoreColour(int layerCell, byte alpha)
+        {
+            if (marks == null) return new Color32(25, 25, 25, alpha);
+            switch (marks[layerCell])
+            {
+                case MarkBest: return new Color32(255, 0, 255, 255);
+                case MarkPeak: return new Color32(255, 230, 0, 230);
+                case MarkSeed: return new Color32(0, 230, 255, 230);
+                case MarkTrail: return new Color32(255, 255, 255, 200);
+            }
+            if (float.IsNegativeInfinity(layerScore[layerCell])) return new Color32(25, 25, 25, alpha);
+            float t = scoreMax > scoreMin ? (layerScore[layerCell] - scoreMin) / (scoreMax - scoreMin) : 0f;
+            return Color32.Lerp(new Color32(30, 20, 90, alpha), new Color32(60, 230, 90, alpha), t);
+        }
+
+        // Runs the ghost position search from the player's real cell (sandbox stand-in for a belief),
+        // then scores the shown storey for the colour ramp. Throttled: a few searches a second.
+        void UpdateSearch(GhostGrid grid, int layer)
+        {
+            IPlayerState player = PlayerRegistry.Current;
+            if (player == null || walkField == null || Time.time < nextSearch) return;
+            nextSearch = Time.time + searchInterval;
+
+            if (scorer == null || scorer.Map != map)
+            {
+                scorer = new PositionScorer(map);
+                climber = new HillClimber(scorer) { RecordTrace = true };
+                lastSearch = new HillClimber.Result { Cell = -1 };
+                layerScore = new float[grid.LayerSize];
+                marks = new byte[grid.LayerSize];
+            }
+
+            Vector3 eye = player.Position + Vector3.up * PositionQuery.EyeHeight;
+            scorer.WalkField = walkField;
+            scorer.Query = new PositionQuery
+            {
+                PlayerEye = eye,
+                LookDirection = player.LookDirection,
+                HasLook = true,
+                Now = Time.time,
+                Weights = weights,
+                Range = range,
+                ThreatActive = player.HeldWeapon == WeaponKind.IceGun,
+                Aim = new AimCone(eye, player.LookDirection, iceGunHalfAngle, iceGunRange),
+            };
+            climber.Config = climb;
+
+            watch.Restart();
+            lastSearch = climber.Search(lastSearch.Cell);
+            watch.Stop();
+            lastSearchMs = (float)watch.Elapsed.TotalMilliseconds;
+            if (lastSearch.Cell >= 0) bestBreakdown = scorer.Explain(lastSearch.Cell);
+
+            // Colour ramp over the shown storey (debug only: the ghosts never score every cell).
+            int offset = layer * grid.LayerSize;
+            scoreMin = float.PositiveInfinity;
+            scoreMax = float.NegativeInfinity;
+            candidates = 0;
+            for (int c = 0; c < grid.LayerSize; c++)
+            {
+                marks[c] = 0;
+                if (!scorer.IsCandidate(offset + c)) { layerScore[c] = float.NegativeInfinity; continue; }
+                float s = scorer.Score(offset + c);
+                layerScore[c] = s;
+                scoreMin = Mathf.Min(scoreMin, s);
+                scoreMax = Mathf.Max(scoreMax, s);
+                candidates++;
+            }
+            Mark(climber.TraceTrail, climber.TraceTrailCount, MarkTrail, offset);
+            Mark(climber.TraceSeeds, climber.TraceSeedCount, MarkSeed, offset);
+            Mark(climber.TracePeaks, climber.TracePeakCount, MarkPeak, offset);
+            bestCell[0] = lastSearch.Cell;
+            Mark(bestCell, 1, MarkBest, offset);
+        }
+
+        void Mark(int[] cells, int count, byte mark, int offset)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                int c = cells[i] - offset;
+                if (c >= 0 && c < marks.Length) marks[c] = mark;
+            }
         }
 
         int ShownLayer(GhostGrid grid)
@@ -202,17 +313,27 @@ namespace Hollowmere.AI.Ghost
                     under = "light " + map.Light(cell).ToString("F2") + "  watched " + map.Watched(cell, Time.time).ToString("F2")
                             + "  " + grid.Flags[cell];
             }
-            string field = view == View.WalkDistance && walkField != null
+            string field = (view == View.WalkDistance || view == View.Score) && walkField != null
                 ? "\nwalk field (BFS): " + walkField.CellsVisited + " cells in " + lastFieldMs.ToString("F3") + " ms, rebuilt when you move > 1 cell"
                 : "";
+            if (view == View.Score && climber != null)
+                field += "\nhill climb: " + lastSearch.Climbs + " climbs, " + lastSearch.Evaluations + " cells scored (" + candidates +
+                         " on this storey) in " + lastSearchMs.ToString("F3") + " ms" + (climb.useAnnealing ? "  [annealing]" : "") +
+                         (lastSearch.KeptCurrent ? "  kept current" : "") +
+                         "\ncyan seed, white trail, yellow peak, magenta best" +
+                         (scorer.Query.ThreatActive ? "   ICE GUN AIMED" : "") +
+                         "\nbest: " + (lastSearch.Cell >= 0 ? bestBreakdown.ToString() : "no candidate");
 
-            GUI.Box(new Rect(Screen.width - 430f, 10f, 420f, 110f), GUIContent.none);
-            GUI.Label(new Rect(Screen.width - 420f, 14f, 410f, 106f),
-                "GHOST MAP   F2 hide | F3 view: " + view + "   storey " + meshLayer + "\n" +
-                house.BakeInfo + "\n" +
-                "view update: " + map.LastViewCellsWritten + " cells in " + lastFeedMs.ToString("F3") + " ms" +
-                (feedFromPlayer ? "  (sandbox feed)" : "") + "\n" +
-                "under player: " + under + field);
+            string text = "GHOST MAP   F2 hide | F3 view: " + view + "   storey " + meshLayer + "\n" +
+                          house.BakeInfo + "\n" +
+                          "view update: " + map.LastViewCellsWritten + " cells in " + lastFeedMs.ToString("F3") + " ms" +
+                          (feedFromPlayer ? "  (sandbox feed)" : "") + "\n" +
+                          "under player: " + under + field;
+            int lines = 1;
+            for (int i = 0; i < text.Length; i++) if (text[i] == '\n') lines++;
+            float height = lines * 16f + 14f;
+            GUI.Box(new Rect(Screen.width - 470f, 10f, 460f, height), GUIContent.none);
+            GUI.Label(new Rect(Screen.width - 460f, 14f, 450f, height - 4f), text);
         }
 
         void OnDestroy()
