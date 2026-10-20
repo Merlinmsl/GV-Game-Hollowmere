@@ -28,6 +28,16 @@ namespace Hollowmere.Interactables
         [Tooltip("Optional HingeJoint component if physical joint limits are preferred.")]
         [SerializeField] private HingeJoint hinge;
 
+        [Header("Audio Settings")]
+        [Tooltip("AudioSource component on the door.")]
+        [SerializeField] private AudioSource audioSource;
+
+        [Tooltip("Sound clip played when opening the door (creak).")]
+        [SerializeField] private AudioClip openClip;
+
+        [Tooltip("Sound clip played when closing the door (slam).")]
+        [SerializeField] private AudioClip closeClip;
+
         [Header("Interaction Settings")]
         [Tooltip("Maximum interaction distance from player if not using trigger collider.")]
         [SerializeField] private float interactDistance = 2.5f;
@@ -48,6 +58,11 @@ namespace Hollowmere.Interactables
             if (hinge == null)
             {
                 hinge = GetComponent<HingeJoint>();
+            }
+
+            if (audioSource == null)
+            {
+                audioSource = GetComponent<AudioSource>();
             }
 
             closedRotation = transform.localRotation;
@@ -120,11 +135,20 @@ namespace Hollowmere.Interactables
         }
 
         /// <summary>
-        /// Toggles door between open and closed.
+        /// Toggles door between open and closed, playing appropriate creak/slam audio.
         /// </summary>
         public void ToggleDoor()
         {
             isOpen = !isOpen;
+
+            if (audioSource != null)
+            {
+                AudioClip clipToPlay = isOpen ? openClip : closeClip;
+                if (clipToPlay != null)
+                {
+                    audioSource.PlayOneShot(clipToPlay);
+                }
+            }
         }
 
         private void OnTriggerEnter(Collider other)
