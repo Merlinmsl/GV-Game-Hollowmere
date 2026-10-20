@@ -86,6 +86,27 @@ namespace Hollowmere.Tests.Ghost
         }
 
         [Test]
+        public void OneStrikerAtATime_WaitsWhileAnotherGhostHasStruck()
+        {
+            GhostBrain brain = NewBrain(out _);
+            Vector3 ghost = Feet(11, 7);
+            int strikes = 0;
+            brain.Struck += at => strikes++;
+            brain.MayStrike = false;                                                     // another ghost just struck
+            brain.See(Player, Vector3.left, WeaponKind.Pistol, false, now: 1f);
+
+            brain.Think(ghost, now: 1f);
+
+            Assert.AreEqual(0, strikes, "the token is taken");
+            Assert.AreNotEqual(GhostMode.Strike, brain.Mode, "it keeps stalking instead");
+
+            brain.MayStrike = true;                                                      // the token is free again
+            brain.See(Player, Vector3.left, WeaponKind.Pistol, false, now: 1.2f);
+            brain.Think(ghost, now: 1.2f);
+            Assert.AreEqual(1, strikes);
+        }
+
+        [Test]
         public void Strike_ClosesInButDoesNotLand_OnAStaleSighting()
         {
             GhostBrain brain = NewBrain(out GhostGrid grid);
