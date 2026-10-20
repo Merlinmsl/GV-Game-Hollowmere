@@ -24,9 +24,28 @@ namespace Hollowmere.AI.Ghost
         [Tooltip("What stops lamp light.")]
         [SerializeField] LayerMask lightBlockers = 1;
 
+        static readonly List<GhostHouseVolume> active = new List<GhostHouseVolume>();
+
         public GhostHouseMap Target => target;
 
         public Bounds WorldBounds => new Bounds(transform.position + Vector3.up * size.y * 0.5f, size);
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetOnPlay() => active.Clear();
+
+        void OnEnable() => active.Add(this);
+        void OnDisable() => active.Remove(this);
+
+        /// <summary>The baked map of the house containing a point, or null. How a ghost prefab finds its house.</summary>
+        public static GhostHouseMap MapAt(Vector3 point)
+        {
+            for (int i = 0; i < active.Count; i++)
+            {
+                GhostHouseVolume house = active[i];
+                if (house.target != null && house.target.IsBaked && house.WorldBounds.Contains(point)) return house.target;
+            }
+            return null;
+        }
 
         [ContextMenu("Bake Ghost Map")]
         public void Bake()
