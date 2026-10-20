@@ -59,6 +59,14 @@ namespace Hollowmere.AI.Zombie
             GUI.color = barColor;
             GUI.DrawTexture(fillRect, Texture2D.whiteTexture);
             GUI.color = prevColor;
+
+            // Display last heard noise kind and path distance
+            if (body.Memory != null && body.Memory.HasHeardNoise)
+            {
+                GUI.color = new Color(0.4f, 0.9f, 1f, 1f);
+                GUI.Label(new Rect(screenX, screenY + 10, 200, 20), $"Heard: {body.Memory.LastHeardNoise.Kind} ({body.Memory.LastHeardDistance:F1} m)");
+                GUI.color = prevColor;
+            }
         }
 
         private void OnDrawGizmos()
