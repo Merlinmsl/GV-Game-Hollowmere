@@ -7573,6 +7573,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1602150274}
+  - component: {fileID: 1602150275}
   m_Layer: 0
   m_Name: Pickup_Magazine_01
   m_TagString: Untagged
@@ -7595,6 +7596,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1935807886}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1602150275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602150273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 1
+  label: Magazine
 --- !u!1001 &1606171779
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8442,6 +8457,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1946122700}
+  - component: {fileID: 1946122701}
   m_Layer: 0
   m_Name: Pickup_Magazine_02
   m_TagString: Untagged
@@ -8464,6 +8480,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1935807886}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1946122701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1946122699}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 1
+  label: Magazine
 --- !u!1001 &1970579125
 PrefabInstance:
   m_ObjectHideFlags: 0

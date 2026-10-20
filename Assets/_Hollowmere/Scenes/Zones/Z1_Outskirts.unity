@@ -14083,6 +14083,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 320595427}
+  - component: {fileID: 320595428}
   m_Layer: 0
   m_Name: Pickup_Bottle_01
   m_TagString: Untagged
@@ -14105,6 +14106,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1610557132}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &320595428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 320595426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 6
+  label: Bottle
 --- !u!1001 &322029518
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21541,6 +21556,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 492917174}
+  - component: {fileID: 492917175}
   m_Layer: 0
   m_Name: Pickup_Revolver_GuardHouse
   m_TagString: Untagged
@@ -21563,6 +21579,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1610557132}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &492917175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 492917173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 0
+  label: Revolver (guard house)
 --- !u!1001 &495722924
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24027,6 +24057,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 541231300}
+  - component: {fileID: 541231301}
   m_Layer: 0
   m_Name: Clue_DiaryPage1_Car
   m_TagString: Untagged
@@ -24049,6 +24080,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1610557132}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &541231301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 541231299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 3
+  label: Diary page1 (car)
 --- !u!1001 &541406740
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -42161,6 +42206,7 @@ GameObject:
   m_Component:
   - component: {fileID: 969227040}
   - component: {fileID: 969227041}
+  - component: {fileID: 969227042}
   m_Layer: 0
   m_Name: ZoneExit_EstateGate
   m_TagString: Untagged
@@ -42204,6 +42250,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 4, y: 3, z: 2}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &969227042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969227039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 7
+  label: Estate gate
 --- !u!1001 &969236978
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -62596,6 +62656,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1438380075}
+  - component: {fileID: 1438380076}
   m_Layer: 0
   m_Name: Pickup_RevolverAmmo_Car
   m_TagString: Untagged
@@ -62618,6 +62679,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1610557132}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1438380076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1438380074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 1
+  label: Revolver ammo (car)
 --- !u!1001 &1439493820
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -71741,6 +71816,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1712473985}
+  - component: {fileID: 1712473986}
   m_Layer: 0
   m_Name: Pickup_Bottle_03
   m_TagString: Untagged
@@ -71763,6 +71839,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1610557132}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1712473986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1712473984}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 6
+  label: Bottle
 --- !u!1001 &1722922377
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -73143,6 +73233,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1766147389}
+  - component: {fileID: 1766147390}
   m_Layer: 0
   m_Name: Pickup_Bottle_02
   m_TagString: Untagged
@@ -73165,6 +73256,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1610557132}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1766147390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1766147388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 6
+  label: Bottle
 --- !u!1001 &1773150273
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -79819,6 +79924,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1912715385}
+  - component: {fileID: 1912715386}
   m_Layer: 0
   m_Name: Clue_Clipping_GuardHouse
   m_TagString: Untagged
@@ -79841,6 +79947,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1610557132}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1912715386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1912715384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 3
+  label: Clipping (guard house)
 --- !u!1001 &1913487642
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -87657,6 +87777,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2102831236}
+  - component: {fileID: 2102831237}
   m_Layer: 0
   m_Name: Key_MarrowHouse
   m_TagString: Untagged
@@ -87679,6 +87800,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1610557132}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2102831237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2102831235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 2
+  label: Marrow house
 --- !u!1001 &2104039513
 PrefabInstance:
   m_ObjectHideFlags: 0

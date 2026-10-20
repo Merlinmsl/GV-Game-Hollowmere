@@ -108,6 +108,8 @@ real player is ready. It can walk and look. It cannot jump, crouch, shoot or int
 | **Left Shift** (hold) | Run |
 | **Left mouse button** | Lock the mouse to the game again |
 | **Esc** | Free the mouse |
+| **M** | Open or close the map of the zone you are in (pauses the game) |
+| **X** | Test only: pick up the nearest map item within 2.5 m, until the real pickups exist |
 
 ### Testing shortcuts
 

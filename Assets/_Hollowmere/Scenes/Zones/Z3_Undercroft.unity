@@ -2888,6 +2888,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 263034773}
+  - component: {fileID: 263034774}
   m_Layer: 0
   m_Name: Pickup_Magazine_02
   m_TagString: Untagged
@@ -2910,6 +2911,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1241891444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &263034774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 263034772}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 1
+  label: Magazine
 --- !u!1001 &272234024
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4349,6 +4364,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 485658496}
+  - component: {fileID: 485658497}
   m_Layer: 0
   m_Name: Evidence_AnimalTrialLog
   m_TagString: Untagged
@@ -4371,6 +4387,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1241891444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &485658497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 485658495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 3
+  label: Animal trial log
 --- !u!1001 &493239851
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8085,6 +8115,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 905204071}
+  - component: {fileID: 905204072}
   m_Layer: 0
   m_Name: Key_TunnelExit
   m_TagString: Untagged
@@ -8107,6 +8138,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1241891444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &905204072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 905204070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 2
+  label: Tunnel exit
 --- !u!1001 &913728062
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8503,6 +8548,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 953107529}
+  - component: {fileID: 953107530}
   m_Layer: 0
   m_Name: ZoneExit_Waterworks
   m_TagString: Untagged
@@ -8525,6 +8571,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 238830925}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &953107530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 953107528}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 7
+  label: Waterworks
 --- !u!1 &978924048
 GameObject:
   m_ObjectHideFlags: 0
@@ -9832,6 +9892,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1129810721}
+  - component: {fileID: 1129810722}
   m_Layer: 0
   m_Name: Evidence_NotesOnRaisingTheDead
   m_TagString: Untagged
@@ -9854,6 +9915,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1241891444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1129810722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1129810720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 3
+  label: Notes on raising the dead
 --- !u!1001 &1130235619
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11819,6 +11894,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1333578342}
+  - component: {fileID: 1333578343}
   m_Layer: 0
   m_Name: Pickup_Magazine_01
   m_TagString: Untagged
@@ -11841,6 +11917,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1241891444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1333578343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1333578341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 1
+  label: Magazine
 --- !u!1001 &1338966295
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13946,6 +14036,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1746570809}
+  - component: {fileID: 1746570810}
   m_Layer: 0
   m_Name: Pickup_IceCanister_01
   m_TagString: Untagged
@@ -13968,6 +14059,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1241891444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1746570810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1746570808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 4
+  label: Ice canister
 --- !u!1001 &1746669090
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17041,6 +17146,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2130748989}
+  - component: {fileID: 2130748990}
   m_Layer: 0
   m_Name: Evidence_SluiceOrder
   m_TagString: Untagged
@@ -17063,6 +17169,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1241891444}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2130748990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130748988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2371b2c7ae299bb4e9cbe894c2b1047a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapMarker
+  kind: 3
+  label: Sluice order
 --- !u!1 &2142440571
 GameObject:
   m_ObjectHideFlags: 0
