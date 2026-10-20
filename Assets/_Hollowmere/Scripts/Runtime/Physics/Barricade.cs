@@ -1,4 +1,5 @@
 using UnityEngine;
+using Hollowmere.AI.Senses;
 
 namespace Hollowmere.Interactables
 {
@@ -20,7 +21,18 @@ namespace Hollowmere.Interactables
         [Tooltip("Mass of the barricade in kilograms.")]
         [SerializeField] private float mass = 60.0f;
 
+        [Header("Noise Settings")]
+        [Tooltip("Linear speed threshold in m/s above which pushing the barricade emits noise.")]
+        [SerializeField] private float speedThreshold = 0.4f;
+
+        [Tooltip("Loudness of noise emitted when pushed (in metres of walking distance).")]
+        [SerializeField] private float noiseLoudness = 12.0f;
+
+        [Tooltip("Cooldown in seconds between noise emission pulses.")]
+        [SerializeField] private float noiseCooldown = 0.6f;
+
         private Rigidbody rb;
+        private float lastNoiseTime;
 
         /// <summary>The Rigidbody driving this barricade's physical motion.</summary>
         public Rigidbody Rigidbody => rb;
@@ -32,6 +44,22 @@ namespace Hollowmere.Interactables
             rb.linearDamping = drag;
             rb.angularDamping = 2.0f;
             rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        }
+
+        private void FixedUpdate()
+        {
+            if (rb != null && !rb.isKinematic)
+            {
+                float speed = rb.linearVelocity.magnitude;
+                if (speed > speedThreshold)
+                {
+                    if (Time.time - lastNoiseTime >= noiseCooldown)
+                    {
+                        lastNoiseTime = Time.time;
+                        NoiseSystem.Emit(transform.position, noiseLoudness, NoiseKind.Interaction, gameObject);
+                    }
+                }
+            }
         }
 
         /// <summary>
