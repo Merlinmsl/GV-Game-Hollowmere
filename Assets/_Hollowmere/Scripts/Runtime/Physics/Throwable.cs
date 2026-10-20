@@ -72,6 +72,13 @@ namespace Hollowmere.Interactables
             {
                 audioSource = GetComponent<AudioSource>();
             }
+
+            // Fix: increase solver iterations to prevent throwable falling through floor on fast throw
+            if (rb != null)
+            {
+                rb.solverIterations = 8;
+                rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            }
         }
 
         private void Update()
