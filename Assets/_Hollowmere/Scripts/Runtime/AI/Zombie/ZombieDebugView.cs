@@ -67,6 +67,19 @@ namespace Hollowmere.AI.Zombie
                 GUI.Label(new Rect(screenX, screenY + 10, 200, 20), $"Heard: {body.Memory.LastHeardNoise.Kind} ({body.Memory.LastHeardDistance:F1} m)");
                 GUI.color = prevColor;
             }
+
+            // Draw sight detection meter as fill bar
+            float sightWidth = 100f;
+            float sightHeight = 4f;
+            float sightY = screenY + (body.Memory != null && body.Memory.HasHeardNoise ? 28f : 12f);
+            Rect sightBg = new Rect(screenX, sightY, sightWidth, sightHeight);
+            Rect sightFill = new Rect(screenX, sightY, sightWidth * Mathf.Clamp01(body.SightMeter), sightHeight);
+
+            GUI.color = new Color(0f, 0f, 0f, 0.6f);
+            GUI.DrawTexture(sightBg, Texture2D.whiteTexture);
+            GUI.color = Color.Lerp(Color.yellow, Color.red, body.SightMeter);
+            GUI.DrawTexture(sightFill, Texture2D.whiteTexture);
+            GUI.color = prevColor;
         }
 
         private void OnDrawGizmos()

@@ -30,6 +30,9 @@ namespace Hollowmere.AI.Zombie
         private Vector3 _lastStuckCheckPosition;
         private float _stuckTimer = 0f;
 
+        // Sight detection meter
+        private float _sightMeter = 0f;
+
         /// <summary>Access to the decoupled pure C# brain instance.</summary>
         public ZombieBrain Brain => brain;
 
@@ -41,6 +44,9 @@ namespace Hollowmere.AI.Zombie
 
         /// <summary>NavMeshAgent component driving physical navigation.</summary>
         public NavMeshAgent Agent => agent;
+
+        /// <summary>Current accumulated sight detection meter (0.0 to 1.0).</summary>
+        public float SightMeter => _sightMeter;
 
         /// <summary>Name of the actively running Behaviour Tree leaf node.</summary>
         public string CurrentStateName => brain?.ActiveNode != null ? brain.ActiveNode.Name : "None";
