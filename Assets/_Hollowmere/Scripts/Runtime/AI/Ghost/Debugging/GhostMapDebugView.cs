@@ -70,6 +70,12 @@ namespace Hollowmere.AI.Ghost
 
         public bool Visible => visible;
 
+        /// <summary>Run the position search even while another view is shown (set by GhostRouteProbe).</summary>
+        public bool KeepSearching { get; set; }
+
+        /// <summary>The cell the last position search chose, or -1.</summary>
+        public int BestCell => climber != null ? lastSearch.Cell : -1;
+
         void Update()
         {
             var keyboard = Keyboard.current;
@@ -83,6 +89,11 @@ namespace Hollowmere.AI.Ghost
             map = house.Runtime;
 
             if (feedFromPlayer) Feed();
+
+            GhostGrid grid = map.Grid;
+            bool searching = KeepSearching || (visible && view == View.Score);
+            if (searching || (visible && view == View.WalkDistance)) UpdateWalkField(grid);
+            if (searching) UpdateSearch(grid, ShownLayer(grid));
             if (visible) Draw();
         }
 
@@ -106,8 +117,6 @@ namespace Hollowmere.AI.Ghost
             GhostGrid grid = map.Grid;
             int layer = ShownLayer(grid);
             if (mesh == null || layer != meshLayer) BuildMesh(grid, layer);
-            if (view == View.WalkDistance || view == View.Score) UpdateWalkField(grid);
-            if (view == View.Score) UpdateSearch(grid, layer);
 
             float now = Time.time;
             int offset = layer * grid.LayerSize;

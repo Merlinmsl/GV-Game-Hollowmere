@@ -1119,6 +1119,7 @@ GameObject:
   - component: {fileID: 1156111086}
   - component: {fileID: 1156111085}
   - component: {fileID: 1156111084}
+  - component: {fileID: 1156111087}
   m_Layer: 0
   m_Name: GhostHouse
   m_TagString: Untagged
@@ -1144,6 +1145,36 @@ MonoBehaviour:
   feedFromPlayer: 1
   feedInterval: 0.2
   opacity: 0.5
+  weights:
+    behind: 1
+    dark: 1
+    unseen: 1.2
+    cover: 0.4
+    range: 1.5
+    home: 0.5
+    threat: 3
+    crowd: 1
+  range:
+    min: 4
+    max: 8
+    softness: 4
+  climb:
+    rings: 3
+    seedsPerRing: 8
+    innerRadius: 3
+    outerRadius: 12
+    randomRestarts: 2
+    restartRadius: 12
+    maxSteps: 24
+    wallSkip: 2
+    switchMargin: 0.15
+    useAnnealing: 0
+    annealSteps: 40
+    startTemperature: 0.6
+    cooling: 0.9
+  iceGunHalfAngle: 12
+  iceGunRange: 15
+  searchInterval: 0.25
 --- !u!114 &1156111085
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1183,6 +1214,30 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1156111087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1156111083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 979d114607add9d468a583b5b615bc86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.AI.Ghost::Hollowmere.AI.Ghost.GhostRouteProbe
+  house: {fileID: 11400000, guid: ec6066e83a13adc45a77ca2fce6033ee, type: 2}
+  view: {fileID: 1156111084}
+  follower: {fileID: 2119462563}
+  target: {fileID: 0}
+  costs:
+    kWatched: 3
+    kLight: 2
+    solidFactor: 0.7
+  nodeBudgetPerFrame: 150
+  maxNodes: 4000
+  replanInterval: 1
+  showRoute: 1
 --- !u!1 &1215180469
 GameObject:
   m_ObjectHideFlags: 0
@@ -2914,6 +2969,86 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2080456177}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &2119462561
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3768656742426657865, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_Name
+      value: Ghost (route test)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7961245566493180918, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3768656742426657865, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2119462563}
+  m_SourcePrefab: {fileID: 100100000, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+--- !u!1 &2119462562 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3768656742426657865, guid: a930731bac927d24e8fe03b41a6021c6, type: 3}
+  m_PrefabInstance: {fileID: 2119462561}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2119462563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2119462562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9004636b536297f41b855b9f7e8f62c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.AI.Ghost::Hollowmere.AI.Ghost.GhostRouteFollower
+  lookAhead: 2.5
+  arriveRadius: 0.35
+  rootAboveFloor: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -2924,3 +3059,4 @@ SceneRoots:
   - {fileID: 1865790893}
   - {fileID: 1773059084}
   - {fileID: 1156111086}
+  - {fileID: 2119462561}
