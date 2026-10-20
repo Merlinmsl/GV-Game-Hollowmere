@@ -320,5 +320,27 @@ namespace Hollowmere.Player
                 }
             }
         }
+
+        private void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+            Rigidbody body = hit.collider.attachedRigidbody;
+            if (body == null || body.isKinematic) return;
+
+            // Don't push objects below player feet
+            if (hit.moveDirection.y < -0.3f) return;
+
+            Vector3 pushDir = new Vector3(hit.moveDirection.x, 0f, hit.moveDirection.z);
+            if (pushDir.sqrMagnitude < 0.001f) return;
+
+            Hollowmere.Interactables.Barricade barricade = hit.collider.GetComponentInParent<Hollowmere.Interactables.Barricade>();
+            if (barricade != null)
+            {
+                barricade.Push(pushDir);
+            }
+            else
+            {
+                body.AddForce(pushDir.normalized * 25.0f, ForceMode.Force);
+            }
+        }
     }
 }
