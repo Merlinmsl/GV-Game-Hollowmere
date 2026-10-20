@@ -18,6 +18,8 @@ namespace Hollowmere.AI.Zombie.BehaviourTree
         private NavMeshAgent agent;
         private readonly float arrivalDistance;
 
+        private static readonly NavMeshQueryFilter HumanoidFilter = new NavMeshQueryFilter { agentTypeID = 0, areaMask = NavMesh.AllAreas };
+
         private Vector3 currentTargetPosition = Vector3.positiveInfinity;
 
         /// <summary>
@@ -79,7 +81,7 @@ namespace Hollowmere.AI.Zombie.BehaviourTree
                 currentTargetPosition = groanBelief.Position;
                 Vector3 destination = groanBelief.Position;
 
-                if (NavMesh.SamplePosition(groanBelief.Position, out NavMeshHit hit, 3.0f, NavMesh.AllAreas))
+                if (NavMesh.SamplePosition(groanBelief.Position, out NavMeshHit hit, 3.0f, HumanoidFilter))
                 {
                     destination = hit.position;
                 }

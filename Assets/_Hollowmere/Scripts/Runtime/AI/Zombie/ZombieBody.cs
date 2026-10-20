@@ -1,45 +1,49 @@
 using System;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using Hollowmere.AI.Senses;
 using Hollowmere.AI.Director;
+using Hollowmere.AI.Scheduling;
 
 namespace Hollowmere.AI.Zombie
 {
     /// <summary>
     /// Thin MonoBehaviour adapter connecting the pure C# ZombieBrain to Unity scene systems.
     /// - Owns the NavMeshAgent and feeds position/locomotion.
-    /// - Ticks the brain in a background coroutine at configurable Hz (WaitForSeconds(1f / config.brainTickRate)).
+    /// - Schedules thinking through the shared AiScheduler (IAiThinker) with zero per-tick GC allocations.
+    /// - Evaluates player sight through the shared SightSensor (illumination, darkness, crouching rules).
     /// - Manages sensory NoiseSystem registration in OnEnable / OnDisable.
-    /// - Emits state change and attack events for visual and animation listeners.
-    /// - Emits zombie groan acoustic alert on entering Chase state.
+    /// - Emits configurable zombie groan acoustic alert (config.groanLoudness) on entering Chase state.
     /// - Implements IDirectable for GameDirector AI waking and coordination.
-    /// - Triggers Animator parameters: Attack, Hit, and Dead.
+    /// - Triggers Animator parameters: Attack, Hit, and Dead; supports weapon damage via TakeDamage().
     /// </summary>
     [RequireComponent(typeof(NavMeshAgent))]
-    public class ZombieBody : MonoBehaviour, IDirectable
+    public class ZombieBody : MonoBehaviour, IDirectable, IAiThinker
     {
         [Header("Configuration")]
         [Tooltip("Zombie tuning ScriptableObject asset.")]
         [SerializeField] private ZombieConfig config;
 
+        [Header("Senses")]
+        [Tooltip("Vision sensor using shared lighting, darkness, and posture rules.")]
+        [SerializeField] private SightSensor sight = new SightSensor();
+
         [Header("Animation")]
         [Tooltip("Optional Animator reference. If null, auto-discovered in children.")]
         [SerializeField] private Animator animator;
 
+        [Header("Health & Damage")]
+        [Tooltip("Maximum hit points before death.")]
+        [SerializeField] private float maxHealth = 100f;
+        private float currentHealth;
+
         private NavMeshAgent agent;
         private ZombieBrain brain;
-        private Coroutine brainTickCoroutine;
         private bool _groanEmitted = false;
 
         // Stuck detection (Edge case: zombie stuck > 3s)
         private Vector3 _lastStuckCheckPosition;
         private float _stuckTimer = 0f;
-
-        // Sight detection meter
-        private float _sightMeter = 0f;
-        private float _sightTimer = 0f;
 
         /// <summary>Access to the decoupled pure C# brain instance.</summary>
         public ZombieBrain Brain => brain;
@@ -53,14 +57,20 @@ namespace Hollowmere.AI.Zombie
         /// <summary>NavMeshAgent component driving physical navigation.</summary>
         public NavMeshAgent Agent => agent;
 
-        /// <summary>Current accumulated sight detection meter (0.0 to 1.0).</summary>
-        public float SightMeter => _sightMeter;
+        /// <summary>Vision sensor reference.</summary>
+        public SightSensor Sight => sight;
+
+        /// <summary>Current accumulated sight detection meter (0.0 to 1.0) from SightSensor.</summary>
+        public float SightMeter => sight.Meter;
 
         /// <summary>Name of the actively running Behaviour Tree leaf node.</summary>
         public string CurrentStateName => brain?.ActiveNode != null ? brain.ActiveNode.Name : "None";
 
         /// <summary>Whether a groan has been emitted during the current Chase activation.</summary>
         public bool GroanEmitted => _groanEmitted;
+
+        /// <summary>Whether the zombie has been killed.</summary>
+        public bool IsDead => currentHealth <= 0f;
 
         /// <summary>Fired when the active BT node transitions (e.g. Dormant -> Chase).</summary>
         public event Action<string> OnStateChanged;
@@ -75,21 +85,111 @@ namespace Hollowmere.AI.Zombie
         /// <summary>Current world position of the zombie for the Director.</summary>
         public Vector3 Position => transform.position;
 
-        /// <summary>True if the zombie is currently active (not in the Dormant state).</summary>
-        public bool IsAwake => CurrentStateName != "Dormant";
+        /// <summary>
+        /// True if the zombie currently has a belief or groan to follow.
+        /// Does not read leaf node name to prevent false wakes before first thought.
+        /// </summary>
+        public bool IsAwake => (brain != null && brain.Memory != null) && (brain.Memory.HasBelief || brain.Memory.HasGroanBelief);
 
         /// <summary>
         /// Wake up and direct toward this point, remembered as a 'Told' belief.
+        /// Only replaces existing belief if told confidence is greater than or equal to current belief.
         /// </summary>
         public void WakeToward(Vector3 point)
         {
             float toldConf = (config != null && config.confidenceTold > 0f) ? config.confidenceTold : 0.4f;
-            brain?.Memory?.UpdateBelief(point, toldConf, BeliefSource.Told);
+            if (brain != null && brain.Memory != null)
+            {
+                if (!brain.Memory.HasBelief || toldConf >= brain.Memory.CurrentBelief.Confidence)
+                {
+                    brain.Memory.UpdateBelief(point, toldConf, BeliefSource.Told);
+                }
+            }
         }
 
         // ─────────────────────────────────────────────────────────────────────────
-        // ANIMATION TRIGGERS
+        // IAiThinker IMPLEMENTATION (SHARED AiScheduler)
         // ─────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Seconds between thoughts, derived from config.brainTickRate (e.g. 8 Hz = 0.125 s).
+        /// </summary>
+        public float ThinkInterval => (config != null && config.brainTickRate > 0f) ? 1.0f / config.brainTickRate : 0.125f;
+
+        /// <summary>
+        /// Evaluates sight sensor, stuck timer, and behaviour tree decisions through AiScheduler.
+        /// Staggered across frames and measured for performance profiling with zero GC allocations.
+        /// </summary>
+        public void Think(float deltaTime)
+        {
+            if (IsDead) return;
+
+            // 1. Evaluate player sight through shared SightSensor
+            IPlayerState player = PlayerRegistry.Current ?? PlayerRegistry.Instance;
+            if (sight.Tick(transform, player, deltaTime))
+            {
+                float seenConf = (config != null && config.confidenceSeen > 0f) ? config.confidenceSeen : 1.0f;
+                brain?.Memory?.UpdateBelief(player.Position, seenConf, BeliefSource.Seen);
+            }
+
+            // 2. Navigation & Brain evaluation
+            if (brain != null && agent != null && agent.isOnNavMesh)
+            {
+                // Edge case: zombie stuck > 3 s — clear belief and return to Dormant
+                if (brain.Memory != null && (brain.Memory.HasBelief || brain.Memory.HasGroanBelief))
+                {
+                    float distanceMoved = Vector3.Distance(transform.position, _lastStuckCheckPosition);
+                    if (distanceMoved < 0.1f)
+                    {
+                        _stuckTimer += deltaTime;
+                        float timeout = (config != null && config.stuckTimeout > 0f) ? config.stuckTimeout : 3.0f;
+                        if (_stuckTimer >= timeout)
+                        {
+                            brain.Memory.ClearBelief();
+                            brain.Memory.ClearGroanBelief();
+                            if (agent.hasPath) agent.ResetPath();
+                            _stuckTimer = 0f;
+                            _lastStuckCheckPosition = transform.position;
+                        }
+                    }
+                    else
+                    {
+                        _stuckTimer = 0f;
+                        _lastStuckCheckPosition = transform.position;
+                    }
+                }
+                else
+                {
+                    _stuckTimer = 0f;
+                    _lastStuckCheckPosition = transform.position;
+                }
+
+                brain.Tick();
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // DAMAGE & ANIMATION TRIGGERS
+        // ─────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Applies damage from weapons. Triggers Hit reaction or Dead state upon lethal damage.
+        /// </summary>
+        public void TakeDamage(float amount)
+        {
+            if (IsDead) return;
+
+            currentHealth -= amount;
+            if (currentHealth <= 0f)
+            {
+                currentHealth = 0f;
+                SetDead(true);
+            }
+            else
+            {
+                TriggerHit();
+            }
+        }
 
         private void HandleAttack()
         {
@@ -109,7 +209,7 @@ namespace Hollowmere.AI.Zombie
             }
         }
 
-        /// <summary>Sets the Dead state parameter on the Animator and stops agent navigation & AI loop.</summary>
+        /// <summary>Sets the Dead state parameter on the Animator and halts agent navigation & AI loop.</summary>
         public void SetDead(bool dead = true)
         {
             if (animator != null)
@@ -119,15 +219,18 @@ namespace Hollowmere.AI.Zombie
 
             if (dead)
             {
+                currentHealth = 0f;
+                DirectableRegistry.Unregister(this);
+                AiScheduler.Unregister(this);
+
                 if (agent != null && agent.isOnNavMesh && agent.hasPath)
                 {
                     agent.ResetPath();
                 }
 
-                if (brainTickCoroutine != null)
+                if (agent != null)
                 {
-                    StopCoroutine(brainTickCoroutine);
-                    brainTickCoroutine = null;
+                    agent.enabled = false;
                 }
             }
         }
@@ -135,6 +238,7 @@ namespace Hollowmere.AI.Zombie
         private void Awake()
         {
             agent = GetComponent<NavMeshAgent>();
+            currentHealth = maxHealth;
 
             if (animator == null)
             {
@@ -150,17 +254,19 @@ namespace Hollowmere.AI.Zombie
 
         private void OnEnable()
         {
+            if (IsDead) return;
+
             // Register with the GameDirector registry
             DirectableRegistry.Register(this);
+
+            // Register with the shared AiScheduler for zero-allocation staggered thinking
+            AiScheduler.Register(this);
 
             // Register mental memory as an acoustic listener with the global NoiseSystem
             brain?.Memory?.OnEnable();
 
             _lastStuckCheckPosition = transform.position;
             _stuckTimer = 0f;
-
-            // Start periodic AI decision loop
-            brainTickCoroutine = StartCoroutine(BrainTickRoutine());
         }
 
         private void OnDisable()
@@ -168,16 +274,13 @@ namespace Hollowmere.AI.Zombie
             // Unregister from GameDirector registry
             DirectableRegistry.Unregister(this);
 
+            // Unregister from AiScheduler
+            AiScheduler.Unregister(this);
+
             // Unregister acoustic listener to prevent dangling callbacks
             brain?.Memory?.OnDisable();
 
             _groanEmitted = false;
-
-            if (brainTickCoroutine != null)
-            {
-                StopCoroutine(brainTickCoroutine);
-                brainTickCoroutine = null;
-            }
 
             if (agent != null && agent.isOnNavMesh && agent.hasPath)
             {
@@ -185,104 +288,20 @@ namespace Hollowmere.AI.Zombie
             }
         }
 
-        private void Update()
-        {
-            // 4 Hz cone + raycast check: every 0.25 s
-            float sightRate = (config != null && config.sightTickRate > 0f) ? config.sightTickRate : 4.0f;
-            float sightInterval = 1.0f / sightRate;
-            _sightTimer += Time.deltaTime;
-
-            if (_sightTimer >= sightInterval)
-            {
-                _sightTimer -= sightInterval;
-                EvaluateSightCheck(sightInterval);
-            }
-        }
-
-        /// <summary>
-        /// Evaluates 4 Hz vision cone and raycast visibility check against the player.
-        /// Accumulates sight detection meter; on meter >= 1.0, updates belief to Seen (1.0).
-        /// </summary>
-        private void EvaluateSightCheck(float dt)
-        {
-            IPlayerState player = PlayerRegistry.Instance;
-            if (player == null)
-            {
-                _sightMeter = Mathf.Max(0f, _sightMeter - dt * 0.5f);
-                return;
-            }
-
-            Vector3 eyePos = transform.position + Vector3.up * 1.6f;
-            Vector3 playerTarget = player.Position + Vector3.up * (player.IsCrouching ? 0.7f : 1.2f);
-            Vector3 toPlayer = playerTarget - eyePos;
-            float distance = toPlayer.magnitude;
-
-            float range = (config != null && config.viewRange > 0f) ? config.viewRange : 14.0f;
-            if (distance > range)
-            {
-                _sightMeter = Mathf.Max(0f, _sightMeter - dt * 0.5f);
-                return;
-            }
-
-            float viewAngle = (config != null && config.viewAngle > 0f) ? config.viewAngle : 70.0f;
-            float angle = Vector3.Angle(transform.forward, toPlayer.normalized);
-            if (angle > viewAngle)
-            {
-                _sightMeter = Mathf.Max(0f, _sightMeter - dt * 0.5f);
-                return;
-            }
-
-            // Raycast check to test line of sight occlusion
-            bool lineOfSight = false;
-            if (Physics.Raycast(eyePos, toPlayer.normalized, out RaycastHit hit, distance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
-            {
-                if (hit.distance >= distance - 0.5f || hit.collider.CompareTag("Player") || hit.collider.GetComponentInParent<IPlayerState>() != null)
-                {
-                    lineOfSight = true;
-                }
-            }
-            else
-            {
-                lineOfSight = true;
-            }
-
-            if (lineOfSight)
-            {
-                float baseRate = (config != null && config.detectionBaseRate > 0f) ? config.detectionBaseRate : 0.35f;
-                float lightFactor = player.FlashlightOn ? 1.0f : 0.6f;
-                float postureFactor = player.IsCrouching ? 0.6f : 1.0f;
-                float distFactor = Mathf.Clamp01(1f - (distance / range));
-                float accumulation = baseRate * lightFactor * postureFactor * (0.5f + 0.5f * distFactor) * dt * 4f;
-
-                _sightMeter = Mathf.Clamp01(_sightMeter + accumulation);
-
-                if (_sightMeter >= 1.0f)
-                {
-                    float seenConf = (config != null && config.confidenceSeen > 0f) ? config.confidenceSeen : 1.0f;
-                    brain?.Memory?.UpdateBelief(player.Position, seenConf, BeliefSource.Seen);
-                }
-            }
-            else
-            {
-                _sightMeter = Mathf.Max(0f, _sightMeter - dt * 0.5f);
-            }
-        }
-
         private const NoiseKind ZombieGroan = NoiseKind.Groan;
 
         /// <summary>
         /// Handles state transitions reported by ZombieBrain.
-        /// Emits a zombie groan noise on entering Chase state from non-Chase to alert nearby zombies,
-        /// guarded by _groanEmitted to ensure only one groan is emitted per state transition.
+        /// Emits a zombie groan noise using config.groanLoudness on entering Chase state from non-Chase.
         /// </summary>
-        /// <param name="newState">The newly activated behaviour tree state name.</param>
         private void HandleStateChanged(string newState)
         {
             if (newState == "Chase")
             {
                 if (!_groanEmitted)
                 {
-                    NoiseSystem.Emit(transform.position, 20f, ZombieGroan, gameObject);
+                    float loudness = (config != null && config.groanLoudness > 0f) ? config.groanLoudness : 20f;
+                    NoiseSystem.Emit(transform.position, loudness, ZombieGroan, gameObject);
                     _groanEmitted = true;
                 }
             }
@@ -292,61 +311,6 @@ namespace Hollowmere.AI.Zombie
             }
 
             OnStateChanged?.Invoke(newState);
-        }
-
-        /// <summary>
-        /// Periodic AI evaluation routine running at config.brainTickRate (default 8 Hz).
-        /// Decouples AI reasoning from frame rate to strictly respect the 2 ms performance budget.
-        /// </summary>
-        private IEnumerator BrainTickRoutine()
-        {
-            while (true)
-            {
-                float tickRate = (config != null && config.brainTickRate > 0f) ? config.brainTickRate : 8.0f;
-                float tickInterval = 1.0f / tickRate;
-                yield return new WaitForSeconds(tickInterval);
-
-                if (brain != null && agent != null)
-                {
-                    // Guard against ticks before agent is successfully placed on NavMesh
-                    if (agent.isOnNavMesh)
-                    {
-                        // Edge case: zombie stuck > 3 s — clear belief and return to Dormant
-                        if (brain.Memory != null && (brain.Memory.HasBelief || brain.Memory.HasGroanBelief))
-                        {
-                            float distanceMoved = Vector3.Distance(transform.position, _lastStuckCheckPosition);
-                            if (distanceMoved < 0.1f)
-                            {
-                                _stuckTimer += tickInterval;
-                                float timeout = (config != null && config.stuckTimeout > 0f) ? config.stuckTimeout : 3.0f;
-                                if (_stuckTimer >= timeout)
-                                {
-                                    brain.Memory.ClearBelief();
-                                    brain.Memory.ClearGroanBelief();
-                                    if (agent.hasPath)
-                                    {
-                                        agent.ResetPath();
-                                    }
-                                    _stuckTimer = 0f;
-                                    _lastStuckCheckPosition = transform.position;
-                                }
-                            }
-                            else
-                            {
-                                _stuckTimer = 0f;
-                                _lastStuckCheckPosition = transform.position;
-                            }
-                        }
-                        else
-                        {
-                            _stuckTimer = 0f;
-                            _lastStuckCheckPosition = transform.position;
-                        }
-
-                        brain.Tick();
-                    }
-                }
-            }
         }
     }
 }

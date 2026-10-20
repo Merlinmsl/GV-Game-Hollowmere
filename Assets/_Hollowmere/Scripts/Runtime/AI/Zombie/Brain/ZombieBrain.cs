@@ -63,7 +63,7 @@ namespace Hollowmere.AI.Zombie
             attackNode.OnAttack += () => OnAttack?.Invoke();
 
             chaseNode = new ChaseNode(memory, agent, config);
-            investigateNode = new InvestigateNode(memory, agent);
+            investigateNode = new InvestigateNode(memory, agent, config);
             respondToGroanNode = new RespondToGroanNode(memory, agent);
             dormantNode = new DormantNode(memory, bodyTransform);
 
