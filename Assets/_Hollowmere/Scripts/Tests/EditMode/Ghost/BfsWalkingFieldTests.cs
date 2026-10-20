@@ -30,6 +30,53 @@ namespace Hollowmere.Tests.Ghost
         }
 
         [Test]
+        public void ADiagonalMove_CountsItsRealLength()
+        {
+            var grid = TestGrids.FromRows(
+                ".......",
+                ".......",
+                ".......",
+                ".......",
+                ".......",
+                ".......",
+                ".......");
+            var bfs = new BfsField(grid);
+            int centre = TestGrids.Cell(grid, 3, 3);
+
+            bfs.BuildWalkingField(centre);
+
+            Assert.AreEqual(1.4f, bfs.WalkingDistance(TestGrids.Cell(grid, 4, 4)), 1e-5f, "one diagonal");
+            Assert.AreEqual(4.2f, bfs.WalkingDistance(TestGrids.Cell(grid, 0, 0)), 1e-5f, "three diagonals, not 3 m");
+            Assert.AreEqual(3.4f, bfs.WalkingDistance(TestGrids.Cell(grid, 6, 4)), 1e-5f, "two straight and one diagonal");
+
+            // Never more than 1% short of the straight line (1.4 for sqrt 2), and at most the 8-direction
+            // detour (about 8% longer). Plain BFS was up to 29% short.
+            for (int i = 0; i < grid.Count; i++)
+            {
+                float straightLine = Vector3.Distance(grid.CellCentre(i), grid.CellCentre(centre));
+                float walked = bfs.WalkingDistance(i);
+                Assert.GreaterOrEqual(walked, straightLine * 0.985f, "cell " + i);
+                Assert.LessOrEqual(walked, straightLine * 1.09f + 1e-4f, "cell " + i);
+            }
+        }
+
+        [Test]
+        public void MaxSteps_IsADistance_SoDiagonalsRunOutSooner()
+        {
+            var grid = TestGrids.FromRows(
+                "...",
+                "...",
+                "...");
+            var bfs = new BfsField(grid);
+
+            bfs.BuildWalkingField(TestGrids.Cell(grid, 0, 2), maxSteps: 2);
+
+            Assert.AreEqual(2f, bfs.WalkingDistance(TestGrids.Cell(grid, 2, 2)), 1e-5f, "2 m straight: in");
+            Assert.AreEqual(1.4f, bfs.WalkingDistance(TestGrids.Cell(grid, 1, 1)), 1e-5f, "one diagonal: in");
+            Assert.AreEqual(BfsField.Unreached, bfs.Steps(TestGrids.Cell(grid, 2, 0)), "two diagonals are 2.8 m: out");
+        }
+
+        [Test]
         public void Wall_ForcesDetourThroughDoorway_WithoutCuttingCorners()
         {
             var grid = TestGrids.FromRows(

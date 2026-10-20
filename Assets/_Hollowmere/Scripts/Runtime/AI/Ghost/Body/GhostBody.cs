@@ -35,6 +35,11 @@ namespace Hollowmere.AI.Ghost
         // The frame in which some ghost last ran a full position search: at most one per frame.
         static int searchFrame = -1;
 
+        /// <summary>Seconds after one ghost strikes before any ghost in the house may strike again.</summary>
+        public static float StrikeGapSeconds = 1.5f;
+        // Until when the house-wide strike token is taken: one striker at a time.
+        static float strikeTakenUntil = float.NegativeInfinity;
+
         [Tooltip("The house this ghost haunts. Empty: the GhostHouseVolume it starts inside.")]
         [SerializeField] GhostHouseMap house;
         [SerializeField] SightSensor sight = new SightSensor();
@@ -112,6 +117,7 @@ namespace Hollowmere.AI.Ghost
             active.Clear();
             budgetFrame = -1;
             searchFrame = -1;
+            strikeTakenUntil = float.NegativeInfinity;
             sightSensorWarmed = false;
         }
 
@@ -164,7 +170,11 @@ namespace Hollowmere.AI.Ghost
             brain.WarmUp(transform.position);
             WarmSightSensor();
             brain.ModeChanged += OnModeChanged;
-            brain.Struck += at => Struck?.Invoke(at);
+            brain.Struck += at =>
+            {
+                strikeTakenUntil = Time.time + StrikeGapSeconds;     // before the next ghost thinks
+                Struck?.Invoke(at);
+            };
             brain.Freed += () => Freed?.Invoke();
             return true;
         }
@@ -244,6 +254,7 @@ namespace Hollowmere.AI.Ghost
 
             // One full position search per frame across all ghosts; the token is only used up if taken.
             brain.MayRunFullSearch = searchFrame != Time.frameCount;
+            brain.MayStrike = now >= strikeTakenUntil;
             brain.Think(transform.position, now);
             if (brain.LastThinkHeavy) searchFrame = Time.frameCount;
             movement.SetSpeedScale(brain.SpeedScale);

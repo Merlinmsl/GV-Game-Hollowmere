@@ -117,6 +117,11 @@ namespace Hollowmere.AI.Ghost
         /// </summary>
         public bool MayRunFullSearch = true;
         /// <summary>
+        /// Set by the body: false while another ghost in the house has just struck. One striker at a time,
+        /// so two ghosts never hit the player in the same moment; the others keep stalking until it is free.
+        /// </summary>
+        public bool MayStrike = true;
+        /// <summary>
         /// Set by the body: the player is inside the ghost's view cone with nothing between, even if not yet
         /// recognised. While true the ghost never concludes the player is not there.
         /// </summary>
@@ -425,7 +430,7 @@ namespace Hollowmere.AI.Ghost
             i.Freshness = sighting ? 1f - Mathf.Clamp01(LastSighting.Age(now) / Mathf.Max(Tuning.lookMemory, 1e-3f)) : 0f;
             i.Distance = Vector3.Distance(ghostPosition, belief.Position);
             i.IceGunHeld = KnowsIceGun(now);
-            i.StrikeReady = now - lastStrike >= Modes.strikeCooldown;
+            i.StrikeReady = MayStrike && now - lastStrike >= Modes.strikeCooldown;
             i.HuntSeconds = IsHunting(Mode) ? now - huntingSince : 0f;
             i.PlayerOutside = PlayerOutside;
             i.Exposure = OpenExposure(GhostCell(ghostPosition), now);
@@ -474,7 +479,7 @@ namespace Hollowmere.AI.Ghost
         // Strike lands only when the ghost's eyes put the player within reach right now.
         bool TryStrike(Vector3 ghostPosition, float now)
         {
-            if (!LastSighting.Valid || LastSighting.Age(now) > 0.5f) return false;
+            if (!MayStrike || !LastSighting.Valid || LastSighting.Age(now) > 0.5f) return false;
             Vector3 offset = LastSighting.Position - ghostPosition;
             if (Mathf.Abs(offset.y) > 1.5f) return false;
             offset.y = 0f;
