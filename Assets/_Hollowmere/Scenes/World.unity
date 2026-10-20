@@ -144,7 +144,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 206612678}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e265a8a7a2c40ad4eaa48c3d03e955e2, type: 3}
   m_Name: 
@@ -924,6 +924,7 @@ MonoBehaviour:
   runSpeed: 5
   walkStepInterval: 0.5
   runStepInterval: 0.33
+  crouchNoiseFactor: 0.4
 --- !u!114 &1837528447
 MonoBehaviour:
   m_ObjectHideFlags: 0
