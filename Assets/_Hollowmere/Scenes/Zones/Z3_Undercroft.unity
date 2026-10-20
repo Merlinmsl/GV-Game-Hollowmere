@@ -5952,15 +5952,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -78.6
+      value: -80.1
       objectReference: {fileID: 0}
     - target: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 8.6099415
+      value: 8.6
       objectReference: {fileID: 0}
     - target: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 243.33334
+      value: 244
       objectReference: {fileID: 0}
     - target: {fileID: 2043098863581601490, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -5993,6 +5993,14 @@ PrefabInstance:
     - target: {fileID: 4822683579953384894, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
       propertyPath: m_Name
       value: Creature
+      objectReference: {fileID: 0}
+    - target: {fileID: 6549317618256476595, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_Speed
+      value: 4.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6549317618256476595, guid: 58d96e05f9344bc47948801e73d8e74b, type: 3}
+      propertyPath: m_Acceleration
+      value: 24
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
