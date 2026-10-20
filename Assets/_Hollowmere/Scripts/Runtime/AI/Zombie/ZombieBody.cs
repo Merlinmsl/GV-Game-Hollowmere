@@ -32,6 +32,7 @@ namespace Hollowmere.AI.Zombie
 
         // Sight detection meter
         private float _sightMeter = 0f;
+        private float _sightTimer = 0f;
 
         /// <summary>Access to the decoupled pure C# brain instance.</summary>
         public ZombieBrain Brain => brain;
@@ -99,6 +100,89 @@ namespace Hollowmere.AI.Zombie
             if (agent != null && agent.isOnNavMesh && agent.hasPath)
             {
                 agent.ResetPath();
+            }
+        }
+
+        private void Update()
+        {
+            // 4 Hz cone + raycast check: every 0.25 s
+            float sightRate = (config != null && config.sightTickRate > 0f) ? config.sightTickRate : 4.0f;
+            float sightInterval = 1.0f / sightRate;
+            _sightTimer += Time.deltaTime;
+
+            if (_sightTimer >= sightInterval)
+            {
+                _sightTimer -= sightInterval;
+                EvaluateSightCheck(sightInterval);
+            }
+        }
+
+        /// <summary>
+        /// Evaluates 4 Hz vision cone and raycast visibility check against the player.
+        /// Accumulates sight detection meter; on meter >= 1.0, updates belief to Seen (1.0).
+        /// </summary>
+        private void EvaluateSightCheck(float dt)
+        {
+            IPlayerState player = PlayerRegistry.Instance;
+            if (player == null)
+            {
+                _sightMeter = Mathf.Max(0f, _sightMeter - dt * 0.5f);
+                return;
+            }
+
+            Vector3 eyePos = transform.position + Vector3.up * 1.6f;
+            Vector3 playerTarget = player.Position + Vector3.up * (player.IsCrouching ? 0.7f : 1.2f);
+            Vector3 toPlayer = playerTarget - eyePos;
+            float distance = toPlayer.magnitude;
+
+            float range = (config != null && config.viewRange > 0f) ? config.viewRange : 14.0f;
+            if (distance > range)
+            {
+                _sightMeter = Mathf.Max(0f, _sightMeter - dt * 0.5f);
+                return;
+            }
+
+            float viewAngle = (config != null && config.viewAngle > 0f) ? config.viewAngle : 70.0f;
+            float angle = Vector3.Angle(transform.forward, toPlayer.normalized);
+            if (angle > viewAngle)
+            {
+                _sightMeter = Mathf.Max(0f, _sightMeter - dt * 0.5f);
+                return;
+            }
+
+            // Raycast check to test line of sight occlusion
+            bool lineOfSight = false;
+            if (Physics.Raycast(eyePos, toPlayer.normalized, out RaycastHit hit, distance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+            {
+                if (hit.distance >= distance - 0.5f || hit.collider.CompareTag("Player") || hit.collider.GetComponentInParent<IPlayerState>() != null)
+                {
+                    lineOfSight = true;
+                }
+            }
+            else
+            {
+                lineOfSight = true;
+            }
+
+            if (lineOfSight)
+            {
+                float baseRate = (config != null && config.detectionBaseRate > 0f) ? config.detectionBaseRate : 0.35f;
+                float lightFactor = player.FlashlightOn ? 1.0f : 0.6f;
+                float postureFactor = player.IsCrouching ? 0.6f : 1.0f;
+                float distFactor = Mathf.Clamp01(1f - (distance / range));
+                float accumulation = baseRate * lightFactor * postureFactor * (0.5f + 0.5f * distFactor) * dt * 4f;
+
+                _sightMeter = Mathf.Clamp01(_sightMeter + accumulation);
+
+                if (_sightMeter >= 1.0f)
+                {
+                    float seenConf = (config != null && config.confidenceSeen > 0f) ? config.confidenceSeen : 1.0f;
+                    brain?.Memory?.UpdateBelief(player.Position, seenConf, BeliefSource.Seen);
+                }
+            }
+            else
+            {
+                _sightMeter = Mathf.Max(0f, _sightMeter - dt * 0.5f);
             }
         }
 
