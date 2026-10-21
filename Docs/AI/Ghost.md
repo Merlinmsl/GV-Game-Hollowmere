@@ -105,25 +105,39 @@ The highest utility wins and the current mode gets `switchMargin` (0.1) on top (
 | Mode | When | What it does (`Brain/GhostBrain.cs`) |
 |---|---|---|
 | Idle | No belief | Home to its haunt anchor, then short, slow, random wanders (`Wander :766`) |
-| Stalk | Seen | The best hidden cell 4 to 8 m away on foot (sections 5 and 6) |
+| Stalk | Seen | The best hidden cell 3.5 to 7 m away on foot (Mara 3 to 6; sections 5 and 6) |
 | Ambush | Heard, not seen | The same search with ambush weights: close (1.5 to 3.5 m), dark, unwatched, beside a wall |
 | Strike | Close, behind, cooldown over, no other ghost has just struck | Closes on the belief. **Lands only if its eyes saw the player within 1.6 m in the last 0.5 s** (`TryStrike :480`). Then a cooldown, and it fades into a wall. One striker at a time: after any strike, no ghost in the house may strike for 1.5 s (`Body/GhostBody.cs:257`). |
 | Flee | Aimed at, or nervous in the light with the ice gun known | BFS to the nearest wall cell out of the aim. The route is taken at once (`Flee :498`). |
 | Frozen | Hit by the ice gun | Stops dead (`GhostMovement.Stop`). When it thaws, it flees (`Freeze :302`). |
 
 **Weapon tactics** (`Tactics :462`): with the ice gun known (seen or heard, remembered for 20 s)
-the ghost keeps 6 to 10 m off, cover x1.5, unseen x1.3, strike x0.4. With a pistol or nothing it is
-bold (strike x1.2).
+the ghost keeps 4 to 7 m off, cover x1.5, unseen x1.3, strike x0.75. With a pistol or nothing it is
+bold (strike x1.4).
 
 **Mara vs servants** (`Brain/ModeTuning.cs:82`, `:123`):
 
 | | Servant | Mara |
 |---|---|---|
 | Aggression | 0.4 | 0.9 |
-| Strike weight / cooldown | 1.0 / 6 s | 1.3 / 4 s |
-| Patience | 15 s | 6 s |
-| Careful range / strike scale | 6-10 m / 0.4 | 4-8 m / 0.6 |
-| Stalk range (profile) | 4-8 m | 3-6 m |
+| Strike weight / reach / cooldown | 1.4 / 10 m / 4 s | 2.0 / 12 m / 3 s |
+| Patience | 8 s | 4 s |
+| Careful range / strike scale | 4-7 m / 0.75 | 3-6 m / 0.9 |
+| Bold strike scale | 1.4 | 1.4 |
+| Stalk range (profile) | 3.5-7 m | 3-6 m |
+
+**Made more aggressive (2026-10-21).** The player carries the ice gun from the start, so the
+careful factor nearly always applies. At x0.4 it capped a servant's Strike at 0.4, below Stalk's
+0.5 + 0.1 margin, so a servant **never** struck while the ice gun was known; and the reach curve
+reached 0 at 8 m, so even unarmed players were struck only from point-blank. The formula is
+unchanged; only the numbers above moved. Worked example, servant 6 m behind a player whose back
+is turned, ice gun known, at the start of the hunt: Near(6) = 1 - (4.4/8.4)^2 = 0.73, so
+Strike = 1.4 x 0.73 x 1.0 x 0.75 x 0.5 = **0.38** (stalks); after 8 s of patience it is **0.76**
+(strikes). Facing the ghost (B = 0) it stays at 0.10 to 0.19, so looking around still protects
+the player. Aggression is unchanged on purpose: it does not enter Strike, and lowering nervous
+fleeing would stop a servant hiding from an ice gun it heard. Measured in Zone 2 (World scene,
+player standing in the hall, unarmed, one gunshot to wake the house): strikes 13 s, 16 s and 20 s
+after the shot, from two servants, 3 to 4 s apart (the strike gap held).
 | Leash | 6 m | 40 m (the whole house) |
 | Wander radius / speed | 4 m / 0.35x | 8 m / 0.5x |
 
@@ -241,7 +255,9 @@ the editor's Mono, so running the real code paths at load replaced it.
 |---|---|---|
 | Cell size | 1 m | About a body width. Marrow House is 46x42x2 = 3864 cells, small enough to search fully. |
 | Watched fade | 8 s | About how long a glance stays "fresh". It matches the belief tau (8 s). |
-| Stalk range | 4-8 m (Mara 3-6) | Out of easy reach, close enough to strike within a second at 1.4x speed. |
+| Stalk range | 3.5-7 m (Mara 3-6) | Out of easy reach, close enough to strike within a second at 1.4x speed. |
+| Strike reach | 10 m (Mara 12) | Beyond the stalking range, so Strike is always a live option while stalking; the quadratic curve still favours being close (0.73 at 6 m, 0.22 at 9 m). |
+| Careful strike scale | 0.75 (Mara 0.9) | Must let Strike beat Stalk + margin (0.6) when the back is turned and patience is gone, or the ice gun (carried from the start) would forbid strikes altogether. |
 | Behind / dark / unseen | 1.0 / 1.0 / 1.2 | Unseen counts slightly more, because being looked at is what gives a ghost away. |
 | Threat | 3.0 | The biggest single term: a cell in the aim loses 3 points, as much as being in front, lit and watched all at once (1.0 + 1.0 + 1.2 = 3.2 lost). An aimed-at cell only wins if every alternative is far worse, and then Flee takes over anyway. |
 | Range | 1.5 | The strongest positive term, so the ghost keeps the stalking distance. |
@@ -254,24 +270,25 @@ the editor's Mono, so running the real code paths at load replaced it.
 | A* costs | watched x3, light x2, walls x0.7 | Being seen is worse than being lit. Walls are a ghost's corridor. |
 | Route budget | 240 cells per frame (120 per ghost) | A long Marrow House route is 180-440 cells, so it finishes in 1-4 frames. |
 | Walking-field move costs | straight 5, diagonal 7 | 7/5 = 1.4, within 1% of the true 1.41, with small whole numbers, so only 8 buckets are needed. |
-| Strike gap | 1.5 s house-wide | One hit at a time reads as a haunting, not a pile-on; it is shorter than any cooldown (4-6 s), so it never blocks a ghost for long. |
+| Strike gap | 1.5 s house-wide | One hit at a time reads as a haunting, not a pile-on; it is shorter than any cooldown (3-4 s), so it never blocks a ghost for long. |
 
 ## 11. Limitations and proposals
 
-- **A servant 6.4 m behind a player with their back turned does not strike** (Strike 0.52
-  against Stalk 0.50 + 0.10). A patient servant needs the player within about 6 m. Mara would
-  strike. Left as tuning; a possible fix is to creep closer once patience runs out.
 - **Fixed after the team review:** two ghosts could strike in the same tick (now a house-wide
   strike token, section 7), and the walking field counted a diagonal as 1 m, up to 29% short (now
   Dial's bucket queue with diagonal 1.4, section 6).
-- **For the team (shared code, not edited):** a player damage API (for example
-  `IDamageable.Drain`) for `Struck`; an ice-gun raycast calling `IIceable` (move `IIceable` into
-  shared combat code). PF_Ghost has a trigger capsule and a kinematic Rigidbody, so the ice-gun ray
-  must use `QueryTriggerInteraction.Collide`; pistol rays should ignore triggers (bullets pass
-  through ghosts).
+- **Fixed by retuning (2026-10-21):** ghosts hardly ever struck. With the ice gun known a servant
+  never could (careful x0.4), and a servant 6.4 m behind a turned back did not either. Now both
+  strike once patience runs out (section 4).
+- **Combat is now real (team code):** the strike deals 35 damage through the shared `IDamageable`
+  on the player (`Body/GhostBody.cs:189`), and `WeaponSystem`'s ice gun ray and cone hit the
+  PF_Ghost trigger capsule (`QueryTriggerInteraction.Collide`) and call `IIceable`; pistol rays
+  ignore triggers, so bullets pass through ghosts. `Debugging/GhostCombatStub.cs` is kept for the
+  sandbox only.
 - A ghost inside a wall still hears: for a listener off the NavMesh, `NoiseSystem.PathDistance`
   falls back to the straight-line distance x 1.5 (`AI/Senses/NoiseSystem.cs:85`).
-- Combat is stubbed in `Debugging/GhostCombatStub.cs` until the weapons exist.
+- The debug label over each ghost (mode, sight, belief, utilities) is off by default. Tick
+  **Show Label** on `GhostBody` to see it (for example in the sandbox or for the viva).
 
 ## 12. Testing it in the game
 
@@ -320,7 +337,8 @@ Jump targets are relative to `Assets/_Hollowmere/Scripts/Runtime/AI/Ghost/`.
 | Is the A* heuristic admissible? | Straight-line distance x the cheapest possible cost per metre (0.7 in walls), never above the true cost. Tested against Dijkstra. | `Search/AStarSearch.cs:214`, `AStarTests.Cost_MatchesDijkstra_*` |
 | How does A* not drop frames? | `Step(budget)` time slicing; 240 cells per frame shared; a node cap gives a partial route. | `Search/AStarSearch.cs:110`, `Body/GhostBody.cs:284` |
 | What does smoothing guarantee? | It never crosses a cell more exposed than the stretch it replaces, and never leaves the house. | `Search/PathSmoother.cs:31` |
-| Weapon tactics? | Ice gun known (seen or heard): 6-10 m, more cover and unseen, strike x0.4. Otherwise bold. | `Brain/GhostBrain.cs:462` |
+| Weapon tactics? | Ice gun known (seen or heard): 4-7 m, more cover and unseen, strike x0.75. Otherwise bold (strike x1.4). | `Brain/GhostBrain.cs:462` |
+| Why did you retune strikes? | The player carries the ice gun from the start, so careful x0.4 capped Strike at 0.4, below Stalk + margin (0.6): servants never struck. Now x0.75 with reach 10 m and 8 s patience: a turned back for a few seconds gets hit, a player who keeps looking around does not. | section 4, `Brain/ModeTuning.cs:82` |
 | Mara vs servants? | Same brain; the profile ScriptableObject changes aggression, patience, cooldown, range and leash. | `Brain/ModeTuning.cs:82`, `:123` |
 | Several ghosts? | Claims: other ghosts' target cells are excluded, and the crowd term pushes them apart, so they flank. | `Body/GhostBody.cs:269`, `PositionScorer.cs:106` |
 | What if no dark cell exists? | It lurks in the nearest wall cell (BFS), hysteresis 0.7/0.6. | `Brain/GhostBrain.cs:747` |
@@ -331,7 +349,7 @@ Jump targets are relative to `Assets/_Hollowmere/Scripts/Runtime/AI/Ghost/`.
 | Frame budget? | 0.005 ms average, p99 0.28 ms, 0.14% over 0.6 ms with 5 ghosts in Marrow House. F4 shows it live. | `Debugging/GhostProfilerHud.cs` |
 | What did profiling change? | Change-driven re-search (-75% searches), one heavy step per frame, shared route budget, warm-up at load. | `Brain/GhostBrain.cs:611`, `:566`, `:171` |
 | What did not work? | `PrepareMethod`: 382 methods in 2.4 ms, first thought still 7.8 ms, so it was replaced by running the real paths at load. | section 8 |
-| What would you improve? | Servant creeping in when its patience runs out; real damage and ice-gun APIs from the team. | section 11 |
+| What would you improve? | Strike feedback for the player (a lunge, a sound, a flash) so a hit reads clearly; the Director's "send a ghost closer". | section 11 |
 | How is it tested? | 99 EditMode tests on the plain-C# brain and searches, plus Play-mode runs in the sandbox and in Marrow House with a stand-in player. | `Scripts/Tests/EditMode/Ghost/` |
 
 **Test files:** `AStarTests` (11), `BfsFleeTests` (6), `BfsWalkingFieldTests` (9), `GhostBrainTests` (15),

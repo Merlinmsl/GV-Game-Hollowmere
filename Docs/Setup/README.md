@@ -93,23 +93,37 @@ Changes you make while Play is running are thrown away when you stop. Stop first
 
 ## 5. Controls
 
-The project currently uses a **temporary debug player** so the world can be walked before the
-real player is ready. It can walk and look. It cannot jump, crouch, shoot or interact.
+The game uses the real player, `PF_Player`. (The old `DebugPlayer (temporary)` walker is still
+in the World scene but switched off.)
 
 ### Moving
 
 | Key | Action |
 |---|---|
-| **W** | Walk forward |
-| **S** | Walk backward |
-| **A** | Step left |
-| **D** | Step right |
+| **W A S D** | Walk |
 | **Mouse** | Look around |
-| **Left Shift** (hold) | Run |
-| **Left mouse button** | Lock the mouse to the game again |
-| **Esc** | Free the mouse |
+| **Left Shift** (hold) | Run (forward only). Louder: enemies hear you further away |
+| **C** or **Left Ctrl** (hold) | Crouch. Quieter, and harder to see |
+| **Space** | Jump |
+| **Esc** | Free the mouse. **Left mouse button** locks it again |
+
+### Using things
+
+| Key | Action |
+|---|---|
+| **Left mouse button** | Fire the weapon in hand |
+| **Q** | Switch weapon: none, pistol, ice gun. The pistol is skipped until you find it in the Zone 1 guard house |
+| **F** | Flashlight on or off. Also picks up a bottle in front of you, and throws it when held |
+| **E** | Use what you are looking at: pick up, open a door or gate, use a first-aid box |
 | **M** | Open or close the map of the zone you are in (pauses the game) |
-| **X** | Test only: pick up the nearest map item within 2.5 m, until the real pickups exist |
+| **R** | After dying: restart |
+
+The weapons:
+
+- **Pistol:** 35 damage, three times that for a head shot. A zombie has 100 health. Bullets pass
+  through ghosts. A shot is a noise of 45 m, so it wakes the dead.
+- **Ice gun:** a short cone (15 m, 10°) that freezes ghosts and zombies for 3.5 s. Walls block it.
+  Each shot uses 20 of its 100 pressure; ice canisters refill it.
 
 ### Testing shortcuts
 
@@ -124,14 +138,24 @@ Number keys jump straight to a place, so you do not have to walk the whole map.
 | **5** | Zone 2: inside the mansion, entrance hall |
 | **6** | Zone 3: the Undercroft laboratory |
 | **7** | Zone 4: the Waterworks, where the tunnel comes out |
-| **F1** | Hide or show the help text |
 
-After a jump the player hangs still for a second while the zone loads, then lands.
+After a jump the player's controller is switched off for a moment while the zone loads, then it lands.
 
-### The text in the top-left corner
+Other test keys (on the player, for testing only):
 
-- **Position**: where you are standing (x, y, z). Quote these numbers when you report a problem.
-- **Loaded**: the zones currently in memory. Zones load and unload by themselves as you move.
+| Key | Action |
+|---|---|
+| **X** | Pick up the nearest map item within 2.5 m |
+| **G** | Make a gunshot noise (45 m) without firing |
+| **H** | Make a door noise (10 m) |
+| **P** / **O** / **J** | Drop a noise probe / a senses probe / a grey stand-in enemy at your feet |
+| **F2** | Show what the AI is thinking: the Director's stress graph, Biscuit's plan, labels over zombies. Ghosts show their label (mode, sight meter, belief) whenever **Show Label** is ticked on `GhostBody` |
+
+### The HUD
+
+- **Bottom right:** health bar and, with a weapon in hand, its name and ammunition.
+- **Centre:** the crosshair. It spreads when you fire or move, and takes the weapon's colour.
+- **Interaction prompt:** what **E** will do, for example "[E] Open" or "Locked".
 
 ---
 
@@ -139,18 +163,23 @@ After a jump the player hangs still for a second while the zone loads, then land
 
 Walking it once is the best way to learn the map. Start with key **1**.
 
-1. **The village.** Follow the boardwalk north through the flooded cabins to the estate gate.
-2. **The estate road.** Go through the gate and follow the road up the hill through the pines.
-3. **Marrow House.** Pass the second gate. The front steps are **not** in the middle: the
-   stairs run up from the left and right sides of the porch. Go in through the front door.
-4. **The study.** From the entrance hall, go right (east) into the study. Along the front wall
-   there is an open hatch in the floor with a handrail. Step onto the stairs at its far (east)
-   end and go down.
-5. **The Undercroft.** Two flights of stairs lead to the laboratory. Cross it, take the
-   doorway at the far end and go down again into the tunnel. Go through the large pillared
-   chamber and leave by the corridor in its north-west corner.
-6. **The Waterworks.** The tunnel comes out in a walled cutting. The brick pump hall is
-   straight ahead, with the dam behind it.
+1. **The village.** Follow the boardwalk north through the flooded cabins. Twelve zombies lie
+   dormant here: walk or crouch past them, or shoot. The pistol is in the guard house. Find the
+   **two clues** (a newspaper clipping and a diary page) and the **Marrow House key**.
+2. **The estate gate.** Its left leaf opens with **E** once both Zone 1 clues are found.
+3. **The estate road.** Follow the road up the hill through the pines. No enemies here.
+4. **Marrow House.** The front steps are **not** in the middle: the stairs run up from the left
+   and right sides of the porch. The front door needs the house key. Four ghosts haunt the house;
+   only the ice gun stops them. Find **three of the four pages** and the **tunnel key**.
+5. **The study.** From the entrance hall, go right (east) into the study. The hatch in the floor
+   by the front wall opens with the tunnel key and three Marrow House pages. Take the stairs down.
+6. **The Undercroft.** Two flights of stairs lead to the laboratory. Cross it, open the door at
+   the far end and go down into the tunnel, where the creature hunts by sound. Find the **three
+   tunnel pages** and the **tunnel exit key**; the door out to the Waterworks needs them all.
+7. **The Waterworks.** The tunnel comes out in a walled cutting. The brick pump hall is straight
+   ahead, with the dam behind it. Its door opens with eight pages from the whole game.
+
+Each zone has a first-aid box (not the tunnel). Press **E** at it to heal; it holds a few doses.
 
 Things worth checking and reporting:
 
@@ -176,32 +205,60 @@ Also working:
 
 - **One connected map.** The `World` scene holds the player, moon, fog and sky, and loads each
   zone as the player gets near it.
-- **Baked lighting** in every zone.
+- **Baked lighting** in every zone (one shared Adaptive Probe Volume baking set; see
+  **Hollowmere > World > Lighting**).
 - **NavMesh** in every zone, for two agent types: `Humanoid` and `Dog`.
 - **Far views.** From the village you can see the mansion on its hill and the red light at the
   Waterworks.
 - **Gameplay markers.** Empty objects under `_Gameplay` in each zone mark where things go:
   spawn points, keys, evidence pages, pickups, doors, the creature, the final fight.
+- **The map screen** (**M**), with the items still to find and the zone exits.
+
+### The player and what it can touch (Systems Engineer)
+
+| Part | Where | What it does |
+|---|---|---|
+| Player | `PF_Player` (`Player/PlayerController.cs`) | Walk, run, crouch, jump, flashlight; makes footstep noises for the AI |
+| Health | `Player/PlayerHealth.cs` | 100 health, a short invulnerability after each hit, red flash, death screen, **R** to restart |
+| Weapons | `Player/WeaponSystem.cs`, `WeaponViewmodel.cs` | Pistol and ice gun with first-person models, muzzle flash, ice spray and sounds |
+| HUD | `Player/PlayerHud.cs`, `Crosshair.cs` | Health, weapon, ammunition, crosshair |
+| Interaction | `Interaction/PlayerInteractor.cs`, `PlayerInventory.cs` | **E** on what you look at; keys, pages, ammunition, canisters, batteries |
+| Doors and gates | `Physics/Door.cs`, `ZoneExit.cs` | Locked doors need a key; zone exits need a key and the zone's pages |
+| Physics props | `Physics/Throwable.cs`, `Barricade.cs` | Bottles to throw as a distraction (a noise where they land), barricades to push |
+| Pickups | `Pickups/Pickup.cs`, `HealthStation.cs` | Pickups and first-aid boxes, placed in every zone |
+
+### The AI (Intelligent Systems)
+
+| Agent | Where | Prefab | Details |
+|---|---|---|---|
+| Zombies (behaviour tree) | Zone 1, twelve | `PF_Zombie` | [AI plan section 5](../AI/README.md) |
+| Ghosts (utility over an influence map) | Zone 2, four | `PF_Ghost` | [Ghost.md](../AI/Ghost.md) |
+| The creature (zombie brain, sharper hearing) | Zone 3 | `PF_Creature` | [AI plan section 2](../AI/README.md) |
+| Biscuit (goal-oriented planner) | World scene, follows the player | `PF_Biscuit` | [Biscuit.md](../AI/Biscuit.md) |
+| The Director (utility AI, stress model) | World scene, `_Director` | none | [AI plan section 8](../AI/README.md) |
 
 ### Not built yet
 
 | Missing | Owner |
 |---|---|
-| The real player (movement, weapons, flashlight, health) | Systems Engineer |
-| Doors, the study hatch, locks, keys, pickups, evidence collection | Systems Engineer |
-| Zombies, ghosts, the creature, Dr Marrow | Each agent's owner |
-| Biscuit the dog | Core Developer |
-| The Director (decides when and where enemies appear) | World Builder |
+| Dr Marrow's behaviour (`PF_Marrow` is placed in Zone 4 with no AI) | Not assigned |
+| Sound beyond the weapons (footsteps, doors, enemies, ambience, music) | Not assigned |
+| Menus and the ending | Not assigned |
 | Mansion grounds (trees, graves), laboratory equipment | World Builder / Core Developer |
-| Sound, menus, HUD, ending | To be assigned |
 
 ---
 
 ## 8. Notes for whoever builds on this
 
-- **The player must have the tag `Player`.** Zone loading and the fog look for that tag. To
-  swap in the real player, put it where `DebugPlayer (temporary)` is in the `World` scene and
-  delete the debug one.
+- **The player must have the tag `Player`.** Zone loading and the fog look for that tag.
+  `PF_Player` has it. Keep the old `DebugPlayer (temporary)` switched off: two active players
+  would confuse the zone streamer and the AI.
+- **The AI never searches the scene for the player.** The player announces itself through
+  `PlayerRegistry`; enemies only know what their senses tell them.
+- **Anything loud calls `NoiseSystem.Emit`.** That is how the AI hears. Doors, gates, bottles,
+  barricades, shots and footsteps already do.
+- **Placed objects are rebuilt.** Doors, gates and pickups named `Placed_...` come from
+  **Hollowmere > World > Place Pickups, Doors and Gates**. Change that script, not the objects.
 - **Enemies stay in their zone.** The `Humanoid` NavMesh is deliberately not joined between
   zones. Only the `Dog` NavMesh is linked, so Biscuit can follow the player everywhere.
 - **Anything inside a zone is removed when that zone unloads.** Objects that must follow the
@@ -248,5 +305,7 @@ Close Unity before switching branches or pulling. It avoids half-imported assets
 | **The mouse does not look around** | Click once inside the Game tab. |
 | **The Scene tab shows nothing** | Select `_World` in the Hierarchy, move the mouse over the Scene tab and press **F**. |
 | **The player falls forever after a jump key** | The zone did not load. Stop, press Play again, and report which key. |
+| **A gate or hatch will not open** | Look at the prompt: it says what is missing (a key or how many pages). Press **M** to see the items left in the zone. |
+| **The ghosts do not move** | The Console says a ghost "is not inside a baked GhostHouseVolume". The Zone 2 ghost map needs baking again (see [Ghost.md](../AI/Ghost.md)). |
 | **Unity wants to upgrade the project** | You opened it with the wrong Unity version. Cancel and install 6000.3.24f1. |
 | **Pulling fails with "local changes would be overwritten"** | Unity changed a file by itself. Run `git status` to see which, and `git checkout -- <file>` if you did not mean to change it. |

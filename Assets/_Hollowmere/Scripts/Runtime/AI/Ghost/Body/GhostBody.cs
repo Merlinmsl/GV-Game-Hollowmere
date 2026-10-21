@@ -62,7 +62,7 @@ namespace Hollowmere.AI.Ghost
         [SerializeField] GhostTuning tuning = GhostTuning.Default;
         [SerializeField] ModeTuning modes = ModeTuning.Servant;
 
-        [SerializeField] bool showLabel = true;
+        [SerializeField] bool showLabel;
 
         const int MaxClaims = 8;
 

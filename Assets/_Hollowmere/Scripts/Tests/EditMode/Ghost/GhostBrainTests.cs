@@ -123,7 +123,7 @@ namespace Hollowmere.Tests.Ghost
             brain.Think(Feet(5, 7), now: 19f);
 
             Assert.AreEqual(GhostMode.Idle, brain.Mode);
-            Assert.AreEqual(GhostMode.Stalk, from);
+            Assert.AreNotEqual(GhostMode.Idle, from, "it was hunting (stalking, or striking at a turned back)");
             Assert.AreEqual(GhostMode.Idle, to);
             Assert.AreEqual(grid.CellAt(GhostStart + Vector3.up * 0.1f), brain.TargetCell, "home to the haunt anchor");
         }

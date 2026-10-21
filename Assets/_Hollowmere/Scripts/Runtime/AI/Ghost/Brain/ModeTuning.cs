@@ -83,7 +83,7 @@ namespace Hollowmere.AI.Ghost
         {
             stalkBase = 0.5f,
             ambushWeight = 0.8f,
-            strikeWeight = 1f,
+            strikeWeight = 1.4f,
             fleeWeight = 1.2f,
             aggression = 0.4f,
             switchMargin = 0.1f,
@@ -91,19 +91,19 @@ namespace Hollowmere.AI.Ghost
                 { behind = 0f, dark = 1.4f, unseen = 1.5f, cover = 1.2f, range = 1.5f, home = 0.5f, threat = 3f, crowd = 1f },
             ambushRange = new RangeBand(1.5f, 3.5f, 2f),
             strikeDistance = 1.6f,
-            strikeReach = 8f,
-            strikeCooldown = 6f,
-            patienceSeconds = 15f,
+            strikeReach = 10f,
+            strikeCooldown = 4f,
+            patienceSeconds = 8f,
             fleeMinSeconds = 1.5f,
             fleeAfterStrike = 1.5f,
             fleeAfterFreeze = 2f,
             fleeDepth = 10,
             aimFreshness = 1f,
-            carefulRange = new RangeBand(6f, 10f, 4f),
+            carefulRange = new RangeBand(4f, 7f, 3f),
             carefulCoverScale = 1.5f,
             carefulUnseenScale = 1.3f,
-            carefulStrikeScale = 0.4f,
-            boldStrikeScale = 1.2f,
+            carefulStrikeScale = 0.75f,
+            boldStrikeScale = 1.4f,
             iceGunMemory = 20f,
             lurkExposure = 0.7f,
             corneredOpenCells = 3,
@@ -126,12 +126,13 @@ namespace Hollowmere.AI.Ghost
             {
                 ModeTuning t = Servant;
                 t.aggression = 0.9f;
-                t.strikeWeight = 1.3f;
-                t.strikeCooldown = 4f;
-                t.patienceSeconds = 6f;
+                t.strikeWeight = 2f;
+                t.strikeReach = 12f;
+                t.strikeCooldown = 3f;
+                t.patienceSeconds = 4f;
                 t.fleeWeight = 1.1f;
-                t.carefulStrikeScale = 0.6f;
-                t.carefulRange = new RangeBand(4f, 8f, 4f);
+                t.carefulStrikeScale = 0.9f;
+                t.carefulRange = new RangeBand(3f, 6f, 3f);
                 t.wanderRadius = 8f;
                 t.wanderSpeed = 0.5f;
                 t.strikeSpeed = 1.7f;

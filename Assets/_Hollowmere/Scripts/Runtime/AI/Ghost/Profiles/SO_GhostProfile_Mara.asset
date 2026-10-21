@@ -56,7 +56,7 @@ MonoBehaviour:
   modes:
     stalkBase: 0.5
     ambushWeight: 0.8
-    strikeWeight: 1.3
+    strikeWeight: 2
     fleeWeight: 1.1
     aggression: 0.9
     switchMargin: 0.1
@@ -74,22 +74,22 @@ MonoBehaviour:
       max: 3.5
       softness: 2
     strikeDistance: 1.6
-    strikeReach: 8
-    strikeCooldown: 4
-    patienceSeconds: 6
+    strikeReach: 12
+    strikeCooldown: 3
+    patienceSeconds: 4
     fleeMinSeconds: 1.5
     fleeAfterStrike: 1.5
     fleeAfterFreeze: 2
     fleeDepth: 10
     aimFreshness: 1
     carefulRange:
-      min: 4
-      max: 8
-      softness: 4
+      min: 3
+      max: 6
+      softness: 3
     carefulCoverScale: 1.5
     carefulUnseenScale: 1.3
-    carefulStrikeScale: 0.6
-    boldStrikeScale: 1.2
+    carefulStrikeScale: 0.9
+    boldStrikeScale: 1.4
     iceGunMemory: 20
     lurkExposure: 0.7
     corneredOpenCells: 3

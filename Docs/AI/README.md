@@ -1,12 +1,21 @@
 # Hollowmere: AI Plan (SE3062 Intelligent Systems)
 
-The plan for the four graded agents, the system they share, and the order to build them in.
-Read sections 1 to 4 first; then only the section for your own agent.
+The four graded agents, the system they share, and what was built. Read sections 1 to 4 first;
+then only the section for your own agent.
 
 For the story see [Docs/Story](../Story/README.md). For running the game see
 [Docs/Setup](../Setup/README.md).
 
-**Deadline: 21 October 2026.** Owners are not assigned yet (see section 10).
+**Deadline: 21 October 2026.** All four agents are built and placed in the game:
+
+| Agent | Owner | Code | Prefab, where | Detailed notes |
+|---|---|---|---|---|
+| Zombies | Systems Engineer | `AI/Zombie/` | `PF_Zombie`, twelve in Zone 1 | Section 5 |
+| Ghosts | Agent Controller | `AI/Ghost/` | `PF_Ghost`, four in Zone 2 (three servants, Mara) | [Ghost.md](Ghost.md) |
+| Biscuit | Core Developer | `AI/Biscuit/` | `PF_Biscuit`, in the World scene | [Biscuit.md](Biscuit.md) |
+| Director | World Builder | `AI/Director/` | `_Director`, in the World scene | Section 8 |
+
+Code paths are under `Assets/_Hollowmere/Scripts/Runtime/`.
 
 **How the built code fits together:** [Senses_and_Director.svg](Senses_and_Director.svg) (also as
 [PNG](Senses_and_Director.png)) shows every file, method and connection in the senses layer, the
@@ -44,11 +53,14 @@ Each agent uses a different architecture, so each viva has its own story.
 | **Biscuit** | Follows the player | Goal-oriented planner (A* over actions) | Plans its own chains of actions: scout, warn, fetch, lead, lure |
 | **Director** | Whole game | Utility AI with a stress model | Paces the game: decides which of the dead wake, where and when |
 
-Two more characters exist in the story but are **not graded agents**. They reuse the brains above
-with different settings:
+Two more characters exist in the story but are **not graded agents**:
 
-- **The creature** (Zone 3 tunnel): the zombie brain with sight switched off and sharper hearing.
-- **Dr Marrow** (Zone 4): the ghost's position scoring, on the NavMesh, with a gun.
+- **The creature** (Zone 3 tunnel): built. `PF_Creature` runs the zombie brain (`ZombieBody`)
+  with `SO_CreatureConfig`: hearing acuity 1.6 instead of 1.0, and a groan of 30 m instead of
+  20 m. Its sight is the same as a zombie's. The shut laboratory door's NavMesh obstacle keeps it
+  in the tunnel.
+- **Dr Marrow** (Zone 4): not built. `PF_Marrow` is placed with its model only and no AI. The
+  plan was the ghost's position scoring on the NavMesh, with a gun.
 
 ---
 
@@ -67,17 +79,23 @@ NoiseSystem.Emit(position, loudness, kind, source);
 
 `loudness` is the distance in metres at which a normal ear can still hear it.
 
-| Noise | Loudness (m) |
-|---|---|
-| Gunshot | 45 |
-| Biscuit's bark | 25 |
-| Zombie groan (alert) | 20 |
-| Ice gun | 15 |
-| Running | 12 |
-| Door, hatch | 10 |
-| Wading through water | 9 |
-| Walking | 5 |
-| Crouch-walking | 2 |
+| Noise | Loudness (m) | Made by |
+|---|---|---|
+| Gunshot | 45 | `WeaponSystem` (pistol); test key G |
+| Creature groan | 30 | `ZombieBody` with `SO_CreatureConfig` |
+| Biscuit's bark | 25 | `BiscuitAgent` |
+| Zombie groan (alert) | 20 | `ZombieBody`, once each time it starts a chase |
+| Staged noise | 20 | `GameDirector` |
+| Bottle landing | 18 | `Throwable` |
+| Ice gun | 15 | `WeaponSystem` |
+| Running | 12 | `PlayerNoiseEmitter`, one per step |
+| Barricade scraping | 12 | `Barricade` |
+| Door, hatch, gate | 10 | `Door`, `ZoneExit`; test key H |
+| Wading through water | 9 | `PlayerNoiseEmitter` |
+| Walking | 5 | `PlayerNoiseEmitter` |
+| Crouch-walking | 2 | `PlayerNoiseEmitter` (walking x 0.4) |
+
+The values live in `Senses/Noise.cs` (`Loudness`) and in each emitter's Inspector.
 
 **How far a noise carries.** A listener hears a noise when
 
@@ -92,6 +110,13 @@ door, so walls and floors muffle sound without any audio physics.
 **Cheap first.** The straight-line distance is never longer than the path. So if the straight
 line is already too far, the listener is skipped without a path search. Most listeners are
 rejected this way.
+
+**Which NavMesh.** Sound always travels on the Humanoid NavMesh. If the noise or the listener is
+off the NavMesh (a ghost inside a wall), there is no route, so the straight line x 1.5 is used
+instead (`NoiseSystem.OffMeshMuffle`).
+
+`NoiseSystem.Emitted` is raised after every noise. The Director uses it to learn how loud the
+player is, and the debug probes use it.
 
 Listeners implement:
 
@@ -126,10 +151,13 @@ rate = baseRate x lightFactor x distanceFactor x postureFactor
 | distanceFactor | 1 at point-blank, falling linearly to 0 at view range |
 | postureFactor | standing 1.0, crouching 0.5 |
 
-The player is "seen" when the meter reaches 1. This makes the dark mansion and tunnel matter:
-the flashlight helps the player see and helps the enemy see the player.
+The player is "seen" when the meter reaches 1. Out of sight the meter drains. This makes the
+dark mansion and tunnel matter: the flashlight helps the player see and helps the enemy see the
+player.
 
-Sight checks run about 4 times a second per agent, not every frame.
+Code: `Senses/SightSensor.cs`. Lamps count as "lit" only if they carry an `IlluminationSource`
+(`Senses/Illumination.cs`). Sight runs at each agent's think rate, not every frame (zombies 4
+times a second, ghosts 5).
 
 ### 3.3 Memory
 
@@ -142,10 +170,15 @@ struct Belief { Vector3 position; float confidence; float time; BeliefSource sou
 Confidence fades: `confidence = c0 x e^(-t / tau)`. Seen starts at 1.0, heard at 0.6, told by
 another agent at 0.4. When confidence falls below 0.1 the agent gives up.
 
+Code: `Senses/Belief.cs`, `Senses/AgentMemory.cs` (keeps the single most convincing belief; tau
+8 s by default). The ghosts use `AgentMemory`; the zombies keep their own `ZombieMemory` with the
+same rules and tau 12 s; Biscuit's `BiscuitMemory` remembers each enemy separately.
+
 ### 3.4 Player state
 
-The player (Systems Engineer) exposes one interface. Until the real player exists, the debug
-walker implements it with test keys.
+The player (Systems Engineer) exposes one interface. `PlayerController` on `PF_Player`
+implements it and announces itself through `PlayerRegistry`, so no agent searches the scene for
+the player. (`DebugPlayerState` implements it for the old debug walker, with test keys.)
 
 ```csharp
 public interface IPlayerState
@@ -171,12 +204,17 @@ Biscuit is at the player's side). Enemies use senses and beliefs only.
 
 Budget: **all AI together under 2 ms per frame** on the RTX 2050 laptop.
 
-- **Think slowly.** Brains tick 5 to 10 times a second through `AiScheduler`, spread across
-  frames. Movement and animation still run every frame.
-- **Path budget.** At most 3 path searches per frame; the rest wait in a queue.
+- **Think slowly.** Brains tick through `AiScheduler` (`Scheduling/AiScheduler.cs`): zombies 8
+  times a second, Biscuit 8, ghosts 5, the Director 2. Each thinker starts at a random point in
+  its interval, so the thoughts spread across frames, and at most 6 run in one frame
+  (`MaxThinksPerFrame`). The scheduler measures its own time per frame. Movement and animation
+  still run every frame.
+- **Search budgets.** There is no shared path queue. Each agent limits its own searches: the
+  ghosts allow one heavy search per frame for the whole house and share 240 A* nodes a frame;
+  the Director predicts the player's route every 3 s.
 - **No per-frame searches.** No `FindObjectOfType`, no `GetComponent`, no allocation inside a tick.
-- **Only the current zone thinks.** Agents in an unloaded zone do not exist.
-- **Awake limits:** 12 zombies, 3 ghosts, 1 creature at once. The Director enforces this.
+- **Only the loaded zones think.** Agents in an unloaded zone do not exist.
+- **Awake limit:** the Director wakes no more than 12 enemies at once (`GameDirector.maxAwake`).
 
 ### 4.2 Logic separate from visuals
 
@@ -184,27 +222,46 @@ Each agent has two parts:
 
 - **Brain:** plain C# classes. No `MonoBehaviour`, no animator, no mesh. Takes senses in,
   gives a decision out. Can be unit-tested.
-- **Body:** one thin `MonoBehaviour` that feeds the brain, moves the `NavMeshAgent`, and tells
-  the Agent Controller's animation code what the brain decided through events
-  (`OnStateChanged`, `OnAttack`).
+- **Body:** one thin `MonoBehaviour` that feeds the brain, moves the agent, and tells the
+  animation code what the brain decided through events.
+
+| Agent | Brain | Body | Events for animation and effects |
+|---|---|---|---|
+| Zombie | `ZombieBrain` | `ZombieBody` | `OnStateChanged`, `OnAttack` |
+| Ghost | `GhostBrain` | `GhostBody` | `ModeChanged`, `Spotted`, `LostSight`, `Struck`, `Frozen`, `Freed` |
+| Biscuit | `BiscuitBrain` | `BiscuitAgent` | the action it just started, for the Animator |
+| Director | `DirectorBrain` | `GameDirector` | none (it has no body to animate) |
+
+Walking agents move with `Agents/AgentLocomotion.cs` (turning, speed and foot matching along the
+NavMesh path); ghosts float with `Agents/GhostMovement.cs`.
+
+The brains of the ghosts, Biscuit and the Director are unit-tested in EditMode (Window > General >
+Test Runner): 99 ghost tests, 32 Biscuit tests.
 
 ### 4.3 Debug view
 
-Every agent draws its thinking when debug is on (key **F2**): the active tree node, the utility
-scores, the current plan, the stress graph. Build this early. It is how you find bugs, and it
-is what you show in the viva and the video.
+Press **F2** in Play mode (`Debugging/AiDebug.cs`): the Director's panel and stress graph,
+Biscuit's facts, goals and plan (with rings and routes drawn in the world), and a label over
+each zombie with its active tree node (its belief is drawn as a gizmo in the Scene view). Each ghost shows a label with its mode, sight
+meter, belief and utilities while **Show Label** is ticked on `GhostBody`; the ghost sandbox also
+has F2 to F4 views of the influence map and frame times (see [Ghost.md](Ghost.md)).
 
 ### 4.4 Folders and branches
 
 ```
 Assets/_Hollowmere/Scripts/Runtime/AI/
-├── Senses/        shared: noise, sight, beliefs, player state
-├── Scheduling/    shared: AiScheduler, path budget
-├── Zombie/
-├── Ghost/
-├── Biscuit/
-└── Director/
+├── Senses/        shared: noise, sight, beliefs, illumination, player state
+├── Scheduling/    shared: AiScheduler
+├── Debugging/     shared: F2 toggle, labels, test probes and stand-ins (temporary)
+├── Zombie/        Brain/ (behaviour tree, memory), ZombieBody, ZombieConfig
+├── Ghost/         Map/, Search/, Positioning/, Brain/, Body/, Movement/, Profiles/, Debugging/
+├── Biscuit/       Brain/ (planner, facts, goals, Actions/), BiscuitAgent, ScentSource
+└── Director/      GameDirector, DirectorBrain, StressModel, TensionCurve, RoutePredictor
 ```
+
+Shared combat interfaces live outside the AI folder, in `Scripts/Runtime/Combat/`:
+`IDamageable` (the player and zombies take damage) and `IIceable` (the ice gun freezes ghosts and
+zombies).
 
 - Work only in your agent's folder and your sandbox scene. Deliver a prefab to `Prefabs/Agents/`.
 - Branches: `feature/ai-zombie-hearing`, `feature/ai-ghost-scoring`, and so on. One small step
@@ -241,8 +298,19 @@ Selector
 - **Water.** The NavMesh already costs flooded ground 3x, so zombies take the boardwalk unless
   the dry route is three times longer.
 
-**Edge cases to handle:** belief position is unreachable (go to the nearest reachable point);
-two noises at once (keep the higher confidence); player leaves the zone (return to dormant).
+**Edge cases handled:** belief position is unreachable (go to the nearest NavMesh point within
+5 m, then 15 m); two noises at once (keep the higher confidence); player leaves the zone (beliefs
+cleared, back to dormant); stuck for more than 3 s (`ZombieBody` gives up the move).
+
+**As built.** `ZombieBrain` (plain C#) owns the tree: a `BtSelector` over `AttackNode`,
+`ChaseNode`, `InvestigateNode`, `RespondToGroanNode` and `DormantNode`, ticked 8 times a second
+through the scheduler. `ZombieMemory` hears through `NoiseSystem` and keeps the belief and a
+separate groan belief. `ZombieBody` drives the `NavMeshAgent` (with `AgentLocomotion`), groans
+once each time a chase starts, deals 25 damage per hit to the player (1.8 m reach, 1.5 s
+cooldown), takes pistol damage (100 health), freezes when the ice gun hits it, and lets the
+Director wake it (`IDirectable`). Every number is in `SO_ZombieConfig`: view 14 m and 70°,
+detection rate 0.35, tau 12 s, chase at confidence 0.8, ring search of 3 points from 3 m in
+steps of 2 m.
 
 **Viva points.**
 
@@ -305,6 +373,28 @@ takes the next best).
 
 **Fallback:** drop the grid; score candidates from `behind`, `cover` and `threat` only.
 
+**As built** (not the fallback; full write-up, numbers and viva cheat sheet in
+[Ghost.md](Ghost.md)):
+
+- **Influence map:** a 3D grid of 1 m cells per storey, baked from the Zone 2
+  `GhostHouseVolume` (46 x 42 m, two storeys). Each cell holds light (from the lamps, with line of
+  sight), watched (the player's view cone, fading over about 8 s), the flashlight cone, and
+  whether it is inside a wall.
+- **Search core:** a walking-distance field from the believed player cell (Dial's algorithm,
+  diagonals cost 1.4), a breadth-first search for the nearest safe cell inside a wall, hill
+  climbing over the position score (24 ring seeds, 2 random restarts), and time-sliced A*
+  through walls with exposure costs, then path smoothing.
+- **Modes by utility:** Stalk, Ambush, Strike, Flee, each a product of response curves, with
+  hysteresis. Frozen while the ice gun holds it, and Idle/Wander when it has lost the player.
+- **The strike** lands only if the ghost saw the player in the last 0.5 s and is within reach:
+  35 damage. One ghost in the house may strike at a time (1.5 s gap).
+- **Ice gun:** freezes the ghost; it flees into a wall when it thaws. Bullets pass through.
+- **Profiles:** `SO_GhostProfile_Servant` (stays near its haunt, leash 6 m) and
+  `SO_GhostProfile_Mara` (bolder, ranges the house, leash 40 m).
+- **Many ghosts:** each claims its target cell so two never choose the same place.
+- **Cost:** in Zone 2 with five ghosts, 0.005 ms per frame on average and 0.275 ms at the 99th
+  percentile.
+
 ---
 
 ## 7. Biscuit: goal-oriented action planning
@@ -361,6 +451,21 @@ locked door (action fails, replan without it); the player runs far ahead (Stay c
 
 **Fallback:** five actions only: Follow, Sniff, Growl, Bark, Hide.
 
+**As built** (full write-up in [Biscuit.md](Biscuit.md)). The plan above grew:
+
+- **12 facts** packed into one `ushort` (`Brain/Fact.cs`), adding `PlayerInTrouble`,
+  `AreaScouted`, `GhostNearby`, `KnowsAmmo` and `KnowsEvidence`.
+- **7 goals:** Stay safe, Protect the player, Warn the player, Resupply, Show evidence, Scout,
+  Stay close.
+- **10 actions:** Follow, Sniff, Growl, Whine (the warning for ghosts: Biscuit backs to the far
+  side of the player), Bark, Hide, Lure, Fetch ammo, Bring ammo, Lead to evidence.
+- **Bark cost counts who would hear it:** the bark is a real 25 m noise, so its cost rises with
+  the number of dead in earshot.
+- **Smell:** enemies carry a `ScentSource` (Dead, Ghost or Creature); pages and ammunition are
+  read from the zones' own markers (`PointRegistry`).
+- `BiscuitAgent` is the only MonoBehaviour. It thinks 8 times a second and runs on the Dog
+  NavMesh, which is linked across the zones so Biscuit can follow the player everywhere.
+
 ---
 
 ## 8. The Director: utility AI with a stress model
@@ -412,9 +517,48 @@ exceed it, and never exceeds the awake limits in section 4.1.
 
 **Fallback:** two actions only: Wake the dead, Hold back.
 
+**As built.** `GameDirector` (in the World scene, `_Director`) thinks twice a second. Each tick it:
+
+1. measures stress (`StressModel`) and learns the player's style from their noise
+   (`PlayerProfile`: a moving average of loudness per second, giving a quietness from 0 to 1);
+2. moves the target tension along its cycle (`TensionCurve`);
+3. predicts the player's route to the zone exit (`RoutePredictor`, A* on the NavMesh, every 3 s);
+4. scores every dormant enemy within 50 m: hidden from the player, 15 to 35 m away by walking
+   distance, ahead on the route;
+5. lets `DirectorBrain` pick an action, and carries it out.
+
+The stress formula as coded:
+
+```
+rise   = 1.5 x healthLost
+       + (0.04 x enemiesNear + 0.03 x (1 - health) + 0.015 x (1 - ammo)) x dt
+fall   = 0.05 x dt, only while no awake enemy is within 25 m
+stress = clamp01(stress + rise - fall)
+```
+
+The tension target cycles: **BuildUp** (0.2 rising to 0.8 over 90 s), **Peak** (when stress
+reaches 0.75; held for 12 s), **Relax** (0.15 for at least 35 s, until the player calms down).
+
+Three actions are built, each a product of terms so any single "no" vetoes it:
+
+```
+need      = clamp01((target - stress) / 0.4)
+rested    = 0 for 5 s after the last event, rising to 1 at 15 s
+WakeDead   = need x rested x available x room x best x (1 - 0.5 x quietness)
+StageNoise = need x rested x available x best x (0.3 + 0.7 x quietness)
+HoldBack   = 0.1 + 0.9 x clamp01((stress - target) / 0.3)
+```
+
+It wakes 1 to 3 at once (more when stress is far below the target) and sends them toward a
+point 10 m ahead of the player on the route. A staged noise is a 20 m noise near a dormant enemy.
+A quiet player therefore gets staged noises; a loud one gets the dead woken directly.
+
+**Not built:** *Leave supplies ahead* and *Send a ghost closer*. Ghosts implement `IDirectable`,
+so the Director can wake them like any other enemy.
+
 ---
 
-## 9. Build order
+## 9. Build order (as planned)
 
 | Dates | Shared work | Each agent |
 |---|---|---|
@@ -431,10 +575,18 @@ without it.
 
 ---
 
-## 10. Still to decide
+## 10. Decided, and still open
 
-- **Owners** of the four agents, and who builds the shared senses layer.
-- **Who sets up the creature and Marrow** from the reused brains.
-- **Evidence and pickup placement**, which Biscuit and the Director both read.
-- **The numbers in this document** (loudness, weights, thresholds) are starting values. Each
-  owner tunes their own and must be able to say why the final value was chosen.
+Decided:
+
+- **Owners:** zombies, Systems Engineer; ghosts, Agent Controller; Biscuit, Core Developer; the
+  Director, World Builder (see the table at the top).
+- **The creature** reuses the zombie brain with `SO_CreatureConfig` and is placed in Zone 3.
+- **Evidence and pickups** are placed on the zone markers by **Hollowmere > World > Place
+  Pickups, Doors and Gates**. Biscuit and the Director read the same markers.
+
+Still open:
+
+- **Dr Marrow** has a model in Zone 4 but no behaviour.
+- **The numbers in this document** are the values in the code now. Each owner must be able to
+  say why the final value was chosen.
