@@ -1,0 +1,12 @@
+Model Information:
+* title:	Japanese Shooter
+* source:	https://sketchfab.com/3d-models/japanese-shooter-4dcbaa982f5a4d249d5d440c7f957678
+* author:	Chernov-Egor (https://sketchfab.com/Chernov-Egor)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Japanese Shooter" (https://sketchfab.com/3d-models/japanese-shooter-4dcbaa982f5a4d249d5d440c7f957678) by Chernov-Egor (https://sketchfab.com/Chernov-Egor) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+Changes: renamed Marrow. Helmet, neck flap, backpack, pouches, canteen, straps, belt, insignia and bayonet removed. Uniform repainted as a brown civilian jacket and dark work trousers, puttees turned into boots.

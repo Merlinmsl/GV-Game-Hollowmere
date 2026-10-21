@@ -114,7 +114,7 @@ When Ada stopped writing, Reyes came looking.
 
 ## 5. Current state: the game
 
-**October 1994.** Reyes arrives at the closed road at dusk with Biscuit and a handgun.
+**October 1994.** Reyes arrives at the closed road at dusk with Biscuit and the ice gun.
 
 ### Zone 1: The Flooded Village (zombies)
 
@@ -124,9 +124,12 @@ player sees them. **Only real bullets kill them**, and Reyes starts with very fe
 **What the player does.** Searches the houses. The player can fight or slip past.
 
 **What the player finds.**
-- Bullet magazines.
-- The **ice gun** and its first canisters, in a box in one of the houses.
-- Three pieces of evidence (see section 7).
+- The **handgun**, in the guard house, and revolver rounds in a car.
+- The **Marrow House key**.
+- Two pieces of evidence (see section 7).
+
+(In the game Reyes already carries the **ice gun** from the start, and the handgun has to be found
+in the guard house. The original plan was the other way round.)
 
 **The way on.** The estate gate opens once the player has the village evidence.
 
@@ -204,33 +207,49 @@ never says how she got past them.
 
 **Weapons and supplies**
 
-| Item | Where the player gets it |
+| Item | Where the player gets it (as placed in the game) |
 |---|---|
-| Handgun, a few bullets | Carried from the start |
-| Bullet magazines | Village houses, then every later zone |
-| Ice gun | A box in one of the village houses |
-| Ice canisters | Village houses, then every later zone |
+| Handgun | The guard house in the village. Until it is found, **Q** skips it |
+| Bullets | Revolver rounds in the village; one magazine in Marrow House, two in the tunnel, two at the Waterworks |
+| Ice gun | Carried from the start |
+| Ice canisters | Two in Marrow House, one in the tunnel |
+| Flashlight battery | One in Marrow House |
+| First-aid boxes | One each in the village, Marrow House and the Waterworks |
 
 **Biscuit** warns the player of zombies and ghosts before they can be seen.
 
 ## 7. The evidence
 
-Each zone holds three pages, all in Marrow's own hand or about him. They are found on tables,
-hidden in boxes and in other places; **exact locations will be decided when the interiors are
-built.** A zone's exit stays shut until all three of its pages are found, so the player always
-reaches the final zone knowing the whole truth.
+The pages are in Marrow's own hand or about him, placed on tables and other surfaces in each
+zone. A zone's exit stays shut until its pages are found, so the player reaches the final zone
+knowing the whole truth. As placed in the game:
 
 | Zone | Page | What it tells the player |
 |---|---|---|
-| Village | The quarantine notice | The official story: an epidemic, valley closed |
-| Village | A villager's unfinished letter | The water tasted wrong, and then everyone fell ill together |
-| Village | A page of Marrow's dosing schedule | The water was dosed on purpose, with amounts and dates |
+| Village | A newspaper clipping (guard house) | The official story: an epidemic, valley closed |
+| Village | A diary page (in the car) | The water tasted wrong, and then everyone fell ill together |
 | Mansion | Mara's medical file | Her illness, and that no doctor could name it |
 | Mansion | The servants' trial notes | He tested the cure on his own staff, and they died |
 | Mansion | His diary: the night Mara died | The cure failed. He gave up |
+| Mansion | A map of the tunnels | The way through the Undercroft |
 | Tunnel | The animal trial log | What the creature is and why he kept it |
 | Tunnel | The sluice order, in his writing | He flooded the village to destroy the evidence |
 | Tunnel | His notes on raising the dead | The zombies are his guards, made by hand |
+
+What each exit needs:
+
+| Exit | Needs |
+|---|---|
+| The estate gate (village) | Both village pages |
+| The study hatch (mansion) | The tunnel key and three of the four mansion pages |
+| The tunnel door to the Waterworks | The tunnel exit key and the three tunnel pages |
+| The pump hall door (Waterworks) | Eight pages from the whole game, so one may be missed |
+
+The front door of Marrow House needs the Marrow House key, found in the village.
+
+The earlier plan had three village pages (the quarantine notice, a villager's letter and a page
+of the dosing schedule). The village has two in the game; their story is told by the clipping and
+the diary page.
 
 ## 8. The Waterworks: how it is built
 
@@ -248,19 +267,25 @@ The final zone uses only asset packs already in the project.
 From the village, the player will be able to see the mansion on its hill and the red light of
 the radio mast across the water, far off through the fog.
 
-## 9. Still to decide
+## 9. Decided, and still to decide
 
-1. **Enemy numbers.** The ghosts are specific people (Mara and the servants) and the zombies
-   are about forty villagers, so both are limited. How the Director paces a limited number of
-   enemies will be discussed when the rest of the game is built.
-2. **What the "wrong" weapon does.** Bullets do nothing to ghosts. Still open: what ice does
-   to a zombie, to the creature and to Marrow.
-3. **Dr Marrow as an enemy.** He needs a model, animations, health and simple shooting
-   behaviour. Nobody owns this yet.
-4. **The ending.** A short video of Reyes freeing Ada, or one narrated line over a black
+Decided while building:
+
+- **Enemy numbers.** Twelve zombies in the village, four ghosts in the house (Mara and three
+  servants), one creature in the tunnel. The Director wakes the dead a few at a time, never more
+  than twelve awake at once.
+- **What the "wrong" weapon does.** Bullets pass through ghosts. Ice freezes a zombie or the
+  creature for a few seconds but does not kill it.
+- **Evidence locations.** Placed in every zone (section 7).
+
+Still to decide:
+
+1. **Dr Marrow as an enemy.** His model is placed in the Waterworks; he still needs animations,
+   health and simple shooting behaviour. Nobody owns this yet.
+2. **What ice does to Marrow** (once he has behaviour).
+3. **The ending.** A short video of Reyes freeing Ada, or one narrated line over a black
    screen. The narrated line is the cheaper option.
-5. **Laboratory props.** None of our packs has lab equipment (tanks, glassware, the dosing
+4. **Laboratory props.** None of our packs has lab equipment (tanks, glassware, the dosing
    machine). These could be the custom models, or one more free pack.
-6. **Mara's portrait.** It has to resemble Ada. To be made when the mansion interior is
+5. **Mara's portrait.** It has to resemble Ada. To be made when the mansion interior is
    furnished.
-7. **Evidence locations.** To be placed when the house, mansion and tunnel interiors are built.

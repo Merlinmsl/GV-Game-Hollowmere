@@ -18,7 +18,8 @@ actually uses are committed, with their textures re-encoded at 2048 px (see the 
 | Dark Fantasy Kit [Lite] | | Runemark Studio | Crypt torches, bones, candles | Not imported |
 | Make Your Fantasy Game LITE | | Xiaolianhuastudio | Shrine lanterns only | Not imported |
 
-The pack list is still under review.
+Only the first four packs are in the repository (Flooded Grounds, Conifers, Free Bushes 2018 and
+Decrepit Dungeon LITE). The others were dropped or never imported.
 
 ## Adding assets from a pack (World Builder only)
 

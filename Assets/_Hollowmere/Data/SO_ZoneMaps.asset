@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a08e1824be664e41a611023034591b5, type: 3}
+  m_Name: SO_ZoneMaps
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.ZoneMapSet
+  maps:
+  - sceneName: Z1_Outskirts
+    displayName: The Flooded Village
+    image: {fileID: 2800000, guid: 2187e0abfc4eef142aabe9276f4e35b7, type: 3}
+    worldRect:
+      serializedVersion: 2
+      x: -115
+      y: -80
+      width: 230
+      height: 210
+    area:
+      m_Center: {x: 0, y: 10, z: 25}
+      m_Extent: {x: 80, y: 30, z: 75}
+    underground: 0
+  - sceneName: C1_EstateRoad
+    displayName: The Estate Road
+    image: {fileID: 2800000, guid: 22d3092ab0871bd41b394695aeffea96, type: 3}
+    worldRect:
+      serializedVersion: 2
+      x: -110
+      y: 70
+      width: 220
+      height: 140
+    area:
+      m_Center: {x: 0, y: 12, z: 140}
+      m_Extent: {x: 80, y: 30, z: 40}
+    underground: 0
+  - sceneName: Z2_MarrowHouse
+    displayName: Marrow House
+    image: {fileID: 2800000, guid: 21e107ca783cf9641b96dda7f681f813, type: 3}
+    worldRect:
+      serializedVersion: 2
+      x: -115
+      y: 150
+      width: 230
+      height: 190
+    area:
+      m_Center: {x: 0, y: 22, z: 245}
+      m_Extent: {x: 80, y: 30, z: 65}
+    underground: 0
+  - sceneName: Z3_Undercroft
+    displayName: The Undercroft
+    image: {fileID: 2800000, guid: 2c2071a18899e4a4bb5906ff7c9ad87f, type: 3}
+    worldRect:
+      serializedVersion: 2
+      x: -118
+      y: 196
+      width: 154
+      height: 84
+    area:
+      m_Center: {x: -41, y: 16.25, z: 238}
+      m_Extent: {x: 64, y: 10.25, z: 17}
+    underground: 1
+  - sceneName: Z4_Waterworks
+    displayName: The Waterworks
+    image: {fileID: 2800000, guid: d65560a063eb8e44d935490fd0035b1a, type: 3}
+    worldRect:
+      serializedVersion: 2
+      x: -275
+      y: 150
+      width: 230
+      height: 190
+    area:
+      m_Center: {x: -160, y: 20, z: 245}
+      m_Extent: {x: 80, y: 35, z: 65}
+    underground: 0

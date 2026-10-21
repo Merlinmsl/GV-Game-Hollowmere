@@ -93,8 +93,8 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
-  m_LightingSettings: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000002, guid: 164ce971af99cee45951876b4f451e08, type: 2}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 2dea9837abff986429fd1a9ff8168d76, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -119,6 +119,95 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &206612678
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 206612681}
+  - component: {fileID: 206612680}
+  - component: {fileID: 206612679}
+  m_Layer: 0
+  m_Name: _Director
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &206612679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 206612678}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e265a8a7a2c40ad4eaa48c3d03e955e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Debugging.DebugRosterSpawner
+  zones:
+  - Z1_Outskirts
+  markerPrefix: SpawnPoint_
+  perMarker: 3
+  scatter: 5
+--- !u!114 &206612680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 206612678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ff5bf6d526376e4a9964cda7d0fcfb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Director.GameDirector
+  stress:
+    damageWeight: 1.5
+    pressureWeight: 0.04
+    lowHealthWeight: 0.03
+    lowAmmoWeight: 0.015
+    calmRate: 0.05
+    pressureRadius: 25
+  tension:
+    buildFrom: 0.2
+    buildTo: 0.8
+    buildSeconds: 90
+    peakThreshold: 0.75
+    peakSeconds: 12
+    relaxTarget: 0.15
+    relaxSeconds: 35
+  profile:
+    window: 30
+    quietRate: 3
+    loudRate: 25
+  thinkInterval: 0.5
+  maxAwake: 12
+  considerRadius: 50
+  interceptAhead: 10
+  stagedLoudness: 20
+  replanInterval: 3
+  exitPrefix: ZoneExit_
+  showDebug: 0
+--- !u!4 &206612681
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 206612678}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &336637801
 GameObject:
   m_ObjectHideFlags: 0
@@ -334,6 +423,53 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!1 &461355062
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 461355064}
+  - component: {fileID: 461355063}
+  m_Layer: 0
+  m_Name: Biscuit_Spawn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &461355063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 461355062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ba30a198118e4e4c83490ad0f575a87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.ActivateOnNavMesh
+  target: {fileID: 1346533406}
+  searchRadius: 3
+--- !u!4 &461355064
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 461355062}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1346533407}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &548911912
 GameObject:
   m_ObjectHideFlags: 0
@@ -361,7 +497,7 @@ Transform:
   m_GameObject: {fileID: 548911912}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -178, y: 78.8, z: 301}
+  m_LocalPosition: {x: -188, y: 76.3804, z: 303.4}
   m_LocalScale: {x: 9, y: 9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -563,6 +699,53 @@ MonoBehaviour:
   blendDistance: 0
   weight: 1
   sharedProfile: {fileID: 11400000, guid: eec87d0b6842164419434cefb3901891, type: 2}
+--- !u!1 &851254010
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 851254012}
+  - component: {fileID: 851254011}
+  m_Layer: 0
+  m_Name: _Map
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &851254011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 851254010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a92bf3d47d0e43e4fa5691262302d7dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.World.MapScreen
+  maps: {fileID: 11400000, guid: 99b6b786b0123e14f9572b6d65a38aba, type: 2}
+  margin: 40
+  iconSize: 30
+--- !u!4 &851254012
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 851254010}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1294022356
 GameObject:
   m_ObjectHideFlags: 0
@@ -596,6 +779,77 @@ Transform:
   - {fileID: 734724977}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1346533405
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 461355064}
+    m_Modifications:
+    - target: {fileID: 6095324381549991083, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095324381549991083, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095324381549991083, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -32.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095324381549991083, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095324381549991083, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095324381549991083, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095324381549991083, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095324381549991083, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095324381549991083, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095324381549991083, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6907714338356776465, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+      propertyPath: m_Name
+      value: Biscuit
+      objectReference: {fileID: 0}
+    - target: {fileID: 6907714338356776465, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+--- !u!1 &1346533406 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6907714338356776465, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+  m_PrefabInstance: {fileID: 1346533405}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1346533407 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6095324381549991083, guid: a30c624c55f57f54496fb72347ca07d4, type: 3}
+  m_PrefabInstance: {fileID: 1346533405}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1571045188
 GameObject:
   m_ObjectHideFlags: 0
@@ -731,13 +985,17 @@ GameObject:
   - component: {fileID: 1837528444}
   - component: {fileID: 1837528443}
   - component: {fileID: 1837528442}
+  - component: {fileID: 1837528445}
+  - component: {fileID: 1837528447}
+  - component: {fileID: 1837528446}
+  - component: {fileID: 1837528448}
   m_Layer: 0
   m_Name: DebugPlayer (temporary)
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1837528442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -805,6 +1063,59 @@ Transform:
   - {fileID: 369002222}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1837528445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837528441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5c617512d23e4044a6b7e1b7f3b7a62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Debugging.DebugNoiseKeys
+--- !u!114 &1837528446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837528441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d927171cbea424baf7b9824496f451, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Senses.PlayerNoiseEmitter
+  runSpeed: 5
+  walkStepInterval: 0.5
+  runStepInterval: 0.33
+  crouchNoiseFactor: 0.4
+--- !u!114 &1837528447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837528441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f362821692c23b4580c087ada52fcee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Debugging.DebugPlayerState
+--- !u!114 &1837528448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1837528441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bc592e3a13eb2e469b3b33f9fa2e731, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.Debugging.DebugPickupKey
+  reach: 2.5
 --- !u!1 &1966642893
 GameObject:
   m_ObjectHideFlags: 0
@@ -932,11 +1243,143 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!1001 &2076627653
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 100000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+      propertyPath: m_Name
+      value: PF_Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.2004251
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -31
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 100000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2076627658}
+    - targetCorrespondingSourceObject: {fileID: 100000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2076627657}
+    - targetCorrespondingSourceObject: {fileID: 100000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2076627656}
+  m_SourcePrefab: {fileID: 100100000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+--- !u!1 &2076627654 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100000, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+  m_PrefabInstance: {fileID: 2076627653}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2076627655 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 11400001, guid: ca97b0f3e81042be8d3e44ef5576cdcb, type: 3}
+  m_PrefabInstance: {fileID: 2076627653}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2076627654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7e7c0a4b9610f742b5f0d933681be2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.Player.PlayerController
+--- !u!114 &2076627656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2076627654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24f0fe6c2912fc04ea6a9d96ee4fcc59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.Debugging.DebugTeleportKeys
+  movement: {fileID: 2076627655}
+  testPoints:
+  - {x: 0, y: 2.3, z: -31}
+  - {x: 3, y: 3, z: 80}
+  - {x: 11, y: 18, z: 150}
+  - {x: 0, y: 24, z: 215}
+  - {x: 0, y: 26.3, z: 241}
+  - {x: -16.4, y: 14.7, z: 239.5}
+  - {x: -106.5, y: 8.9, z: 245.3}
+--- !u!114 &2076627657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2076627654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bc592e3a13eb2e469b3b33f9fa2e731, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.Debugging.DebugPickupKey
+  reach: 2.5
+--- !u!114 &2076627658
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2076627654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5c617512d23e4044a6b7e1b7f3b7a62, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Hollowmere.Runtime::Hollowmere.AI.Debugging.DebugNoiseKeys
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 336637803}
   - {fileID: 1294022357}
+  - {fileID: 2076627653}
   - {fileID: 1837528444}
   - {fileID: 1571045189}
+  - {fileID: 206612681}
+  - {fileID: 851254012}
+  - {fileID: 461355064}
