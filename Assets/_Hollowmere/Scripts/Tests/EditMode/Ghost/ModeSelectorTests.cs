@@ -52,13 +52,18 @@ namespace Hollowmere.Tests.Ghost
         }
 
         [Test]
-        public void IceGunHeld_MakesItCareful_NoStrike()
+        public void IceGunHeld_MakesItCareful_StrikesLessReadily()
         {
             ModeInputs i = Seen();
-            i.Distance = 1.5f;
-            i.FacingAway = 1f;
+            i.Distance = 4f;                                 // side-on, at the start of the hunt
+            Assert.AreEqual(GhostMode.Strike, Choose(i, ModeTuning.Servant), "bold: goes for it");
+
             i.IceGunHeld = true;
-            Assert.AreNotEqual(GhostMode.Strike, Choose(i, ModeTuning.Servant));
+            Assert.AreNotEqual(GhostMode.Strike, Choose(i, ModeTuning.Servant), "careful: waits");
+
+            i.FacingAway = 1f;
+            i.HuntSeconds = ModeTuning.Servant.patienceSeconds;
+            Assert.AreEqual(GhostMode.Strike, Choose(i, ModeTuning.Servant), "but strikes once the back is turned");
         }
 
         [Test]
@@ -109,10 +114,10 @@ namespace Hollowmere.Tests.Ghost
         }
 
         [Test]
-        public void Mara_StrikesFromStalkingRangeSooner_ThanAServant()
+        public void Mara_StrikesFromFurtherOff_ThanAServant()
         {
             ModeInputs i = Seen();
-            i.Distance = 6f;
+            i.Distance = 9f;
             i.FacingAway = 1f;
             i.HuntSeconds = 6f;
 
@@ -125,7 +130,7 @@ namespace Hollowmere.Tests.Ghost
         {
             ModeInputs i = Seen();
             i.Distance = 4f;
-            i.FacingAway = 1f;
+            i.FacingAway = 0.25f;                            // mostly facing the ghost
 
             i.HuntSeconds = 0f;
             Assert.AreEqual(GhostMode.Stalk, Choose(i, ModeTuning.Servant, GhostMode.Stalk));
