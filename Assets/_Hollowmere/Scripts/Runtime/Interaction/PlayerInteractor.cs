@@ -6,8 +6,8 @@ using UnityEngine.InputSystem;
 namespace Hollowmere.Interaction
 {
     /// <summary>
-    /// Casts an interaction ray forward from the player's camera (2.5m).
-    /// Detects any IInteractable targets, renders an on-screen HUD prompt,
+    /// Casts an interaction ray forward from the player's camera (2.5m), falling back to the
+    /// nearest item in front of the player's feet. Renders an on-screen HUD prompt,
     /// and invokes Interact() upon pressing the 'E' key.
     /// Defined in SystemsEngineer.md (Section 5).
     /// </summary>
@@ -18,6 +18,12 @@ namespace Hollowmere.Interaction
         [Tooltip("Max reach for interacting with world objects.")]
         [SerializeField] private float reachDistance = 2.5f;
 
+        [Tooltip("Radius of the look ray, so small items do not need pixel-perfect aim.")]
+        [SerializeField] private float lookRadius = 0.12f;
+
+        [Tooltip("Items this close in front of the player can be taken without looking straight at them.")]
+        [SerializeField] private float nearbyRadius = 1.6f;
+
         [Tooltip("Layer mask for interactables. Defaults to all standard layers if unassigned.")]
         [SerializeField] private LayerMask interactMask = ~0;
 
@@ -27,6 +33,9 @@ namespace Hollowmere.Interaction
         [Header("Inventory Link")]
         [SerializeField] private PlayerInventory inventory;
 
+        private readonly RaycastHit[] rayHits = new RaycastHit[16];
+        private readonly Collider[] nearby = new Collider[32];
+        private Transform playerRoot;
         private IInteractable currentTarget;
         private string currentPrompt = "";
         private bool canInteractWithTarget = false;
@@ -70,35 +79,95 @@ namespace Hollowmere.Interaction
         }
 
         /// <summary>
-        /// Casts ray forward to identify candidate IInteractable objects.
+        /// Picks what E acts on: whatever the player looks at, or else the nearest item at their feet.
         /// </summary>
         private void CheckForInteractable()
         {
             if (cameraTransform == null) return;
 
-            Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
-
-            // Use QueryTriggerInteraction.Collide so trigger-based pickups & interactables are detected
-            if (Physics.Raycast(ray, out RaycastHit hit, reachDistance, interactMask, QueryTriggerInteraction.Collide))
+            IInteractable found = LookTarget();
+            if (found == null) found = NearbyItem();
+            if (found == null)
             {
-                // Don't interact with ourselves
-                if (hit.transform.IsChildOf(transform.root))
-                {
-                    ClearTarget();
-                    return;
-                }
+                ClearTarget();
+                return;
+            }
+
+            currentTarget = found;
+            canInteractWithTarget = found.CanInteract(inventory);
+            currentPrompt = found.Prompt;
+        }
+
+        // A thick ray from the eye. Every hit along it is checked, so a fog or post-processing
+        // volume (a trigger with nothing to use) no longer hides the item behind it; a solid wall does.
+        private IInteractable LookTarget()
+        {
+            var ray = new Ray(cameraTransform.position, cameraTransform.forward);
+            int count = Physics.SphereCastNonAlloc(ray, lookRadius, rayHits, reachDistance, interactMask, QueryTriggerInteraction.Collide);
+
+            IInteractable best = null;
+            float bestDistance = float.MaxValue, wallDistance = float.MaxValue;
+            for (int i = 0; i < count; i++)
+            {
+                var hit = rayHits[i];
+                if (hit.collider.transform.IsChildOf(PlayerRoot)) continue;
 
                 var interactable = hit.collider.GetComponentInParent<IInteractable>();
                 if (interactable != null)
                 {
-                    currentTarget = interactable;
-                    canInteractWithTarget = interactable.CanInteract(inventory);
-                    currentPrompt = interactable.Prompt;
-                    return;
+                    if (hit.distance < bestDistance) { best = interactable; bestDistance = hit.distance; }
+                }
+                else if (!hit.collider.isTrigger && hit.distance > 0f && hit.distance < wallDistance)
+                {
+                    wallDistance = hit.distance;
                 }
             }
+            return bestDistance <= wallDistance ? best : null;
+        }
 
-            ClearTarget();
+        // Items on the floor sit below a forward-looking ray, so standing next to one was not enough.
+        // The nearest pickup or health station in front of the player, with nothing solid between, is
+        // offered instead. Doors and gates still have to be looked at.
+        private IInteractable NearbyItem()
+        {
+            Transform root = PlayerRoot;
+            Vector3 eye = cameraTransform.position;
+            Vector3 facing = Vector3.ProjectOnPlane(root.forward, Vector3.up).normalized;
+            int count = Physics.OverlapSphereNonAlloc(root.position + Vector3.up * 0.8f, nearbyRadius, nearby, interactMask, QueryTriggerInteraction.Collide);
+
+            IInteractable best = null;
+            float bestDistance = float.MaxValue;
+            for (int i = 0; i < count; i++)
+            {
+                var col = nearby[i];
+                var interactable = col.GetComponentInParent<IInteractable>();
+                if (!(interactable is Hollowmere.Pickups.Pickup) && !(interactable is Hollowmere.Pickups.HealthStation)) continue;
+
+                Vector3 centre = col.bounds.center;
+                Vector3 flat = Vector3.ProjectOnPlane(centre - root.position, Vector3.up);
+                if (flat.sqrMagnitude > 0.09f && Vector3.Dot(flat.normalized, facing) < 0.3f) continue;   // behind or beside
+
+                var owner = ((Component)interactable).transform;
+                if (Physics.Linecast(eye, centre, out RaycastHit block, interactMask, QueryTriggerInteraction.Ignore)
+                    && !block.collider.transform.IsChildOf(owner)) continue;                                  // a wall between
+
+                float distance = (centre - eye).sqrMagnitude;
+                if (distance < bestDistance) { best = interactable; bestDistance = distance; }
+            }
+            return best;
+        }
+
+        private Transform PlayerRoot
+        {
+            get
+            {
+                if (playerRoot == null)
+                {
+                    var body = GetComponentInParent<CharacterController>();
+                    playerRoot = body != null ? body.transform : transform.root;
+                }
+                return playerRoot;
+            }
         }
 
         private void ClearTarget()
