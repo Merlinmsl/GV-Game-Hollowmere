@@ -1,4 +1,6 @@
+using System.Reflection;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using Hollowmere.Player;
 using Hollowmere.Combat;
@@ -24,6 +26,16 @@ namespace Hollowmere.Tests.Combat
             playerController = playerGo.AddComponent<PlayerController>();
             playerHealth = playerGo.AddComponent<PlayerHealth>();
             weaponSystem = playerGo.AddComponent<WeaponSystem>();
+            Awake(playerController);
+            Awake(playerHealth);
+            Awake(weaponSystem);
+        }
+
+        // Edit mode runs no lifecycle, so AddComponent never calls Awake. Calling it here sets each component
+        // up as it is when play starts (full health, cached references).
+        private static void Awake(MonoBehaviour component)
+        {
+            component.GetType().GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic)?.Invoke(component, null);
         }
 
         [TearDown]
@@ -99,6 +111,11 @@ namespace Hollowmere.Tests.Combat
             var zombieGo = new GameObject("TestZombie");
             zombieGo.AddComponent<UnityEngine.AI.NavMeshAgent>();
             var zombie = zombieGo.AddComponent<ZombieBody>();
+            var config = ScriptableObject.CreateInstance<ZombieConfig>();    // default tuning, as a new asset has
+            var so = new SerializedObject(zombie);
+            so.FindProperty("config").objectReferenceValue = config;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            Awake(zombie);
 
             Assert.IsInstanceOf<IDamageable>(zombie);
             Assert.IsInstanceOf<IIceable>(zombie);
@@ -116,6 +133,7 @@ namespace Hollowmere.Tests.Combat
             Assert.IsTrue(zombie.IsDead);
 
             Object.DestroyImmediate(zombieGo);
+            Object.DestroyImmediate(config);
         }
     }
 }
