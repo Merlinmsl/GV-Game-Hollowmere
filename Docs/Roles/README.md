@@ -13,7 +13,16 @@ by step, assuming you have never done it before.
 Each guide also exists as a Word file with the same name in this folder.
 
 These guides cover the **Graphics** module only. The AI agents for the Intelligent Systems
-module are planned in [Docs/AI](../AI/README.md).
+module are described in [Docs/AI](../AI/README.md).
+
+### What each role has delivered so far
+
+| Role | Delivered |
+|---|---|
+| World Builder | Five streamed zone scenes and the World scene; terrain tiles, vistas, fog zones, flickering lights; baked lighting in one shared probe-volume set; Humanoid and Dog NavMesh with dog links between zones; zone maps; pickups, doors, hatch and gates placed from the markers |
+| Systems Engineer | `PF_Player`: movement, crouch, jump, flashlight, health and death, pistol and ice gun, HUD and crosshair; E-key interaction and inventory; hinged doors, study hatch, zone exits, pickups, first-aid boxes, throwable bottles, pushable barricades |
+| Core Developer | Custom models made in Blender: the ice gun, the pistol, two pairs of first-person arms and a specimen jar (see [CoreModels.md](../Art/CoreModels.md)); the weapon viewmodels with muzzle flash, ice spray and weapon sounds; character import and set-up (Hollowmere > Characters) |
+| Agent Controller | `AgentLocomotion` (constant-rate turning, braking, and animation speed matched to ground speed so the feet do not slide) on `PF_Zombie` and `PF_Creature`, with their prefabs and clips; `GhostMovement` (floating through walls, fading inside them) on `PF_Ghost` |
 
 **Deadline: 21 October 2026.** Source code and a 3-minute demo video, then an individual viva.
 

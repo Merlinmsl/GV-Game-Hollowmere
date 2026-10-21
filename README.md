@@ -21,15 +21,41 @@ A first-person horror shooter built in Unity for the SLIIT joint project
 Unity, cloning, running the game, controls and testing shortcuts, and what is built so far.
 
 **Not sure what your role has to deliver? Read your [Role Guide](Docs/Roles/README.md):** what
-each of the four Graphics roles must build, step by step. The AI agents are planned in
-[Docs/AI](Docs/AI/README.md).
+each of the four Graphics roles must build, step by step.
 
 In short:
 
 1. Clone the repository and open it with Unity **6000.3.24f1**.
 2. Wait for the first import to finish. The pack assets the game uses are already in the repo;
    do not import the Asset Store packs yourself (see *Third-party assets*).
-3. Open your sandbox scene from `Assets/_Hollowmere/Scenes/Sandbox/<YourName>/`.
+3. Run **Hollowmere > World > Open World (press Play here)** and press Play.
+
+## Documentation
+
+| Document | What it covers |
+|---|---|
+| [Docs/Setup](Docs/Setup/README.md) | Install, run, controls, test keys, what is built, troubleshooting |
+| [Docs/Story](Docs/Story/README.md) | The story, the zones, the evidence pages |
+| [Docs/Roles](Docs/Roles/README.md) | The four Graphics roles and what each delivers |
+| [Docs/AI](Docs/AI/README.md) | The four AI agents, the shared senses layer, and what was built |
+| [Docs/AI/Ghost.md](Docs/AI/Ghost.md) | The ghosts in detail: architecture, numbers, viva cheat sheet |
+| [Docs/AI/Biscuit.md](Docs/AI/Biscuit.md) | Biscuit in detail: the planner, facts, goals, actions |
+| [Docs/Art/CoreModels.md](Docs/Art/CoreModels.md) | The custom 3D models |
+| [Assets/ThirdParty/README.md](Assets/ThirdParty/README.md) | Asset Store packs and how they are stored |
+
+## What the game has now
+
+- **The player** (`PF_Player`): first-person movement, crouch, jump, flashlight, health, a pistol
+  (found in the Zone 1 guard house) and the ice gun, a HUD and a crosshair.
+- **Interaction:** pickups (keys, evidence pages, ammunition, ice canisters, batteries), doors,
+  the study hatch, zone gates that need a key and the zone's evidence pages, first-aid boxes,
+  throwable bottles, pushable barricades, and a map screen (**M**).
+- **The four AI agents:** zombies in the village (behaviour tree), ghosts in Marrow House (utility
+  over an influence map), Biscuit the dog (goal-oriented planner) and the Director (utility AI
+  with a stress model). The creature in the Undercroft runs the zombie brain with its own settings.
+- **One streamed world** of five zone scenes, with baked lighting and NavMesh.
+- Not built yet: Dr Marrow's behaviour (the model is placed, with no AI), most sound (only the
+  weapon sounds exist), menus and the ending.
 
 ## Folder structure
 
@@ -37,24 +63,41 @@ In short:
 Assets/
 ├── _Hollowmere/              Everything the team creates
 │   ├── Art/
+│   │   ├── Animations/       Clips and animator controllers
 │   │   ├── Materials/
-│   │   ├── Models/
+│   │   ├── Models/           Characters, first-person arms, pistol, ice gun, specimen jar
 │   │   ├── Shaders/
+│   │   ├── Terrain/
 │   │   ├── Textures/
 │   │   └── VFX/
 │   ├── Audio/
-│   ├── Data/                 ScriptableObject configs (tuning values, settings)
+│   │   └── Weapons/          SFX_Pistol_*, SFX_IceGun_*, SFX_Weapon_Equip
+│   ├── Data/                 ScriptableObject configs (SO_ZombieConfig, SO_CreatureConfig, SO_ZoneMaps)
 │   ├── Prefabs/
-│   │   ├── Agents/
+│   │   ├── Agents/           PF_Zombie, PF_Ghost, PF_Biscuit, PF_Creature, PF_Marrow
 │   │   ├── Environment/
-│   │   ├── Interactables/
-│   │   └── Pickups/
+│   │   ├── Interactables/    Doors, hatch, zone exit, barricade, bottle, health station
+│   │   ├── Pickups/          Key, evidence page, ammo, ice canister, battery, pistol
+│   │   ├── Player/           First-person weapon viewmodels
+│   │   └── PF_Player.prefab  The player
 │   ├── Scenes/
+│   │   ├── World.unity       The scene to press Play in
+│   │   ├── Zones/            The five zone scenes
 │   │   ├── Sandbox/<Name>/   Personal test scenes, never in the build
-│   │   └── Zones/            The four playable zone scenes
+│   │   └── Sandbox_*.unity   Agent test scenes (ghost AI, agent locomotion)
 │   ├── Scripts/
-│   │   ├── Editor/
-│   │   └── Runtime/
+│   │   ├── Editor/           The Hollowmere menu: world, lighting, maps, props, builds
+│   │   ├── Runtime/
+│   │   │   ├── AI/           Senses, Scheduling, Zombie, Ghost, Biscuit, Director, Debugging
+│   │   │   ├── Agents/       Locomotion and ghost movement
+│   │   │   ├── Combat/       IDamageable, IIceable
+│   │   │   ├── Interaction/  E-key interaction and the inventory
+│   │   │   ├── Physics/      Doors, zone exits, throwables, barricades
+│   │   │   ├── Pickups/
+│   │   │   ├── Player/       Controller, health, weapons, HUD
+│   │   │   ├── World/        Zone streaming, fog zones, map screen, light flicker
+│   │   │   └── Debugging/    Temporary test keys and the debug walker
+│   │   └── Tests/EditMode/   Unit tests (see Testing)
 │   └── Settings/
 │       ├── Input/
 │       ├── Lighting/
@@ -95,20 +138,25 @@ beyond about 110 m, so that is the distance at which zones are loaded and unload
 ### Playing the game: the World scene
 
 `Scenes/World.unity` is the scene to press Play in (**Hollowmere > World > Open World**). It is
-always loaded and holds what must survive from zone to zone: the player, the moon, the fog and
-sky, the global post-processing, and later the Director and the HUD.
+always loaded and holds what must survive from zone to zone: the player (`PF_Player`, with its
+HUD), Biscuit, the Director (`_Director`), the map screen (`_Map`), the moon, the fog and sky, and
+the global post-processing.
 
 - `ZoneStreamer` (on `_World`) loads a zone when the player comes near it and unloads it once the
-  player is far enough away. It finds the player by the **`Player` tag**, so the player prefab
-  must carry that tag.
-- `DebugPlayer (temporary)` is a stand-in walker (WASD, mouse, Shift to run) until the real player
-  is ready. Replace it with the player prefab in the same place.
+  player is far enough away. It finds the player by the **`Player` tag**, which `PF_Player` carries.
+- `DebugPlayer (temporary)` is the old stand-in walker. It is switched off and kept only for
+  testing; `PF_Player` replaced it.
+- Biscuit starts switched off and `ActivateOnNavMesh` switches it on once the Dog NavMesh under
+  it has streamed in.
 - Each zone keeps its own camera, moon and post-processing volume so it can be opened and viewed
   alone. They carry `StandalonePreviewOnly` and switch themselves off when the zone is loaded by
   the World scene. Do not put gameplay on those objects.
 - **The way into the Undercroft** is a hatch in the floor of Marrow's study, with stairs down.
-  The hatch door and its lock are not built yet (Systems Engineer); until then the opening is
-  simply open. The stairwell passes through a hole in the terrain, defined in `WorldTerrain.cs`.
+  The hatch lid is a zone exit: it opens with the tunnel key and three Marrow House pages. The
+  stairwell passes through a hole in the terrain, defined in `WorldTerrain.cs`.
+- **Doors, gates and pickups in the zones** are made by **Hollowmere > World > Place Pickups,
+  Doors and Gates** from the `_Gameplay` markers. Everything it makes is named `Placed_...` and is
+  replaced when it runs again, so do not edit those objects by hand.
 - **The tunnel comes out at the Waterworks** through a walled cutting in the hillside. The red
   light seen from the village is on the radio mast here; `WorldVistas.WaterworksBeacon` must
   match the top of that mast.
@@ -140,10 +188,11 @@ next to the scene in `Scenes/Zones/<SceneName>/NavMesh-<Agent>.asset`.
 
 | Agent type | Radius | Height | Step height | Max slope | Used by |
 |---|---|---|---|---|---|
-| Humanoid | 0.4 m | 1.9 m | 0.55 m | 40° | Runner zombie |
+| Humanoid | 0.4 m | 1.9 m | 0.55 m | 40° | Zombies, the creature; also how far sound travels |
 | Dog | 0.25 m | 0.7 m | 0.5 m | 45° | Biscuit |
 
-Ghosts fly through walls and do not use the NavMesh.
+Ghosts fly through walls and do not use the NavMesh. They plan on their own 3D grid of the house,
+baked by the `GhostHouseVolume` in Zone 2 (see [Ghost.md](Docs/AI/Ghost.md)).
 
 | Area | Cost | Meaning |
 |---|---|---|
@@ -212,6 +261,15 @@ Rules:
 - The repository is private. Asset Store content must not be pushed to a public repository.
 
 Adding assets from a pack (World Builder): see `Assets/ThirdParty/README.md`.
+
+## Testing and building
+
+- **Unit tests:** **Window > General > Test Runner**, tab **EditMode**, **Run All**. There are 153:
+  99 for the ghosts (`Tests/EditMode/Ghost`, its own assembly), 32 for Biscuit, and 22 for the
+  player, combat, inventory, doors and weapon viewmodels.
+- **Windows build:** **Hollowmere > Build > Windows Game** writes `Builds/Windows/Hollowmere.exe`
+  from the scenes ticked in **File > Build Profiles**. `World` must be first; the five zones follow.
+  The *development* variant connects to the Profiler.
 
 ## Git workflow
 
