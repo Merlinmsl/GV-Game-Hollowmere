@@ -104,10 +104,6 @@ namespace Hollowmere.Interactables
                 fPressed = true;
             }
 #endif
-            if (Input.GetKeyDown(KeyCode.F))
-            {
-                fPressed = true;
-            }
 
             if (fPressed)
             {

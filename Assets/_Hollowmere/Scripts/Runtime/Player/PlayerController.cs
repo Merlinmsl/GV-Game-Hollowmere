@@ -120,8 +120,16 @@ namespace Hollowmere.Player
         private PlayerNoiseEmitter noiseEmitter;
         private PlayerHealth playerHealth;
         private WeaponSystem weaponSystem;
+        private Hollowmere.Interaction.PlayerInventory inventory;
+        private Hollowmere.Interaction.PlayerInteractor interactor;
         private float verticalVelocity;
         private float pitch;
+
+        /// <summary>Reference to the player's inventory tracking keys, evidence, and supplies.</summary>
+        public Hollowmere.Interaction.PlayerInventory Inventory => inventory;
+
+        /// <summary>Reference to the player's interaction raycaster.</summary>
+        public Hollowmere.Interaction.PlayerInteractor Interactor => interactor;
 
         /// <summary>
         /// Replenishes ammunition when handed over by Biscuit or ammo pickups.
@@ -144,6 +152,8 @@ namespace Hollowmere.Player
             noiseEmitter = GetComponent<PlayerNoiseEmitter>();
             playerHealth = GetComponent<PlayerHealth>();
             weaponSystem = GetComponent<WeaponSystem>();
+            inventory = GetComponent<Hollowmere.Interaction.PlayerInventory>();
+            if (inventory == null) inventory = gameObject.AddComponent<Hollowmere.Interaction.PlayerInventory>();
 
             characterController.height = standingHeight;
             characterController.radius = 0.35f;
@@ -160,6 +170,16 @@ namespace Hollowmere.Player
                 else if (Camera.main != null && Camera.main.transform.IsChildOf(transform))
                 {
                     headTransform = Camera.main.transform;
+                }
+            }
+
+            if (interactor == null)
+            {
+                interactor = GetComponentInChildren<Hollowmere.Interaction.PlayerInteractor>();
+                if (interactor == null)
+                {
+                    Transform targetHead = headTransform != null ? headTransform : transform;
+                    interactor = targetHead.gameObject.AddComponent<Hollowmere.Interaction.PlayerInteractor>();
                 }
             }
 

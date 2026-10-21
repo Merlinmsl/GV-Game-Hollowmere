@@ -66,6 +66,21 @@ namespace Hollowmere.Player
 
         public WeaponKind CurrentWeapon { get; private set; } = WeaponKind.None;
 
+        [Header("Ownership")]
+        [Tooltip("Whether the player already carries the pistol. Off: it is found in the Zone 1 guard house.")]
+        [SerializeField] private bool hasPistol = false;
+
+        /// <summary>Whether the pistol has been found; until then Q skips it.</summary>
+        public bool HasPistol => hasPistol;
+
+        /// <summary>Gives the player the pistol (the guard-house pickup) and draws it.</summary>
+        public void UnlockPistol()
+        {
+            hasPistol = true;
+            CurrentWeapon = WeaponKind.Pistol;
+            UpdateWeaponState();
+        }
+
         public float Ammo01
         {
             get
@@ -125,12 +140,12 @@ namespace Hollowmere.Player
 
             WeaponKind targetWeapon = CurrentWeapon;
 
-            // Q cycles: None -> Pistol -> IceGun -> None
+            // Q cycles: None -> Pistol -> IceGun -> None (the pistol only once it has been found)
             if (keyboard.qKey.wasPressedThisFrame)
             {
                 switch (CurrentWeapon)
                 {
-                    case WeaponKind.None: targetWeapon = WeaponKind.Pistol; break;
+                    case WeaponKind.None: targetWeapon = hasPistol ? WeaponKind.Pistol : WeaponKind.IceGun; break;
                     case WeaponKind.Pistol: targetWeapon = WeaponKind.IceGun; break;
                     case WeaponKind.IceGun: targetWeapon = WeaponKind.None; break;
                 }
@@ -333,6 +348,36 @@ namespace Hollowmere.Player
             {
                 OnAmmoAdded?.Invoke();
             }
+        }
+
+        /// <summary>
+        /// Adds pistol rounds (an ammo box or magazine pickup). Capped at maxPistolAmmo.
+        /// Returns how many rounds actually went in.
+        /// </summary>
+        public int AddPistolRounds(int rounds)
+        {
+            int before = currentPistolAmmo;
+            currentPistolAmmo = Mathf.Clamp(currentPistolAmmo + Mathf.Max(0, rounds), 0, maxPistolAmmo);
+            AfterRefill(currentPistolAmmo > before);
+            return currentPistolAmmo - before;
+        }
+
+        /// <summary>
+        /// Adds ice gun charge (an ice canister pickup), in the same units as maxIceAmmo and
+        /// iceCostPerShot. Capped at maxIceAmmo. Returns how much charge actually went in.
+        /// </summary>
+        public float AddIceCharge(float charge)
+        {
+            float before = currentIceAmmo;
+            currentIceAmmo = Mathf.Clamp(currentIceAmmo + Mathf.Max(0f, charge), 0f, maxIceAmmo);
+            AfterRefill(currentIceAmmo > before);
+            return currentIceAmmo - before;
+        }
+
+        private void AfterRefill(bool gained)
+        {
+            if (playerController != null) playerController.Ammo01 = Ammo01;
+            if (gained) OnAmmoAdded?.Invoke();
         }
 
         // The crosshair is drawn by Crosshair and the weapon and ammo by PlayerHud.
