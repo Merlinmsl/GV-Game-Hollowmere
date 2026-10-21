@@ -335,6 +335,36 @@ namespace Hollowmere.Player
             }
         }
 
+        /// <summary>
+        /// Adds pistol rounds (an ammo box or magazine pickup). Capped at maxPistolAmmo.
+        /// Returns how many rounds actually went in.
+        /// </summary>
+        public int AddPistolRounds(int rounds)
+        {
+            int before = currentPistolAmmo;
+            currentPistolAmmo = Mathf.Clamp(currentPistolAmmo + Mathf.Max(0, rounds), 0, maxPistolAmmo);
+            AfterRefill(currentPistolAmmo > before);
+            return currentPistolAmmo - before;
+        }
+
+        /// <summary>
+        /// Adds ice gun charge (an ice canister pickup), in the same units as maxIceAmmo and
+        /// iceCostPerShot. Capped at maxIceAmmo. Returns how much charge actually went in.
+        /// </summary>
+        public float AddIceCharge(float charge)
+        {
+            float before = currentIceAmmo;
+            currentIceAmmo = Mathf.Clamp(currentIceAmmo + Mathf.Max(0f, charge), 0f, maxIceAmmo);
+            AfterRefill(currentIceAmmo > before);
+            return currentIceAmmo - before;
+        }
+
+        private void AfterRefill(bool gained)
+        {
+            if (playerController != null) playerController.Ammo01 = Ammo01;
+            if (gained) OnAmmoAdded?.Invoke();
+        }
+
         // The crosshair is drawn by Crosshair and the weapon and ammo by PlayerHud.
     }
 }

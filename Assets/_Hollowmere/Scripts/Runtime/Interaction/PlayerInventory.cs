@@ -17,6 +17,9 @@ namespace Hollowmere.Interaction
         [SerializeField] private int iceCanisters = 2;
         [SerializeField] private int batteries = 1;
 
+        [Tooltip("Ice gun charge one canister gives (the gun holds 100 and a shot costs 20).")]
+        [SerializeField] private float iceChargePerCanister = 40f;
+
         private readonly HashSet<string> keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> evidencePages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -116,13 +119,13 @@ namespace Hollowmere.Interaction
         // Supplies / Consumables Management
         // ─────────────────────────────────────────────────────────────────────────
 
-        /// <summary>Adds ammunition to weapon reserves and player weapon system.</summary>
+        /// <summary>Adds pistol rounds to weapon reserves and player weapon system.</summary>
         public void AddAmmo(float amount)
         {
             ammoReserve += amount;
             if (weaponSystem != null)
             {
-                weaponSystem.AddAmmo(amount);
+                weaponSystem.AddPistolRounds(Mathf.RoundToInt(amount));   // amount is in rounds
             }
             Debug.Log($"<color=orange><b>[PlayerInventory]</b> Added {amount} ammo. Total reserve: {ammoReserve}</color>");
             OnResourceCollected?.Invoke("Ammo", amount);
@@ -134,7 +137,7 @@ namespace Hollowmere.Interaction
             iceCanisters += count;
             if (weaponSystem != null)
             {
-                weaponSystem.AddAmmo(count * 5f);
+                weaponSystem.AddIceCharge(count * iceChargePerCanister);
             }
             Debug.Log($"<color=cyan><b>[PlayerInventory]</b> Added {count} Ice Canister(s). Total: {iceCanisters}</color>");
             OnResourceCollected?.Invoke("Ice Canister", count);

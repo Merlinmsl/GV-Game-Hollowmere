@@ -112,7 +112,9 @@ namespace Hollowmere.Pickups
 
             Debug.Log($"<color=green><b>[Pickup]</b> Collected {displayName} ({itemId})</color>");
 
-            // Disable or destroy pickup
+            // Tick it off on the zone map (the marker is this pickup or its parent), then remove it
+            var marker = GetComponentInParent<Hollowmere.World.MapMarker>();
+            if (marker != null) marker.Collect();
             gameObject.SetActive(false);
         }
     }

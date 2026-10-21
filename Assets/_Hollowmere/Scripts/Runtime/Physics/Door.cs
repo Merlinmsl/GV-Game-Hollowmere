@@ -2,9 +2,6 @@ using UnityEngine;
 using UnityEngine.AI;
 using Hollowmere.AI.Senses;
 using Hollowmere.Interaction;
-#if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem;
-#endif
 
 namespace Hollowmere.Interactables
 {
@@ -64,12 +61,7 @@ namespace Hollowmere.Interactables
         [Tooltip("Loudness of noise emitted when door is operated (default 10 m).")]
         [SerializeField] private float noiseLoudness = Loudness.Door;
 
-        [Header("Proximity Fallback Settings")]
-        [Tooltip("Maximum interaction distance from player if not using raycast interaction.")]
-        [SerializeField] private float interactDistance = 2.5f;
-
         private bool isOpen = false;
-        private bool isPlayerNearby = false;
         private Quaternion closedRotation;
         private Quaternion openRotation;
 
@@ -81,9 +73,6 @@ namespace Hollowmere.Interactables
 
         /// <summary>Required key name to unlock.</summary>
         public string RequiredKey => requiredKey;
-
-        /// <summary>Whether player is currently within proximity interaction range.</summary>
-        public bool IsPlayerNearby => isPlayerNearby;
 
         public string Prompt
         {
@@ -115,7 +104,6 @@ namespace Hollowmere.Interactables
 
         private void Update()
         {
-            CheckProximityInput();
             UpdateRotation();
         }
 
@@ -233,57 +221,6 @@ namespace Hollowmere.Interactables
             // Emit noise event so nearby AI entities hear the door operating
             NoiseSystem.Emit(transform.position, noiseLoudness, NoiseKind.Interaction, gameObject);
             Debug.Log($"<color=white><b>[Door]</b> Door {(isOpen ? "Opened" : "Closed")}.</color>");
-        }
-
-        /// <summary>
-        /// Optional proximity input check if player is directly in front of the door without raycasting.
-        /// </summary>
-        private void CheckProximityInput()
-        {
-            if (!isPlayerNearby && PlayerRegistry.Current != null)
-            {
-                if (Vector3.Distance(transform.position, PlayerRegistry.Current.Position) <= interactDistance)
-                {
-                    isPlayerNearby = true;
-                }
-            }
-
-            if (!isPlayerNearby) return;
-
-            bool ePressed = false;
-#if ENABLE_INPUT_SYSTEM
-            if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
-            {
-                ePressed = true;
-            }
-#endif
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                ePressed = true;
-            }
-
-            if (ePressed)
-            {
-                var playerObj = GameObject.FindWithTag("Player");
-                PlayerInventory inv = playerObj != null ? playerObj.GetComponent<PlayerInventory>() : null;
-                Interact(inv);
-            }
-        }
-
-        private void OnTriggerEnter(Collider other)
-        {
-            if (other.CompareTag("Player") || other.GetComponent<CharacterController>() != null)
-            {
-                isPlayerNearby = true;
-            }
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            if (other.CompareTag("Player") || other.GetComponent<CharacterController>() != null)
-            {
-                isPlayerNearby = false;
-            }
         }
     }
 }

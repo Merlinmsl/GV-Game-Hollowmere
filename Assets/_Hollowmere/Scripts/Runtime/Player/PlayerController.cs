@@ -136,11 +136,7 @@ namespace Hollowmere.Player
         /// </summary>
         public void ReceiveAmmo(float amount)
         {
-            if (inventory != null)
-            {
-                inventory.AddAmmo(amount);
-            }
-            else if (weaponSystem != null)
+            if (weaponSystem != null)
             {
                 weaponSystem.AddAmmo(amount);
             }

@@ -122,14 +122,15 @@ namespace Hollowmere.Interaction
                 ePressed = true;
             }
 #endif
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                ePressed = true;
-            }
 
             if (ePressed)
             {
                 currentTarget.Interact(inventory);
+                // Name the item in plain words rather than by its inventory id
+                if (currentTarget is Hollowmere.Pickups.Pickup pickup && !pickup.gameObject.activeInHierarchy)
+                {
+                    ShowToast($"Picked up: {pickup.DisplayName}");
+                }
                 // Refresh current target status immediately
                 CheckForInteractable();
             }
