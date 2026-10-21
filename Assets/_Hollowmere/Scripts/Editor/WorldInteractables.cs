@@ -426,12 +426,13 @@ namespace Hollowmere.EditorTools
             Exit(estate.gameObject, estateLeaf, Vector3.forward, 2, "Z1_", "");
 
             // Zone 2 exit, the study hatch over the Undercroft stairs: floor hole x 12.25..19.25,
-            // z 238.25..240.75, floor 26.01. Needs the tunnel key and three Zone 2 pages; the lid
-            // lifts up on its north edge.
+            // z 238.25..240.75, floor 26.01. Needs the tunnel key and three Zone 2 pages. The lid is
+            // hinged on its south edge, against the wall, and lifts to lean back on that wall; the
+            // north edge has the banister, which a lid hinged there would swing through.
             var hatchExit = Find(zones["Z2"], "ZoneExit_Undercroft");
             ClearPlaced(hatchExit);
-            var lid = Hatch(hatchExit, new Vector3(15.75f, 26.03f, 240.95f), 7.3f, 2.9f, m.Wood);
-            Exit(hatchExit.gameObject, lid, Vector3.zero, 3, "Z2_", "Key_Tunnel", new Vector3(100f, 0f, 0f));
+            var lid = Hatch(hatchExit, new Vector3(15.75f, 26.03f, 238.05f), 7.3f, 2.9f, m.Wood);
+            Exit(hatchExit.gameObject, lid, Vector3.zero, 3, "Z2_", "Key_Tunnel", new Vector3(95f, 0f, 0f));
 
             // Zone 3 exit, the tunnel door to the Waterworks: opening z 244.2..246.4 in the wall at
             // x -101.8, floor 8.6. Needs the tunnel exit key and the three Zone 3 pages.
@@ -529,11 +530,12 @@ namespace Hollowmere.EditorTools
 
         static Transform Hatch(Transform parent, Vector3 hinge, float width, float depth, Material wood)
         {
-            // Hinge along the north edge (+Z); the lid lies to the south of it.
+            // Hinge along the south edge. The pivot is turned to face south, so the lid lies along its
+            // local -Z (world north, over the hole) and a positive turn about local X lifts it.
             var pivot = new GameObject("Placed_HatchLid").transform;
             pivot.SetParent(parent, false);
             pivot.position = hinge;
-            pivot.rotation = Quaternion.identity;
+            pivot.rotation = Quaternion.Euler(0f, 180f, 0f);
             var box = pivot.gameObject.AddComponent<BoxCollider>();
             box.center = new Vector3(0f, -0.06f, -depth * 0.5f);
             box.size = new Vector3(width, 0.12f, depth);
