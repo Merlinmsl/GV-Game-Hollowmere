@@ -84,12 +84,14 @@ namespace Hollowmere.Player
 
         public event Action<WeaponKind> OnWeaponChanged;
         public event Action OnFired;
+        /// <summary>The trigger was pulled with nothing to fire (empty pistol, ice gun without pressure).</summary>
+        public event Action OnEmpty;
+        /// <summary>Ammunition came in (a pickup or Biscuit's delivery).</summary>
+        public event Action OnAmmoAdded;
 
         private PlayerController playerController;
         private float nextPistolFireTime;
         private float nextIceFireTime;
-        private GUIStyle hudStyle;
-        private GUIStyle crosshairStyle;
 
         private void Awake()
         {
@@ -188,6 +190,7 @@ namespace Hollowmere.Player
             if (currentPistolAmmo <= 0)
             {
                 Debug.Log("[WeaponSystem] Pistol: *click* (Empty)");
+                OnEmpty?.Invoke();
                 return;
             }
 
@@ -241,6 +244,7 @@ namespace Hollowmere.Player
             if (currentIceAmmo < iceCostPerShot)
             {
                 Debug.Log("[WeaponSystem] Ice Gun: *hiss* (No cryogenic pressure)");
+                OnEmpty?.Invoke();
                 return;
             }
 
@@ -315,6 +319,8 @@ namespace Hollowmere.Player
         /// </summary>
         public void AddAmmo(float fraction)
         {
+            int pistolBefore = currentPistolAmmo;
+            float iceBefore = currentIceAmmo;
             currentPistolAmmo = Mathf.Clamp(currentPistolAmmo + Mathf.RoundToInt(fraction * maxPistolAmmo), 0, maxPistolAmmo);
             currentIceAmmo = Mathf.Clamp(currentIceAmmo + fraction * maxIceAmmo, 0f, maxIceAmmo);
 
@@ -322,56 +328,13 @@ namespace Hollowmere.Player
             {
                 playerController.Ammo01 = Ammo01;
             }
+
+            if (currentPistolAmmo > pistolBefore || currentIceAmmo > iceBefore)
+            {
+                OnAmmoAdded?.Invoke();
+            }
         }
 
-        private void OnGUI()
-        {
-            if (Cursor.lockState != CursorLockMode.Locked) return;
-
-            // Crosshair
-            if (crosshairStyle == null)
-            {
-                crosshairStyle = new GUIStyle(GUI.skin.label)
-                {
-                    fontSize = 18,
-                    alignment = TextAnchor.MiddleCenter
-                };
-                crosshairStyle.normal.textColor = new Color(1f, 1f, 1f, 0.6f);
-            }
-
-            float cx = Screen.width * 0.5f;
-            float cy = Screen.height * 0.5f;
-            GUI.Label(new Rect(cx - 10, cy - 10, 20, 20), "+", crosshairStyle);
-
-            // Weapon & Ammo HUD in bottom right corner
-            if (hudStyle == null)
-            {
-                hudStyle = new GUIStyle(GUI.skin.label)
-                {
-                    fontSize = 18,
-                    fontStyle = FontStyle.Bold,
-                    alignment = TextAnchor.MiddleRight
-                };
-            }
-
-            string weaponText;
-            switch (CurrentWeapon)
-            {
-                case WeaponKind.Pistol:
-                    hudStyle.normal.textColor = new Color(1f, 0.85f, 0.4f, 0.9f);
-                    weaponText = $"PISTOL  [{currentPistolAmmo} / {maxPistolAmmo}]";
-                    break;
-                case WeaponKind.IceGun:
-                    hudStyle.normal.textColor = new Color(0.4f, 0.85f, 1f, 0.9f);
-                    weaponText = $"ICE GUN  [{currentIceAmmo:F0}%]";
-                    break;
-                default:
-                    hudStyle.normal.textColor = new Color(0.7f, 0.7f, 0.7f, 0.7f);
-                    weaponText = "UNARMED [Q / 1-3]";
-                    break;
-            }
-
-            GUI.Label(new Rect(Screen.width - 320, Screen.height - 50, 300, 35), weaponText, hudStyle);
-        }
+        // The crosshair is drawn by Crosshair and the weapon and ammo by PlayerHud.
     }
 }
