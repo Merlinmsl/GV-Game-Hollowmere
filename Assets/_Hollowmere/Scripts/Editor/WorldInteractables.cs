@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -64,6 +65,7 @@ namespace Hollowmere.EditorTools
 
             var mats = new Materials();
             UpgradePickupPrefabs(mats);
+            BuildPistolPickup();
 
             int items = 0;
             foreach (var pair in zones) items += PlaceItems(pair.Key, pair.Value);
@@ -79,6 +81,7 @@ namespace Hollowmere.EditorTools
                 EditorSceneManager.MarkSceneDirty(pair.Value);
                 EditorSceneManager.SaveScene(pair.Value);
             }
+            AssetDatabase.SaveAssets();   // write the edited materials to disk, not only to memory
             Debug.Log($"[WorldInteractables] Placed {items} items, {stations} first-aid boxes, 4 doors, the study hatch and 4 zone gates.");
         }
 
@@ -168,8 +171,10 @@ namespace Hollowmere.EditorTools
             });
             Upgrade("PF_Pickup_Battery", true, 0.22f, v =>
             {
-                Part(v, PrimitiveType.Cylinder, Vector3.zero, new Vector3(0.045f, 0.06f, 0.045f), m.Battery);
-                Part(v, PrimitiveType.Cylinder, new Vector3(0f, 0.065f, 0f), new Vector3(0.02f, 0.007f, 0.02f), m.Copper);
+                // A big lantern cell rather than a torch battery, so it can be seen on the floor
+                Part(v, PrimitiveType.Cylinder, Vector3.zero, new Vector3(0.07f, 0.08f, 0.07f), m.Battery);
+                Part(v, PrimitiveType.Cylinder, new Vector3(0f, 0.085f, 0f), new Vector3(0.03f, 0.01f, 0.03f), m.Copper);
+                Part(v, PrimitiveType.Cube, Vector3.zero, new Vector3(0.072f, 0.05f, 0.072f), m.Paper).name = "Label";
             });
             Upgrade("PF_Pickup_EvidencePage", false, 0.3f, v =>
             {
@@ -248,8 +253,9 @@ namespace Hollowmere.EditorTools
             else if (n.StartsWith("Pickup_RevolverAmmo")) { prefab = "PF_Pickup_Ammo"; amount = 12f; lift = 0.3f; }
             else if (n.StartsWith("Pickup_IceCanister")) { prefab = "PF_Pickup_IceCanister"; type = PickupType.IceCanister; lift = 0.35f; }
             else if (n.StartsWith("Pickup_Battery")) { prefab = "PF_Pickup_Battery"; type = PickupType.Battery; lift = 0.3f; }
+            else if (n.StartsWith("Pickup_Revolver_")) { prefab = "PF_Pickup_Pistol"; type = PickupType.Weapon; amount = 6f; lift = 0.3f; }
             else if (n.StartsWith("Pickup_Bottle")) { PlaceBottle(zone, marker, scene); return true; }
-            else return false;   // the revolver and the health stations have no prefab yet
+            else return false;   // health stations are placed separately
 
             var asset = AssetDatabase.LoadAssetAtPath<GameObject>(PickupFolder + "/" + prefab + ".prefab");
             var go = (GameObject)PrefabUtility.InstantiatePrefab(asset, scene);
@@ -264,7 +270,8 @@ namespace Hollowmere.EditorTools
             // ("Z2_Evidence_...") so each zone exit counts only its own pages.
             so.FindProperty("itemId").stringValue = type == PickupType.EvidencePage ? zone + "_" + n : n;
             so.FindProperty("displayName").stringValue = Names.TryGetValue(n, out var nice) ? nice
-                : n.StartsWith("Pickup_Magazine") ? "Pistol magazine" : Hollowmere.World.MapMarker.MakeLabel(n);
+                : n.StartsWith("Pickup_Magazine") ? "Pistol magazine"
+                : type == PickupType.Weapon ? "Pistol" : Hollowmere.World.MapMarker.MakeLabel(n);
             so.FindProperty("amount").floatValue = amount;
             so.ApplyModifiedPropertiesWithoutUndo();
             return true;
@@ -277,20 +284,108 @@ namespace Hollowmere.EditorTools
             var go = (GameObject)PrefabUtility.InstantiatePrefab(asset, scene);
             go.name = Placed + "Bottle";
             go.transform.SetParent(marker, false);
-            go.transform.position = Surface(zone, marker.position) + Vector3.up * 0.25f;
+            // PF_Bottle is a 0.9 m capsule; a bottle is about 28 cm tall and 8 cm wide.
+            go.transform.localScale = new Vector3(0.08f, 0.14f, 0.08f);
+            // The bottle's pivot is at its middle: stand it on the surface by its real height.
+            go.transform.position = Surface(zone, marker.position);
+            float bottom = go.GetComponentsInChildren<Renderer>().Min(r => r.bounds.min.y);
+            go.transform.position += Vector3.up * (go.transform.position.y - bottom + 0.01f);
         }
 
-        // The highest solid surface within reach of the marker (floor, table). In the flooded
-        // village nothing may sit below the water, so a page there floats on the surface.
+        // The pistol lying in the guard house, using the team's own pistol model.
+        const string PistolModel = "Assets/_Hollowmere/Art/Models/Pistol/SM_Pistol.fbx";
+        const string PistolMaterial = "Assets/_Hollowmere/Art/Materials/Props/M_Pistol.mat";
+
+        static void BuildPistolPickup()
+        {
+            var model = AssetDatabase.LoadAssetAtPath<GameObject>(PistolModel);
+            if (model == null) { Debug.LogWarning("[WorldInteractables] SM_Pistol.fbx not found; no pistol pickup."); return; }
+
+            var root = new GameObject("PF_Pickup_Pistol");
+            var visual = (GameObject)Object.Instantiate(model);
+            visual.name = "Visual";
+            visual.transform.SetParent(root.transform, false);
+            foreach (var c in visual.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(PistolMaterial);
+            foreach (var r in visual.GetComponentsInChildren<Renderer>())
+            {
+                if (mat != null) r.sharedMaterial = mat;
+                r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
+            // Fit it to a real pistol's length (about 22 cm) and centre it on the pickup.
+            var b = RendererBounds(visual);
+            float longest = Mathf.Max(b.size.x, b.size.y, b.size.z);
+            if (longest > 0f) visual.transform.localScale *= 0.22f / longest;
+            b = RendererBounds(visual);
+            visual.transform.localPosition -= b.center;
+
+            var sphere = root.AddComponent<SphereCollider>();
+            sphere.isTrigger = true;
+            sphere.radius = 0.25f;
+            var audio = root.AddComponent<AudioSource>();
+            audio.playOnAwake = false;
+            audio.spatialBlend = 1f;
+            root.AddComponent<Pickup>().Configure(PickupType.Weapon, "Weapon_Pistol", "Pistol", 6f);
+
+            PrefabUtility.SaveAsPrefabAsset(root, PickupFolder + "/PF_Pickup_Pistol.prefab");
+            Object.DestroyImmediate(root);
+        }
+
+        static Bounds RendererBounds(GameObject go)
+        {
+            var renderers = go.GetComponentsInChildren<Renderer>();
+            var b = renderers[0].bounds;
+            foreach (var r in renderers) b.Encapsulate(r.bounds);
+            return b;
+        }
+
+        // The highest surface within reach of the marker (floor, table, water). Both the colliders and
+        // the visible meshes are checked: a marker on the ground under the guard house's raised floor
+        // must end up on that floor, and the flood water and floor decals have no collider at all.
         static Vector3 Surface(string zone, Vector3 p)
         {
-            var hits = Physics.RaycastAll(p + Vector3.up * 0.7f, Vector3.down, 2.5f, ~0, QueryTriggerInteraction.Ignore);
+            var start = p + Vector3.up * 1.2f;   // above a floor or table, below any ceiling
+            var hits = Physics.RaycastAll(start, Vector3.down, 3f, ~0, QueryTriggerInteraction.Ignore);
             float best = float.NegativeInfinity;
             foreach (var h in hits)
-                if (!h.collider.name.StartsWith(Placed) && h.point.y > best) best = h.point.y;
+                if (!IsPlaced(h.collider.transform) && h.point.y > best) best = h.point.y;
+            best = Mathf.Max(best, VisibleSurface(start, 3f));
             if (float.IsNegativeInfinity(best)) best = p.y;
             if (zone == "Z1") best = Mathf.Max(best, VillageWater);
             return new Vector3(p.x, best, p.z);
+        }
+
+        static bool IsPlaced(Transform t)
+        {
+            for (; t != null; t = t.parent)
+                if (t.name.StartsWith(Placed)) return true;
+            return false;
+        }
+
+        // Highest point of the drawn meshes (full-detail only) straight below 'start'.
+        static float VisibleSurface(Vector3 start, float length)
+        {
+            float best = float.NegativeInfinity;
+            var column = new Bounds(start + Vector3.down * length * 0.5f, new Vector3(0.1f, length, 0.1f));
+            var ray = new Ray(start, Vector3.down);
+            foreach (var filter in Object.FindObjectsByType<MeshFilter>(FindObjectsSortMode.None))
+            {
+                var r = filter.GetComponent<MeshRenderer>();
+                if (filter.sharedMesh == null || r == null || !r.enabled || !r.bounds.Intersects(column)) continue;
+                if (IsPlaced(filter.transform) || filter.GetComponentInParent<HealthStation>() != null) continue;
+                if (filter.name.Contains("_LOD") && !filter.name.Contains("_LOD0")) continue;
+                var temp = new GameObject("TMP_VisibleMesh") { hideFlags = HideFlags.HideAndDontSave };
+                try
+                {
+                    temp.transform.SetPositionAndRotation(filter.transform.position, filter.transform.rotation);
+                    temp.transform.localScale = filter.transform.lossyScale;
+                    var mc = temp.AddComponent<MeshCollider>();
+                    mc.sharedMesh = filter.sharedMesh;
+                    if (mc.Raycast(ray, out var hit, length) && hit.point.y > best) best = hit.point.y;
+                }
+                finally { Object.DestroyImmediate(temp); }
+            }
+            return best;
         }
 
         static int Hash(string s) { int h = 17; foreach (char c in s) h = h * 31 + c; return h & 0x7fffffff; }
