@@ -70,12 +70,16 @@ namespace Hollowmere.EditorTools
 
             BuildDoorsAndGates(zones, mats);
 
+            var station = BuildHealthStationPrefab(mats);
+            int stations = 0;
+            foreach (var pair in zones) stations += PlaceHealthStations(pair.Value, station);
+
             foreach (var pair in zones)
             {
                 EditorSceneManager.MarkSceneDirty(pair.Value);
                 EditorSceneManager.SaveScene(pair.Value);
             }
-            Debug.Log($"[WorldInteractables] Placed {items} items, 4 doors, the study hatch and 4 zone gates.");
+            Debug.Log($"[WorldInteractables] Placed {items} items, {stations} first-aid boxes, 4 doors, the study hatch and 4 zone gates.");
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -84,7 +88,7 @@ namespace Hollowmere.EditorTools
 
         sealed class Materials
         {
-            public readonly Material Brass, Card, Ice, Steel, Battery, Copper, Paper, Wood, Iron;
+            public readonly Material Brass, Card, Ice, Steel, Battery, Copper, Paper, Wood, Iron, Enamel, Cross;
 
             public Materials()
             {
@@ -99,6 +103,8 @@ namespace Hollowmere.EditorTools
                 Copper = Lit("M_Pickup_Copper", new Color(0.62f, 0.36f, 0.2f), 0.9f, 0.6f, Color.black);
                 Paper = Lit("M_Pickup_Paper", new Color(0.82f, 0.78f, 0.66f), 0f, 0.1f, new Color(0.12f, 0.115f, 0.1f));
                 Iron = Lit("M_Gate_Iron", new Color(0.1f, 0.09f, 0.085f), 0.85f, 0.3f, Color.black);
+                Enamel = Lit("M_Health_Enamel", new Color(0.72f, 0.71f, 0.66f), 0.3f, 0.45f, Color.black);
+                Cross = Lit("M_Health_Cross", new Color(0.55f, 0.03f, 0.03f), 0f, 0.4f, new Color(0.45f, 0.02f, 0.02f));
 
                 // Door wood: the dungeon kit's wood (already in the repo), tiled for a tall leaf.
                 string woodPath = MatFolder + "/M_Door_Wood.mat";
@@ -469,6 +475,129 @@ namespace Hollowmere.EditorTools
             so.FindProperty("openRotationEuler").vector3Value = openEuler ?? new Vector3(0f, SwingAngle(leaf, openInto), 0f);
             so.FindProperty("audioSource").objectReferenceValue = audio;
             so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // 4. First-aid boxes on the Station_Health_ markers
+        // ─────────────────────────────────────────────────────────────────────
+
+        const string HealthPrefab = "Assets/_Hollowmere/Prefabs/Interactables/PF_HealthStation.prefab";
+
+        // None of the packs has a first-aid kit, so this one is built here: a wall-mounted enamel box
+        // with a red cross that glows faintly while doses remain. Its back is at z = 0, facing +Z.
+        static GameObject BuildHealthStationPrefab(Materials m)
+        {
+            var root = new GameObject("PF_HealthStation");
+            var case_ = Part(root.transform, PrimitiveType.Cube, new Vector3(0f, 0f, 0.07f), new Vector3(0.42f, 0.34f, 0.14f), m.Enamel);
+            case_.name = "Case";
+            Part(root.transform, PrimitiveType.Cube, new Vector3(0f, 0.1f, 0.071f), new Vector3(0.425f, 0.008f, 0.142f), m.Iron).name = "LidSeam";
+            var crossH = Part(root.transform, PrimitiveType.Cube, new Vector3(0f, -0.03f, 0.143f), new Vector3(0.16f, 0.05f, 0.01f), m.Cross);
+            var crossV = Part(root.transform, PrimitiveType.Cube, new Vector3(0f, -0.03f, 0.143f), new Vector3(0.05f, 0.16f, 0.01f), m.Cross);
+            crossH.name = crossV.name = "Cross";
+            Part(root.transform, PrimitiveType.Cube, new Vector3(0f, 0.19f, 0.07f), new Vector3(0.13f, 0.02f, 0.025f), m.Steel).name = "Handle";
+            foreach (float x in new[] { -0.055f, 0.055f })
+                Part(root.transform, PrimitiveType.Cube, new Vector3(x, 0.178f, 0.07f), new Vector3(0.015f, 0.03f, 0.02f), m.Steel).name = "HandlePost";
+            Part(root.transform, PrimitiveType.Cube, new Vector3(0.19f, 0.06f, 0.145f), new Vector3(0.03f, 0.05f, 0.012f), m.Steel).name = "Latch";
+            case_.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+
+            var box = root.AddComponent<BoxCollider>();
+            box.center = new Vector3(0f, 0f, 0.07f);
+            box.size = new Vector3(0.42f, 0.34f, 0.14f);
+            var station = root.AddComponent<HealthStation>();
+            var so = new SerializedObject(station);
+            var glow = so.FindProperty("glow");
+            glow.arraySize = 2;
+            glow.GetArrayElementAtIndex(0).objectReferenceValue = crossH.GetComponent<Renderer>();
+            glow.GetArrayElementAtIndex(1).objectReferenceValue = crossV.GetComponent<Renderer>();
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            var prefab = PrefabUtility.SaveAsPrefabAsset(root, HealthPrefab);
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        static int PlaceHealthStations(Scene scene, GameObject prefab)
+        {
+            var markers = new List<Transform>();
+            foreach (var root in scene.GetRootGameObjects())
+                foreach (var t in root.GetComponentsInChildren<Transform>(true))
+                    if (t.name.StartsWith("Station_Health")) markers.Add(t);
+
+            foreach (var marker in markers)
+            {
+                ClearPlaced(marker);
+                var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
+                go.name = Placed + "HealthStation";
+                go.transform.SetParent(marker, false);
+
+                // Hang it on the nearest wall at chest height, facing the room; with no wall in
+                // reach it stands on the floor instead.
+                Vector3 floor = Surface(scene.name.Substring(0, 2), marker.position);
+                Vector3 chest = floor + Vector3.up * 1.3f;
+                RaycastHit best = default;
+                float bestDistance = float.MaxValue;
+                for (int a = 0; a < 16; a++)
+                {
+                    var dir = Quaternion.Euler(0f, a * 22.5f, 0f) * Vector3.forward;
+                    if (Physics.Raycast(chest, dir, out var hit, 2.5f, ~0, QueryTriggerInteraction.Ignore)
+                        && Mathf.Abs(hit.normal.y) < 0.2f && hit.distance < bestDistance
+                        && VisiblySolid(hit.point, Vector3.ProjectOnPlane(hit.normal, Vector3.up).normalized))
+                    {
+                        best = hit;
+                        bestDistance = hit.distance;
+                    }
+                }
+                if (bestDistance < float.MaxValue)
+                {
+                    var normal = Vector3.ProjectOnPlane(best.normal, Vector3.up).normalized;
+                    go.transform.SetPositionAndRotation(best.point + normal * 0.005f, Quaternion.LookRotation(normal, Vector3.up));
+                }
+                else
+                {
+                    go.transform.SetPositionAndRotation(floor + Vector3.up * 0.17f, Quaternion.identity);
+                }
+            }
+            return markers.Count;
+        }
+
+        // Wall colliders in the house pack are simplified and run straight across the windows, so a
+        // physics ray cannot tell a window from a wall. The visible mesh has the hole, so the box's
+        // four corners and centre are tested against temporary colliders built from the meshes drawn there.
+        static bool VisiblySolid(Vector3 point, Vector3 normal)
+        {
+            var right = Vector3.Cross(Vector3.up, normal);
+            var probes = new[] { Vector3.zero, right * 0.22f + Vector3.up * 0.18f, -right * 0.22f + Vector3.up * 0.18f,
+                                 right * 0.22f - Vector3.up * 0.18f, -right * 0.22f - Vector3.up * 0.18f };
+            var area = new Bounds(point, Vector3.one * 0.8f);
+            var temps = new List<GameObject>();
+            try
+            {
+                foreach (var filter in Object.FindObjectsByType<MeshFilter>(FindObjectsSortMode.None))
+                {
+                    var r = filter.GetComponent<MeshRenderer>();
+                    if (filter.sharedMesh == null || r == null || !r.enabled || !r.bounds.Intersects(area)) continue;
+                    if (filter.name.StartsWith(Placed) || filter.GetComponentInParent<HealthStation>() != null) continue;
+                    if (filter.name.Contains("_LOD") && !filter.name.Contains("_LOD0")) continue;   // simpler LODs may fill the window
+                    var temp = new GameObject("TMP_VisibleMesh") { hideFlags = HideFlags.HideAndDontSave };
+                    temp.transform.SetPositionAndRotation(filter.transform.position, filter.transform.rotation);
+                    temp.transform.localScale = filter.transform.lossyScale;
+                    temp.AddComponent<MeshCollider>().sharedMesh = filter.sharedMesh;
+                    temps.Add(temp);
+                }
+                foreach (var offset in probes)
+                {
+                    var ray = new Ray(point + offset + normal * 0.3f, -normal);
+                    bool solid = false;
+                    foreach (var t in temps)
+                        if (t.GetComponent<MeshCollider>().Raycast(ray, out _, 0.6f)) { solid = true; break; }
+                    if (!solid) return false;
+                }
+                return true;
+            }
+            finally
+            {
+                foreach (var t in temps) Object.DestroyImmediate(t);
+            }
         }
     }
 }
