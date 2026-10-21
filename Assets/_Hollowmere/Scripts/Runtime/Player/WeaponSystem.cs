@@ -66,6 +66,21 @@ namespace Hollowmere.Player
 
         public WeaponKind CurrentWeapon { get; private set; } = WeaponKind.None;
 
+        [Header("Ownership")]
+        [Tooltip("Whether the player already carries the pistol. Off: it is found in the Zone 1 guard house.")]
+        [SerializeField] private bool hasPistol = false;
+
+        /// <summary>Whether the pistol has been found; until then Q skips it.</summary>
+        public bool HasPistol => hasPistol;
+
+        /// <summary>Gives the player the pistol (the guard-house pickup) and draws it.</summary>
+        public void UnlockPistol()
+        {
+            hasPistol = true;
+            CurrentWeapon = WeaponKind.Pistol;
+            UpdateWeaponState();
+        }
+
         public float Ammo01
         {
             get
@@ -125,12 +140,12 @@ namespace Hollowmere.Player
 
             WeaponKind targetWeapon = CurrentWeapon;
 
-            // Q cycles: None -> Pistol -> IceGun -> None
+            // Q cycles: None -> Pistol -> IceGun -> None (the pistol only once it has been found)
             if (keyboard.qKey.wasPressedThisFrame)
             {
                 switch (CurrentWeapon)
                 {
-                    case WeaponKind.None: targetWeapon = WeaponKind.Pistol; break;
+                    case WeaponKind.None: targetWeapon = hasPistol ? WeaponKind.Pistol : WeaponKind.IceGun; break;
                     case WeaponKind.Pistol: targetWeapon = WeaponKind.IceGun; break;
                     case WeaponKind.IceGun: targetWeapon = WeaponKind.None; break;
                 }

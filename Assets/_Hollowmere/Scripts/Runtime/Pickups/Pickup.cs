@@ -9,7 +9,8 @@ namespace Hollowmere.Pickups
         Ammo,
         IceCanister,
         Battery,
-        EvidencePage
+        EvidencePage,
+        Weapon          // the pistol in the Zone 1 guard house; amount = rounds loaded with it
     }
 
     /// <summary>
@@ -101,6 +102,14 @@ namespace Hollowmere.Pickups
                         break;
                     case PickupType.EvidencePage:
                         inventory.AddEvidence(itemId);
+                        break;
+                    case PickupType.Weapon:
+                        var weapons = inventory.GetComponent<Hollowmere.Player.WeaponSystem>();
+                        if (weapons != null)
+                        {
+                            weapons.UnlockPistol();
+                            weapons.AddPistolRounds(Mathf.RoundToInt(amount));
+                        }
                         break;
                 }
             }
