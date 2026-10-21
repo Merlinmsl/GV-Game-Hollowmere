@@ -63,7 +63,7 @@ namespace Hollowmere.EditorTools
             BuildPrefab(prop, AssetDatabase.LoadAssetAtPath<GameObject>(modelPath));
         }
 
-        static void ConfigureTexture(string path, int size, TextureImporterType type, bool sRGB)
+        internal static void ConfigureTexture(string path, int size, TextureImporterType type, bool sRGB)
         {
             var importer = (TextureImporter)AssetImporter.GetAtPath(path);
             importer.textureType = type;
@@ -76,9 +76,9 @@ namespace Hollowmere.EditorTools
 
         // URP Lit reads metallic from red and smoothness from alpha of the metallic map, and occlusion from green,
         // so the one packed mask map feeds both slots.
-        static Material BuildMaterial(string name, string textures)
+        internal static Material BuildMaterial(string name, string textures, string folder = MaterialRoot)
         {
-            string path = $"{MaterialRoot}/M_{name}.mat";
+            string path = $"{folder}/M_{name}.mat";
             var shader = Shader.Find("Universal Render Pipeline/Lit");
             var material = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (material == null)
