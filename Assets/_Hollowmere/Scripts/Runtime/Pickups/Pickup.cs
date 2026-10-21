@@ -112,6 +112,13 @@ namespace Hollowmere.Pickups
 
             Debug.Log($"<color=green><b>[Pickup]</b> Collected {displayName} ({itemId})</color>");
 
+            // Notify any MapMarker attached so the item is marked collected on the map
+            SendMessage("Collect", SendMessageOptions.DontRequireReceiver);
+            if (transform.parent != null)
+            {
+                transform.parent.SendMessage("Collect", SendMessageOptions.DontRequireReceiver);
+            }
+
             // Disable or destroy pickup
             gameObject.SetActive(false);
         }
